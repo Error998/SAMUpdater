@@ -79,7 +79,7 @@ EndFunc
 ; Author ........: Error_998
 ; Modified ......:
 ; Remarks .......:
-Func fileSize($sPath)
+Func getFileSize($sPath)
 	Local $fSize = FileGetSize($sPath)
 	if @error = -1 Then
 		ConsoleWrite("[Error]: Unable to get file size - " & $sPath & @CRLF)

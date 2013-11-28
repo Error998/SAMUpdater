@@ -33,14 +33,56 @@ Func getPackXML($sPackURL)
 
 EndFunc
 
-
-Func getModPackInfo()
-    Dim $Modpack[64]
-    Local $xyz
-	Local $info[8]
+Func getModuleInfo($Modpack)
 	Local $modules[4096]
 	Local $files
 	Dim $moduleInfo[12]
+
+	; Get Files of Modpack[X]
+	$files = getElement($Modpack, "Files")
+
+	;Get each module contained within Files
+	$modules = getElements($files, "Module")
+
+	;Get the info for each module
+	For $x = 1 To $modules[0]
+		;Get module info of module[X]
+		$moduleInfo[0] = $modules[$x]
+		;Name
+		$moduleInfo[1] = getElement($moduleInfo[0], "name")
+		;version
+		$moduleInfo[2] = getElement($moduleInfo[0], "version")
+		;filename
+		$moduleInfo[3] = getElement($moduleInfo[0], "filename")
+		;url
+		$moduleInfo[4] = getElement($moduleInfo[0], "url")
+		;extract
+		$moduleInfo[5] = getElement($moduleInfo[0], "extract")
+		;path
+		$moduleInfo[6] = getElement($moduleInfo[0], "path")
+		;md5
+		$moduleInfo[7] = getElement($moduleInfo[0], "md5")
+		;size
+		$moduleInfo[8] = getElement($moduleInfo[0], "size")
+		;required
+		$moduleInfo[9] = getElement($moduleInfo[0], "required")
+		;remove
+		$moduleInfo[10] = getElement($moduleInfo[0], "remove")
+		;NoOverwrite
+		$moduleInfo[11] = getElement($moduleInfo[0], "NoOverwrite")
+
+		For $i = 1 to 11
+			ConsoleWrite($moduleInfo[$i] & @CRLF)
+		Next
+
+		ConsoleWrite(@CRLF & @CRLF)
+	Next
+EndFunc
+
+Func getModPacksInfo()
+    Dim $Modpack[64]
+    Local $info[8]
+
 
 	ConsoleWrite("[Info]: Loading ServerPack.xml")
 	; Get ModPack tag
@@ -50,7 +92,7 @@ Func getModPackInfo()
 	ConsoleWrite("[Info]: Found " & $Modpack[0] & " mod packs" & @CRLF)
 
 	; Get info of Modpack[i]
-	For $i = 1 to 2
+	For $i = 1 to $Modpack[0]
 		;$info[0] stores 1 entire modpack info
 		$info[0] = getElement($Modpack[$i], "Info")
 		;ServerID
@@ -75,12 +117,87 @@ Func getModPackInfo()
 		ConsoleWrite("[Info]" & $i & ": Icon URL " & $info[5] & @CRLF)
 		ConsoleWrite("[Info]" & $i & ": Discription " & $info[6] & @CRLF)
 		ConsoleWrite("[Info]" & $i & ": Server Connection " & $info[7] & @CRLF & @CRLF)
+	Next
+
+EndFunc
 
 
+Func getModPack($iModPackNum)
+	Dim $Modpack[64]
+    Local $info[8]
+
+	ConsoleWrite("[Info]: Getting Modpack " & $iModPackNum & " data")
+	; Get ModPack tag
+	$sXML = loadXML(@WorkingDir & "\PackData\ServerPacks.xml")
+	$Modpack = getElements($sXML, "ModPack")
+	ConsoleWrite(" ...done" & @CRLF)
+
+    Return	$Modpack[$iModPackNum]
+
+EndFunc
+
+
+Func getModPackModules($Modpack)
+	Local $modules[4096]
+	Local $files
+	Dim $moduleInfo[12]
+
+	;~ ;Get Files of Modpack[X]
+	$files = getElement($Modpack, "Files")
+
+	;Get each module contained within Files
+	$modules = getElements($files, "Module")
+
+	;Get the info for each module
+	For $x = 1 To $modules[0]
+		;Get module info of module[X]
+		$moduleInfo[0] = $modules[$x]
+		;Name
+		$moduleInfo[1] = getElement($moduleInfo[0], "name")
+		;version
+		$moduleInfo[2] = getElement($moduleInfo[0], "version")
+		;filename
+		$moduleInfo[3] = getElement($moduleInfo[0], "filename")
+		;url
+		$moduleInfo[4] = getElement($moduleInfo[0], "url")
+		;extract
+		$moduleInfo[5] = getElement($moduleInfo[0], "extract")
+		;path
+		$moduleInfo[6] = getElement($moduleInfo[0], "path")
+		;md5
+		$moduleInfo[7] = getElement($moduleInfo[0], "md5")
+		;size
+		$moduleInfo[8] = getElement($moduleInfo[0], "size")
+		;required
+		$moduleInfo[9] = getElement($moduleInfo[0], "required")
+		;remove
+		$moduleInfo[10] = getElement($moduleInfo[0], "remove")
+		;NoOverwrite
+		$moduleInfo[11] = getElement($moduleInfo[0], "Overwrite")
+
+		ConsoleWrite("[Info] Module Name " & $moduleInfo[1] & @CRLF)
+		ConsoleWrite("[Info] Module Version " & $moduleInfo[2] & @CRLF)
+		ConsoleWrite("[Info] Module filename " & $moduleInfo[3] & @CRLF)
+		ConsoleWrite("[Info] Module URL " & $moduleInfo[4] & @CRLF)
+		ConsoleWrite("[Info] Extraxt Module " & $moduleInfo[5] & @CRLF)
+		ConsoleWrite("[Info] Module Path " & $moduleInfo[6] & @CRLF)
+		ConsoleWrite("[Info] Module MD5 " & $moduleInfo[7] & @CRLF)
+		ConsoleWrite("[Info] Module Size " & $moduleInfo[8] & @CRLF)
+		ConsoleWrite("[Info] Required Module " & $moduleInfo[9] & @CRLF)
+		ConsoleWrite("[Info] Remove Module " & $moduleInfo[10] & @CRLF)
+		ConsoleWrite("[Info] Overwrite Module " & $moduleInfo[11] & @CRLF & @CRLF)
 
 	Next
 
 EndFunc
 
+
+
+
+; **** Main ****
 getPackXML($sPackURL)
-getModPackInfo()
+
+getModPacksInfo()
+
+getModPackModules(getModPack(2))
+
