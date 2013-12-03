@@ -11,9 +11,9 @@ Done -> Download pack.xml
 
 Done -> Get pack details
 
-Parse modules
+Done -> Parse modules
 
-Parse files
+Done -> Parse files
  - path
  - filename
  - url
@@ -25,7 +25,9 @@ Parse files
 
 Remove file or
 
-Download file
- - Check cache
- - Check hash
- - Move dl from cache to path
+Done -> Download file
+Done -> Check cache
+Done -> Check hash
+ - Move download from cache to installation destination
+ 
+Planned -> Create GUI
