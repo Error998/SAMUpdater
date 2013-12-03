@@ -1,7 +1,9 @@
 #include <INet.au3>
 #include <String.au3>
+#include <Crypt.au3>
 #include "Folders.au3"
 #include "XML.au3"
+
 ;#include "ForumAuth.au3"
 
 Opt('MustDeclareVars', 1)
@@ -117,6 +119,9 @@ Func getModPacksInfo()
 		ConsoleWrite("[Info]" & $i & ": Icon URL " & $info[5] & @CRLF)
 		ConsoleWrite("[Info]" & $i & ": Discription " & $info[6] & @CRLF)
 		ConsoleWrite("[Info]" & $i & ": Server Connection " & $info[7] & @CRLF & @CRLF)
+
+		; Create Mod pack cache folder
+		createFolder(@WorkingDir & "\PackData\" & $info[1])
 	Next
 
 EndFunc
@@ -137,10 +142,13 @@ Func getModPack($iModPackNum)
 EndFunc
 
 
-Func getModPackModules($Modpack)
+Func getModPackModules($Modpack, $sModPackID = "")
 	Local $modules[4096]
 	Local $files
 	Dim $moduleInfo[12]
+
+	; To optimize performance start the crypt library.
+	_Crypt_Startup()
 
 	;~ ;Get Files of Modpack[X]
 	$files = getElement($Modpack, "Files")
@@ -175,29 +183,74 @@ Func getModPackModules($Modpack)
 		;NoOverwrite
 		$moduleInfo[11] = getElement($moduleInfo[0], "Overwrite")
 
-		ConsoleWrite("[Info] Module Name " & $moduleInfo[1] & @CRLF)
-		ConsoleWrite("[Info] Module Version " & $moduleInfo[2] & @CRLF)
-		ConsoleWrite("[Info] Module filename " & $moduleInfo[3] & @CRLF)
-		ConsoleWrite("[Info] Module URL " & $moduleInfo[4] & @CRLF)
-		ConsoleWrite("[Info] Extraxt Module " & $moduleInfo[5] & @CRLF)
-		ConsoleWrite("[Info] Module Path " & $moduleInfo[6] & @CRLF)
-		ConsoleWrite("[Info] Module MD5 " & $moduleInfo[7] & @CRLF)
-		ConsoleWrite("[Info] Module Size " & $moduleInfo[8] & @CRLF)
-		ConsoleWrite("[Info] Required Module " & $moduleInfo[9] & @CRLF)
-		ConsoleWrite("[Info] Remove Module " & $moduleInfo[10] & @CRLF)
-		ConsoleWrite("[Info] Overwrite Module " & $moduleInfo[11] & @CRLF & @CRLF)
+;~ 		ConsoleWrite("[Info] Module Name " & $moduleInfo[1] & @CRLF)
+;~ 		ConsoleWrite("[Info] Module Version " & $moduleInfo[2] & @CRLF)
+;~ 		ConsoleWrite("[Info] Module filename " & $moduleInfo[3] & @CRLF)
+;~ 		ConsoleWrite("[Info] Module URL " & $moduleInfo[4] & @CRLF)
+;~ 		ConsoleWrite("[Info] Extract Module " & $moduleInfo[5] & @CRLF)
+;~ 		ConsoleWrite("[Info] Module Path " & $moduleInfo[6] & @CRLF)
+;~ 		ConsoleWrite("[Info] Module MD5 " & $moduleInfo[7] & @CRLF)
+;~ 		ConsoleWrite("[Info] Module Size " & $moduleInfo[8] & @CRLF)
+;~ 		ConsoleWrite("[Info] Required Module " & $moduleInfo[9] & @CRLF)
+;~ 		ConsoleWrite("[Info] Remove Module " & $moduleInfo[10] & @CRLF)
+;~ 		ConsoleWrite("[Info] Overwrite Module " & $moduleInfo[11] & @CRLF & @CRLF)
 
+		cacheFiles($moduleInfo[4], $moduleInfo[7], $sModPackID)
 	Next
+
+	; Shutdown the crypt library.
+	_Crypt_Shutdown()
 
 EndFunc
 
+; Add retry "x" times code
+Func cacheFiles($sURL, $bHash, $sModPackID)
+	; Check if file already exist in the cache
+	If FileExists(@WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash) Then
+		ConsoleWrite("[Info]: File already cached - " & $bHash)
+	Else
+		; Download uncached file
+		ConsoleWrite("[Info]: Downloading file into cache - " & $bHash)
+		InetGet($sURL, @WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash, 8)
+		if (@error <>  0) Then
+			ConsoleWrite(@CRLF & "[ERROR]: Failed to download file" & @CRLF)
+			Exit
+		EndIf
+	EndIf
 
+	; Verify file
+	If compareHash(@WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash, $bHash) Then
+		ConsoleWrite("...file integrity passed" & @CRLF)
+	Else
+		ConsoleWrite("...file integrity FAILED" & @CRLF)
+		; Removed corupted file
+		If FileDelete(@WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash) Then
+			ConsoleWrite("[Info]: Removed corrupt file" & @CRLF)
+		Else
+			ConsoleWrite("[ERROR]: Failed to remove corrupt file " & $bHash & @CRLF)
+			Exit
+		EndIf
 
+	EndIf
+EndFunc
+
+Func compareHash($sPath, $bCacheHash)
+	; Create a md5 hash of the file.
+	Local $bHash = _Crypt_HashFile($sPath, $CALG_MD5)
+
+	; Compare hash
+	If $bHash = $bCacheHash Then
+		Return True
+	Else
+		Return False
+	EndIf
+
+EndFunc
 
 ; **** Main ****
 getPackXML($sPackURL)
 
 getModPacksInfo()
 
-getModPackModules(getModPack(2))
+getModPackModules(getModPack(1), "TESTSERVER")
 

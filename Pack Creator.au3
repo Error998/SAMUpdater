@@ -9,6 +9,7 @@ Func writePack()
 	Local $iFileSize, $iTotalFileSize
 	Local $sPath = @DesktopDir & "\Roaming\1.6.4 Modded Update 3\"
 	Local $bHash
+	Local $sURL = "http://localhost/SAMUpdater/TestServer/"
 
 	$hFile = FileOpen(@WorkingDir & "\PackData\packs.xml", 10) ;erase + create dir)
 	If $hFile = -1 Then
@@ -44,7 +45,7 @@ Func writePack()
 		FileWriteLine($hFile,"				<name></name>")
 		FileWriteLine($hFile,"				<version></version>")
 		FileWriteLine($hFile,"				<filename>" & getFilename($aFiles[$i]) & "</filename>")
-		FileWriteLine($hFile,"				<url>http://localhost/SAMUpdater/</url>")
+		FileWriteLine($hFile,"				<url>" & $sURL & StringReplace(getPath($aFiles[$i]), "\","/") & "/" & getFilename($aFiles[$i]) & "</url>")
 		FileWriteLine($hFile,"				<extract>false</extract>")
 		FileWriteLine($hFile,"				<path>" & getPath($aFiles[$i]) & "</path>")
 
