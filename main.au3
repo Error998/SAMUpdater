@@ -24,14 +24,8 @@ Func getPackXML($sPackURL)
 
 	createFolder(@WorkingDir & "\PackData")
 
-	ConsoleWrite("[Info]: Downloading ServerPacks.xml ")
-	InetGet($sPackURL, @WorkingDir & "\PackData\ServerPacks.xml", 1)
-	if (@error <>  0) Then
-		ConsoleWrite(@CRLF & "[ERROR]: Failed to download ServerPacks.xml" & @CRLF)
-		Exit
-	Else
-		ConsoleWrite("...done" & @CRLF)
-	EndIf
+	ConsoleWrite("[Info]: Downloading ServerPacks.xml" & @CRLF)
+	downloadFile($sPackURL, @WorkingDir & "\PackData\ServerPacks.xml")
 
 EndFunc
 
@@ -203,35 +197,41 @@ Func getModPackModules($Modpack, $sModPackID = "")
 
 EndFunc
 
-; Add retry "x" times code
+
 Func cacheFiles($sURL, $bHash, $sModPackID)
-	; Check if file already exist in the cache
-	If FileExists(@WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash) Then
-		ConsoleWrite("[Info]: File already cached - " & $bHash)
-	Else
-		; Download uncached file
-		ConsoleWrite("[Info]: Downloading file into cache - " & $bHash)
-		InetGet($sURL, @WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash, 8)
-		if (@error <>  0) Then
-			ConsoleWrite(@CRLF & "[ERROR]: Failed to download file" & @CRLF)
-			Exit
-		EndIf
-	EndIf
-
-	; Verify file
-	If compareHash(@WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash, $bHash) Then
-		ConsoleWrite("...file integrity passed" & @CRLF)
-	Else
-		ConsoleWrite("...file integrity FAILED" & @CRLF)
-		; Removed corupted file
-		If FileDelete(@WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash) Then
-			ConsoleWrite("[Info]: Removed corrupt file" & @CRLF)
+	; Retry to download file 3 times if file integrity failed
+	For $i = 1 To 3
+		; Check if file already exist in the cache
+		If FileExists(@WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash) Then
+			ConsoleWrite("[Info]: File already cached - " & $bHash & @CRLF)
 		Else
-			ConsoleWrite("[ERROR]: Failed to remove corrupt file " & $bHash & @CRLF)
-			Exit
+			; Download uncached file
+			ConsoleWrite("[Info]: Downloading file into cache - " & $bHash & @CRLF)
+			downloadFile($sURL, @WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash)
 		EndIf
 
-	EndIf
+
+		; Verify file
+		If compareHash(@WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash, $bHash) Then
+			ConsoleWrite("[Info]: File integrity passed" & @CRLF)
+			ExitLoop
+		Else
+			ConsoleWrite("[Error]: File integrity failed." & " Retry 1 of " & $i & @CRLF)
+			; Removed corupted file
+			If FileDelete(@WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash) Then
+				ConsoleWrite("[Info]: Removed corrupt file" & @CRLF)
+			Else
+				ConsoleWrite("[ERROR]: Failed to remove corrupt file " & $bHash & @CRLF)
+				Exit
+			EndIf
+			; Failed 3 times, something must be worng!
+			If $i = 3 Then
+				ConsoleWrite("[ERROR]: File integrity check failed 3 times - Giving up, please contact administrator of the mod pack" & @CRLF)
+				Exit
+			EndIf
+		EndIf
+
+	Next
 EndFunc
 
 Func compareHash($sPath, $bCacheHash)
@@ -246,6 +246,35 @@ Func compareHash($sPath, $bCacheHash)
 	EndIf
 
 EndFunc
+
+
+Func downloadFile($sURL, $sPath)
+	; Retry 5 times
+	For $i = 1 To 5
+		InetGet($sURL, $sPath, 9)
+		if (@error <>  0) Then
+			; All retries failed
+			If $i = 5 Then
+				ConsoleWrite("[ERROR]: Failed to download file retry 5 of 5 - Giving up, please check your internet connection." & @CRLF)
+				Exit
+			Else
+				; Wait 10 seconds then retry
+				ConsoleWrite("[Error]: Failed to download file retry " & $i & " of 5" & @CRLF)
+				ConsoleWrite("[Info]: Retrying download in 10 seconds")
+				For $x = 1 To 10
+					Sleep(1000)
+					ConsoleWrite(".")
+				Next
+				ConsoleWrite(@CRLF)
+			EndIf
+		Else
+			; Download was successful
+			ExitLoop
+		EndIf
+	Next
+
+EndFunc
+
 
 ; **** Main ****
 getPackXML($sPackURL)
