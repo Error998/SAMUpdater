@@ -7,6 +7,7 @@
 ;#include "ForumAuth.au3"
 
 Opt('MustDeclareVars', 1)
+;#RequireAdmin
 
 
 ; Init
@@ -78,7 +79,6 @@ EndFunc
 Func getModPacksInfo()
     Dim $Modpack[64]
     Local $info[8]
-
 
 	ConsoleWrite("[Info]: Loading ServerPack.xml")
 	; Get ModPack tag
@@ -283,13 +283,100 @@ Func downloadFile($sURL, $sPath)
 EndFunc
 
 
+Func installFromCache(ByRef $modules, $sModPackID)
+	Local $moduleInfo[12]
+	Local $sPath
+    Local $sResult
+
+	;Get the info for each module
+	For $x = 1 To $modules[0]
+		;Get module info of module[X]
+		$moduleInfo[0] = $modules[$x]
+		;Name
+		$moduleInfo[1] = getElement($moduleInfo[0], "name")
+		;version
+		$moduleInfo[2] = getElement($moduleInfo[0], "version")
+		;filename
+		$moduleInfo[3] = getElement($moduleInfo[0], "filename")
+		;url
+		$moduleInfo[4] = getElement($moduleInfo[0], "url")
+		;extract
+		$moduleInfo[5] = getElement($moduleInfo[0], "extract")
+		;path
+		$moduleInfo[6] = getElement($moduleInfo[0], "path")
+		;md5
+		$moduleInfo[7] = getElement($moduleInfo[0], "md5")
+		;size
+		$moduleInfo[8] = getElement($moduleInfo[0], "size")
+		;required
+		$moduleInfo[9] = getElement($moduleInfo[0], "required")
+		;remove
+		$moduleInfo[10] = getElement($moduleInfo[0], "remove")
+		;NoOverwrite
+		$moduleInfo[11] = getElement($moduleInfo[0], "Overwrite")
+
+;~ 		ConsoleWrite("[Info] Module Name " & $moduleInfo[1] & @CRLF)
+;~ 		ConsoleWrite("[Info] Module Version " & $moduleInfo[2] & @CRLF)
+; 		ConsoleWrite("[Info] Module filename " & $moduleInfo[3] & @CRLF)
+;~ 		ConsoleWrite("[Info] Module URL " & $moduleInfo[4] & @CRLF)
+;~ 		ConsoleWrite("[Info] Extract Module " & $moduleInfo[5] & @CRLF)
+; 		ConsoleWrite("[Info] Module Path " & $moduleInfo[6] & @CRLF)
+; 		ConsoleWrite("[Info] Module MD5 " & $moduleInfo[7] & @CRLF)
+;~ 		ConsoleWrite("[Info] Module Size " & $moduleInfo[8] & @CRLF)
+;~ 		ConsoleWrite("[Info] Required Module " & $moduleInfo[9] & @CRLF)
+;~ 		ConsoleWrite("[Info] Remove Module " & $moduleInfo[10] & @CRLF)
+;~ 		ConsoleWrite("[Info] Overwrite Module " & $moduleInfo[11] & @CRLF & @CRLF)
+
+		If $sPath <> $moduleInfo[6] Then
+			$sPath = $moduleInfo[6]
+			; Create the path
+			createFolder(@AppDataDir & "\" & $moduleInfo[6])
+		EndIf
+
+		; Check if module should be overwritten
+		If $moduleInfo[11] = true Then
+			; Overwrite files
+			$sResult = FileCopy(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[7], @AppDataDir & "\" & $moduleInfo[6] & "\" & $moduleInfo[3], 1)
+		Else
+			$sResult = FileCopy(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[7], @AppDataDir & "\" & $moduleInfo[6] & "\" & $moduleInfo[3], 0)
+		EndIf
+
+		; Check if copy function was successful
+		If  $sResult = True Then
+			ConsoleWrite("[Info]: Successfully installed - " & $moduleInfo[3] & @CRLF)
+		Else
+			ConsoleWrite("[ERROR]: Failed to install - " & $moduleInfo[3] & @CRLF)
+			Exit
+		EndIf
+	Next
+
+EndFunc
+
+
 ; **** Main ****
+; Download and store ServerPacks.xml
 getPackXML($sPackURL)
 
+; List all available modpacks + create each mod pack cache folder
 getModPacksInfo()
 
 Local $modules[4096]
-
+; Get all the modules for a single mod pack by ServerID
 $modules = getModPackModules(getModPack(1), "TESTSERVER")
 
+; Cache all modules of ServerID
 cacheModules($modules, "TESTSERVER")
+
+; *********************************************************************
+;
+; Check for valid finger print before installing!!!
+; todo ^
+; check for new MC launcher
+; check if a valid mod pack profile exists
+; check if a valid MagicLauncher profile exists
+;
+; *********************************************************************
+
+
+; Install the selected ModPack from cache
+installFromCache($modules, "TESTSERVER")
