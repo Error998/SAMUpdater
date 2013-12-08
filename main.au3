@@ -139,16 +139,22 @@ EndFunc
 Func getModPackModules($Modpack, $sModPackID = "")
 	Local $modules[4096]
 	Local $files
-	Dim $moduleInfo[12]
-
-	; To optimize performance start the crypt library.
-	_Crypt_Startup()
 
 	;~ ;Get Files of Modpack[X]
 	$files = getElement($Modpack, "Files")
 
 	;Get each module contained within Files
 	$modules = getElements($files, "Module")
+
+	Return $modules
+EndFunc
+
+
+Func cacheModules(ByRef $modules, $sModPackID)
+	Local $moduleInfo[12]
+
+	; To optimize performance start the crypt library.
+	_Crypt_Startup()
 
 	;Get the info for each module
 	For $x = 1 To $modules[0]
@@ -216,7 +222,7 @@ Func cacheFiles($sURL, $bHash, $sModPackID)
 			ConsoleWrite("[Info]: File integrity passed" & @CRLF)
 			ExitLoop
 		Else
-			ConsoleWrite("[Error]: File integrity failed." & " Retry 1 of " & $i & @CRLF)
+			ConsoleWrite("[Error]: File integrity failed." & " Retry " & $i & " of 3" & @CRLF)
 			; Removed corupted file
 			If FileDelete(@WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash) Then
 				ConsoleWrite("[Info]: Removed corrupt file" & @CRLF)
@@ -233,6 +239,7 @@ Func cacheFiles($sURL, $bHash, $sModPackID)
 
 	Next
 EndFunc
+
 
 Func compareHash($sPath, $bCacheHash)
 	; Create a md5 hash of the file.
@@ -281,5 +288,8 @@ getPackXML($sPackURL)
 
 getModPacksInfo()
 
-getModPackModules(getModPack(1), "TESTSERVER")
+Local $modules[4096]
 
+$modules = getModPackModules(getModPack(1), "TESTSERVER")
+
+cacheModules($modules, "TESTSERVER")
