@@ -12,7 +12,7 @@ Opt('MustDeclareVars', 1)
 
 ; Init
 Local $sPackURL = "http://127.0.0.1/SAMUpdater/packs.xml"
-
+Local $sMusicURL = "http://127.0.0.1/SAMUpdater/Epiq.mp3"
 Dim $sXML[4096]
 
 
@@ -29,6 +29,20 @@ Func getPackXML($sPackURL)
 	downloadFile($sPackURL, @WorkingDir & "\PackData\ServerPacks.xml")
 
 EndFunc
+
+
+Func getBackgroundMusic($sPackURL)
+
+	createFolder(@WorkingDir & "\PackData")
+
+	If FileExists(@WorkingDir & "\PackData\Epiq.mp3") Then
+		ConsoleWrite("[Info]: Using cached background music" & @CRLF)
+	Else
+		ConsoleWrite("[Info]: Downloading background music" & @CRLF)
+		downloadFile($sPackURL, @WorkingDir & "\PackData\Epiq.mp3")
+	EndIf
+EndFunc
+
 
 Func getModuleInfo($Modpack)
 	Local $modules[4096]
@@ -75,6 +89,7 @@ Func getModuleInfo($Modpack)
 		ConsoleWrite(@CRLF & @CRLF)
 	Next
 EndFunc
+
 
 Func getModPacksInfo()
     Dim $Modpack[64]
@@ -353,7 +368,29 @@ Func installFromCache(ByRef $modules, $sModPackID)
 EndFunc
 
 
+Func checkForValidMCLauncher()
+	Local $sBackupDir
+
+	If FileExists(@AppDataDir & "\.minecraft\launcher_profiles.json") Then
+		ConsoleWrite("[Info]: Found valid Vanilla Launcher fingerprint" & @CRLF)
+		Return True
+	Else
+		$sBackupDir = @AppDataDir & "\.minecraft_" & @MDAY & @MON & @YEAR & @HOUR & @MIN & @SEC
+		ConsoleWrite("[Warning]: Could not find a vaild Vanilla Launcher" & @CRLF)
+		ConsoleWrite("[Warning]: Making a backup of your .minecraft folder and saving it in " & $sBackupDir & @CRLF)
+	EndIf
+
+EndFunc
+
+
 ; **** Main ****
+; Download music
+getBackgroundMusic($sMusicURL)
+; Play background music
+If FileExists(@WorkingDir & "\PackData\Epiq.mp3") Then
+	SoundPlay(@WorkingDir & "\PackData\Epiq.mp3")
+EndIf
+
 ; Download and store ServerPacks.xml
 getPackXML($sPackURL)
 
@@ -376,7 +413,12 @@ cacheModules($modules, "TESTSERVER")
 ; check if a valid MagicLauncher profile exists
 ;
 ; *********************************************************************
+checkForValidMCLauncher()
 
 
 ; Install the selected ModPack from cache
-installFromCache($modules, "TESTSERVER")
+;installFromCache($modules, "TESTSERVER")
+
+ConsoleWrite("[Info]: Done" & @CRLF)
+SoundPlay("")
+Sleep(5000)
