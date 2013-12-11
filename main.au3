@@ -7,7 +7,7 @@
 #include <Crypt.au3>
 #include "Folders.au3"
 #include "XML.au3"
-
+#include "ConfigureMagicLauncher.au3"
 ;#include "ForumAuth.au3"
 
 Opt('MustDeclareVars', 1)
@@ -434,17 +434,6 @@ Func ConfigureVanillaLauncher()
 EndFunc
 
 
-Func ConfigureMagicLauncher()
-	; Check that the magic launcher config exists - Sanity check
-	If Not FileExists(@AppDataDir & "\.minecraft\magic\magiclauncher.cfg") Then
-		ConsoleWrite("[Warning]: Magic Launcher config not found - Unable to auto configure Magic Launcher" & @CRLF)
-		Return
-	EndIf
-
-
-EndFunc
-
-
 ; **** Main ****
 ; Download music
 getBackgroundMusic($sMusicURL)
@@ -478,7 +467,7 @@ ConfigureVanillaLauncher()
 
 
 ; Configure Magic Launcher profile
-ConfigureMagicLauncher()
+ConfigureMagicLauncher("TESTSERVER", "1.6.4-Forge9.11.1.952")
 
 
 ; Create shortcuts to desktop for Vanilla + Magic Launchers
