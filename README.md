@@ -23,11 +23,24 @@ Done -> Parse files
  - extract
  - file size
 
-Remove file or
+Done -> Remove file
+
+Planned -> Extract archive files
 
 Done -> Download file
+
 Done -> Check cache
+
 Done -> Check hash
- - Move download from cache to installation destination
+
+Done -> Move download from cache to installation destination
  
-Planned -> Create GUI
+Busy -> Auto configure Magic Launcher Profile
+
+Busy -> Auto configure Vanilla Launcher Profile
+
+Planned -> Create log file with very verbose output on what the Updater is doing
+
+Planned -> Tidy up console output, add progress stuff
+ 
+Future -> Create GUI

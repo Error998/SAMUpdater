@@ -1,3 +1,7 @@
+#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
+#AutoIt3Wrapper_UseUpx=n
+#AutoIt3Wrapper_Change2CUI=y
+#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 #include <INet.au3>
 #include <String.au3>
 #include <Crypt.au3>
@@ -165,6 +169,21 @@ Func getModPackModules($Modpack, $sModPackID = "")
 EndFunc
 
 
+; Remove a file
+Func rmFile($sPath)
+	If FileExists($sPath) Then
+		If FileRecycle($sPath) Then
+			ConsoleWrite("[Info]: File removed - " & $sPath & @CRLF)
+		Else
+			ConsoleWrite("[ERROR]: Could not remove file, please make sure the file is not in use - " & $sPath & @CRLF)
+			Exit
+		EndIf
+	Else
+		ConsoleWrite("[Info]: File already removed - " & $sPath & @CRLF)
+	EndIf
+EndFunc
+
+
 Func cacheModules(ByRef $modules, $sModPackID)
 	Local $moduleInfo[12]
 
@@ -198,19 +217,18 @@ Func cacheModules(ByRef $modules, $sModPackID)
 		;NoOverwrite
 		$moduleInfo[11] = getElement($moduleInfo[0], "Overwrite")
 
-;~ 		ConsoleWrite("[Info] Module Name " & $moduleInfo[1] & @CRLF)
-;~ 		ConsoleWrite("[Info] Module Version " & $moduleInfo[2] & @CRLF)
-;~ 		ConsoleWrite("[Info] Module filename " & $moduleInfo[3] & @CRLF)
-;~ 		ConsoleWrite("[Info] Module URL " & $moduleInfo[4] & @CRLF)
-;~ 		ConsoleWrite("[Info] Extract Module " & $moduleInfo[5] & @CRLF)
-;~ 		ConsoleWrite("[Info] Module Path " & $moduleInfo[6] & @CRLF)
-;~ 		ConsoleWrite("[Info] Module MD5 " & $moduleInfo[7] & @CRLF)
-;~ 		ConsoleWrite("[Info] Module Size " & $moduleInfo[8] & @CRLF)
-;~ 		ConsoleWrite("[Info] Required Module " & $moduleInfo[9] & @CRLF)
-;~ 		ConsoleWrite("[Info] Remove Module " & $moduleInfo[10] & @CRLF)
-;~ 		ConsoleWrite("[Info] Overwrite Module " & $moduleInfo[11] & @CRLF & @CRLF)
 
-		cacheFiles($moduleInfo[4], $moduleInfo[7], $sModPackID)
+		; Should we install or remove file?
+		If $moduleInfo[10] = "true" Then
+			; Remove file from cache
+			rmFile(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[7])
+
+			; Remove file from installation
+			rmFile(@AppDataDir & "\" & $moduleInfo[6] & "\" & $moduleInfo[3])
+		Else
+			; Install file
+			cacheFiles($moduleInfo[4], $moduleInfo[7], $sModPackID)
+		EndIf
 	Next
 
 	; Shutdown the crypt library.
@@ -302,7 +320,6 @@ Func installFromCache(ByRef $modules, $sModPackID)
 	Local $moduleInfo[12]
 	Local $sPath
     Local $sResult
-	Local $sTargetFilename
 
 	;Get the info for each module
 	For $x = 1 To $modules[0]
@@ -331,17 +348,11 @@ Func installFromCache(ByRef $modules, $sModPackID)
 		;NoOverwrite
 		$moduleInfo[11] = getElement($moduleInfo[0], "Overwrite")
 
-;~ 		ConsoleWrite("[Info] Module Name " & $moduleInfo[1] & @CRLF)
-;~ 		ConsoleWrite("[Info] Module Version " & $moduleInfo[2] & @CRLF)
-; 		ConsoleWrite("[Info] Module filename " & $moduleInfo[3] & @CRLF)
-;~ 		ConsoleWrite("[Info] Module URL " & $moduleInfo[4] & @CRLF)
-;~ 		ConsoleWrite("[Info] Extract Module " & $moduleInfo[5] & @CRLF)
-; 		ConsoleWrite("[Info] Module Path " & $moduleInfo[6] & @CRLF)
-; 		ConsoleWrite("[Info] Module MD5 " & $moduleInfo[7] & @CRLF)
-;~ 		ConsoleWrite("[Info] Module Size " & $moduleInfo[8] & @CRLF)
-;~ 		ConsoleWrite("[Info] Required Module " & $moduleInfo[9] & @CRLF)
-;~ 		ConsoleWrite("[Info] Remove Module " & $moduleInfo[10] & @CRLF)
-;~ 		ConsoleWrite("[Info] Overwrite Module " & $moduleInfo[11] & @CRLF & @CRLF)
+		; Skip install of current module if its marked for removal
+		If $moduleInfo[10] = "true" Then
+			ContinueLoop
+		EndIf
+
 
 		If $sPath <> $moduleInfo[6] Then
 			$sPath = $moduleInfo[6]
@@ -412,6 +423,28 @@ Func checkForValidMCLauncher()
 EndFunc
 
 
+Func ConfigureVanillaLauncher()
+	; Check that the magic launcher config exists - Sanity check
+	If Not FileExists(@AppDataDir & "\.minecraft\launcher_profiles.json") Then
+		ConsoleWrite("[Warning]: Vanilla Launcher config file not found - Unable to auto configure Vanilla Launcher profile" & @CRLF)
+		Return
+	EndIf
+
+
+EndFunc
+
+
+Func ConfigureMagicLauncher()
+	; Check that the magic launcher config exists - Sanity check
+	If Not FileExists(@AppDataDir & "\.minecraft\magic\magiclauncher.cfg") Then
+		ConsoleWrite("[Warning]: Magic Launcher config not found - Unable to auto configure Magic Launcher" & @CRLF)
+		Return
+	EndIf
+
+
+EndFunc
+
+
 ; **** Main ****
 ; Download music
 getBackgroundMusic($sMusicURL)
@@ -441,11 +474,11 @@ installFromCache($modules, "TESTSERVER")
 
 
 ; Configure vanilla launcher profile
-
+ConfigureVanillaLauncher()
 
 
 ; Configure Magic Launcher profile
-
+ConfigureMagicLauncher()
 
 
 ; Create shortcuts to desktop for Vanilla + Magic Launchers
