@@ -302,6 +302,7 @@ Func installFromCache(ByRef $modules, $sModPackID)
 	Local $moduleInfo[12]
 	Local $sPath
     Local $sResult
+	Local $sTargetFilename
 
 	;Get the info for each module
 	For $x = 1 To $modules[0]
@@ -349,20 +350,33 @@ Func installFromCache(ByRef $modules, $sModPackID)
 		EndIf
 
 		; Check if module should be overwritten
-		If $moduleInfo[11] = true Then
-			; Overwrite files
-			$sResult = FileCopy(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[7], @AppDataDir & "\" & $moduleInfo[6] & "\" & $moduleInfo[3], 1)
+		If $moduleInfo[11] = "true" Then
+			; Overwrite file
+			$sResult = FileCopy(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[7],  @AppDataDir & "\" & $moduleInfo[6] & "\" & $moduleInfo[3], 1)
+
+			; Check if copy function was successful
+			If  $sResult = True Then
+				ConsoleWrite("[Info]: Successfully installed - " & $moduleInfo[3] & @CRLF)
+			Else
+				ConsoleWrite("[ERROR]: Failed to install - " & $moduleInfo[3] & @CRLF)
+				Exit
+			EndIf
+		ElseIf FileExists( @AppDataDir & "\" & $moduleInfo[6] & "\" & $moduleInfo[3]) Then
+			; File already in target location, not overwriting
+			ConsoleWrite("[Info]: File already exists skipping - " & $moduleInfo[3] & @CRLF)
 		Else
-			$sResult = FileCopy(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[7], @AppDataDir & "\" & $moduleInfo[6] & "\" & $moduleInfo[3], 0)
+			; File not in target, proceding to install it
+			$sResult = FileCopy(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[7],  @AppDataDir & "\" & $moduleInfo[6] & "\" & $moduleInfo[3], 0)
+
+			; Check if copy function was successful
+			If  $sResult = True Then
+				ConsoleWrite("[Info]: Successfully installed - " & $moduleInfo[3] & @CRLF)
+			Else
+				ConsoleWrite("[ERROR]: Failed to install - " & $moduleInfo[3] & @CRLF)
+				Exit
+			EndIf
 		EndIf
 
-		; Check if copy function was successful
-		If  $sResult = True Then
-			ConsoleWrite("[Info]: Successfully installed - " & $moduleInfo[3] & @CRLF)
-		Else
-			ConsoleWrite("[ERROR]: Failed to install - " & $moduleInfo[3] & @CRLF)
-			Exit
-		EndIf
 	Next
 
 EndFunc
@@ -378,6 +392,21 @@ Func checkForValidMCLauncher()
 		$sBackupDir = @AppDataDir & "\.minecraft_" & @MDAY & @MON & @YEAR & @HOUR & @MIN & @SEC
 		ConsoleWrite("[Warning]: Could not find a vaild Vanilla Launcher" & @CRLF)
 		ConsoleWrite("[Warning]: Making a backup of your .minecraft folder and saving it in " & $sBackupDir & @CRLF)
+
+		; Try to backup existing .minecraft folder
+		If FileExists(@AppDataDir & "\.minecraft") Then
+			If DirMove(@AppDataDir & "\.minecraft", $sBackupDir) Then
+				ConsoleWrite("[Info]: Backup successful" & @CRLF)
+			Else
+				; Move failed
+				ConsoleWrite("[ERROR]: Unable to move " & @AppDataDir & "\.minecraft to " & $sBackupDir & @CRLF)
+				ConsoleWrite("[ERROR]: Make sure no file is in use in " & @AppDataDir & "\.minecraft" & @CRLF)
+				Exit
+			EndIf
+		Else
+			ConsoleWrite("[Info]: Folder does not exist, nothing to backup - " & @AppDataDir & "\.minecraft" & @CRLF)
+			Return "Clean"
+		EndIf
 	EndIf
 
 EndFunc
@@ -404,20 +433,23 @@ $modules = getModPackModules(getModPack(1), "TESTSERVER")
 ; Cache all modules of ServerID
 cacheModules($modules, "TESTSERVER")
 
-; *********************************************************************
-;
-; Check for valid finger print before installing!!!
-; todo ^
-; check for new MC launcher
-; check if a valid mod pack profile exists
-; check if a valid MagicLauncher profile exists
-;
-; *********************************************************************
+; Check for new MC launcher, If exist(launcher_profiles.json)
 checkForValidMCLauncher()
 
-
 ; Install the selected ModPack from cache
-;installFromCache($modules, "TESTSERVER")
+installFromCache($modules, "TESTSERVER")
+
+
+; Configure vanilla launcher profile
+
+
+
+; Configure Magic Launcher profile
+
+
+
+; Create shortcuts to desktop for Vanilla + Magic Launchers
+
 
 ConsoleWrite("[Info]: Done" & @CRLF)
 SoundPlay("")
