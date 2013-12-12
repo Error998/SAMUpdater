@@ -1,6 +1,8 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
+#AutoIt3Wrapper_Outfile=SAMUpdater.exe
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
+#AutoIt3Wrapper_Res_Fileversion=1.0.0.0
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 #include <INet.au3>
 #include <String.au3>
@@ -17,12 +19,65 @@ Opt('MustDeclareVars', 1)
 ; Init
 Local $sPackURL = "http://127.0.0.1/SAMUpdater/packs.xml"
 Local $sMusicURL = "http://127.0.0.1/SAMUpdater/Epiq.mp3"
+Local $sUpdateURL = "http://127.0.0.1/SAMUpdater/version.dat"
 Dim $sXML[4096]
+Local $ver
+Const $version = "1.0.0.0"
 
 
-; Todo AutoUpdate
 ; SAMUpdater update check
-; will be added some day...
+Func checkUpdate()
+	ConsoleWrite("[Info]: Checking if an update is available" & @CRLF)
+
+	downloadFile($sUpdateURL, @WorkingDir & "\version.dat")
+	_FileReadToArray(@WorkingDir & "\version.dat", $ver)
+
+	If $ver[1] > $version Then
+		ConsoleWrite("[Info]: Current Version: " & $version & " - Available Version " & $ver[1] & @CRLF)
+
+		For $i = 1 to 3
+			; Download Update
+			ConsoleWrite("[Info]: Downloading new update" & @CRLF)
+			downloadFile($ver[2], @WorkingDir & "\Update.dat")
+
+			;Check Update hash
+			If compareHash(@WorkingDir & "\Update.dat", $ver[3]) Then
+				ConsoleWrite("[Info]: File integrity passed - Update.dat" & @CRLF)
+				ExitLoop
+			ElseIf $i = 3 Then
+				ConsoleWrite("[ERROR]: File integrity failed 3 times, please contact your mod pack administrator - Update.dat" & @CRLF)
+				Exit
+			Else
+				ConsoleWrite("[ERROR]: File integrity failed " & $i & " of 3 times, restarting download" & @CRLF)
+			EndIf
+		Next
+
+		For $i = 1 to 3
+			; Download Update_Helper
+			ConsoleWrite("[Info]: Downloading Update_Helper" & @CRLF)
+			downloadFile($ver[4], @WorkingDir & "\Update_Helper.exe")
+
+			;Check Update hash
+			If compareHash(@WorkingDir & "\Update_Helper.exe", $ver[5]) Then
+				ConsoleWrite("[Info]: File integrity passed - Update_Helper.exe" & @CRLF)
+				ExitLoop
+			ElseIf $i = 3 Then
+				ConsoleWrite("[ERROR]: File integrity failed 3 times, please contact your mod pack administrator - Update_Helper.exe" & @CRLF)
+				Exit
+			Else
+				ConsoleWrite("[ERROR]: File integrity failed " & $i & " of 3 times, restarting download" & @CRLF)
+			EndIf
+		Next
+
+		Run("Update_Helper.exe", @WorkingDir)
+		Exit
+	Else
+		ConsoleWrite("[Info]: Current Version: " & $version & " - No new update available" & @CRLF)
+	EndIf
+
+
+EndFunc
+
 
 ; Download pack
 Func getPackXML($sPackURL)
@@ -435,6 +490,10 @@ EndFunc
 
 
 ; **** Main ****
+
+;Check for program update
+checkUpdate()
+
 ; Download music
 getBackgroundMusic($sMusicURL)
 ; Play background music
