@@ -18,7 +18,7 @@ Opt('MustDeclareVars', 1)
 
 ; Init
 Local $sPackURL = "http://127.0.0.1/SAMUpdater/packs.xml"
-Local $sMusicURL = "http://127.0.0.1/SAMUpdater/Epiq.mp3"
+Local $sMusicURL = "http://127.0.0.1/SAMUpdater/Sounds/Background.mp3"
 Local $sUpdateURL = "http://127.0.0.1/SAMUpdater/version.dat"
 Dim $sXML[4096]
 Local $ver
@@ -90,15 +90,15 @@ Func getPackXML($sPackURL)
 EndFunc
 
 
-Func getBackgroundMusic($sPackURL)
+Func getBackgroundMusic($sBackgroundMusicURL)
 
-	createFolder(@WorkingDir & "\PackData")
+	createFolder(@WorkingDir & "\PackData\Sounds")
 
-	If FileExists(@WorkingDir & "\PackData\Epiq.mp3") Then
+	If FileExists(@WorkingDir & "\PackData\Sounds\background.mp3") Then
 		ConsoleWrite("[Info]: Using cached background music" & @CRLF)
 	Else
 		ConsoleWrite("[Info]: Downloading background music" & @CRLF)
-		downloadFile($sPackURL, @WorkingDir & "\PackData\Epiq.mp3")
+		downloadFile($sBackgroundMusicURL, @WorkingDir & "\PackData\Sounds\background.mp3")
 	EndIf
 EndFunc
 
@@ -150,23 +150,23 @@ Func getModuleInfo($Modpack)
 EndFunc
 
 
-Func getModPacksInfo()
+Func getModPacksInfo($BaseModPackURLofModpackNum = 1)
     Dim $Modpack[64]
-    Local $info[8]
+    Local $info[10]
 
 	ConsoleWrite("[Info]: Loading ServerPack.xml")
 	; Get ModPack tag
 	$sXML = loadXML(@WorkingDir & "\PackData\ServerPacks.xml")
 	$Modpack = getElements($sXML, "ModPack")
 	ConsoleWrite(" ...done" & @CRLF)
-	ConsoleWrite("[Info]: Found " & $Modpack[0] & " mod packs" & @CRLF)
+	ConsoleWrite("[Info]: Found " & $Modpack[0] & " modpacks" & @CRLF)
 
 	; Get info of Modpack[i]
 	For $i = 1 to $Modpack[0]
 		;$info[0] stores 1 entire modpack info
 		$info[0] = getElement($Modpack[$i], "Info")
 		;ServerID
-		$info[1] = getElement($info[0], "ServerID")
+		$info[1] = getElement($info[0], "ModPackID")
 		;ServerName
 		$info[2] = getElement($info[0], "ServerName")
 		;ServerVersion
@@ -179,25 +179,34 @@ Func getModPacksInfo()
 		$info[6] = getElement($info[0], "Discription")
 		;ServerConnection
 		$info[7] = getElement($info[0], "ServerConnection")
-
-		ConsoleWrite("[Info]" & $i & ": Server ID " & $info[1] & @CRLF)
+		;Forge Profile ID
+		$info[8] = getElement($info[0], "ForgeID")
+		;Base Modpack URL
+		$info[9] = getElement($info[0], "URL")
+		ConsoleWrite("[Info]" & $i & ": Modpack ID " & $info[1] & @CRLF)
 		ConsoleWrite("[Info]" & $i & ": Server Name " & $info[2] & @CRLF)
 		ConsoleWrite("[Info]" & $i & ": Server Version " & $info[3] & @CRLF)
 		ConsoleWrite("[Info]" & $i & ": News URL " & $info[4] & @CRLF)
 		ConsoleWrite("[Info]" & $i & ": Icon URL " & $info[5] & @CRLF)
 		ConsoleWrite("[Info]" & $i & ": Discription " & $info[6] & @CRLF)
-		ConsoleWrite("[Info]" & $i & ": Server Connection " & $info[7] & @CRLF & @CRLF)
-
+		ConsoleWrite("[Info]" & $i & ": Server Connection " & $info[7] & @CRLF)
+		ConsoleWrite("[Info]" & $i & ": Forge Profile ID " & $info[8] & @CRLF & @CRLF)
+		ConsoleWrite("[Info]" & $i & ": Base Modpack URL " & $info[9] & @CRLF & @CRLF)
 		; Create Mod pack cache folder
 		createFolder(@WorkingDir & "\PackData\" & $info[1])
+
+		; Save base modpack URL to return
+		If $i = $BaseModPackURLofModpackNum Then
+			$BaseModPackURLofModpackNum = $info[9]
+		EndIf
 	Next
 
+	Return $BaseModPackURLofModpackNum
 EndFunc
 
 
 Func getModPack($iModPackNum)
 	Dim $Modpack[64]
-    Local $info[8]
 
 	ConsoleWrite("[Info]: Getting Modpack " & $iModPackNum & " data")
 	; Get ModPack tag
@@ -239,8 +248,8 @@ Func rmFile($sPath)
 EndFunc
 
 
-Func cacheModules(ByRef $modules, $sModPackID)
-	Local $moduleInfo[12]
+Func cacheModules(ByRef $modules, $sModPackID, $sBaseModpackURL)
+	Local $moduleInfo[11]
 
 	; To optimize performance start the crypt library.
 	_Crypt_Startup()
@@ -255,34 +264,32 @@ Func cacheModules(ByRef $modules, $sModPackID)
 		$moduleInfo[2] = getElement($moduleInfo[0], "version")
 		;filename
 		$moduleInfo[3] = getElement($moduleInfo[0], "filename")
-		;url
-		$moduleInfo[4] = getElement($moduleInfo[0], "url")
 		;extract
-		$moduleInfo[5] = getElement($moduleInfo[0], "extract")
+		$moduleInfo[4] = getElement($moduleInfo[0], "extract")
 		;path
-		$moduleInfo[6] = getElement($moduleInfo[0], "path")
+		$moduleInfo[5] = getElement($moduleInfo[0], "path")
 		;md5
-		$moduleInfo[7] = getElement($moduleInfo[0], "md5")
+		$moduleInfo[6] = getElement($moduleInfo[0], "md5")
 		;size
-		$moduleInfo[8] = getElement($moduleInfo[0], "size")
+		$moduleInfo[7] = getElement($moduleInfo[0], "size")
 		;required
-		$moduleInfo[9] = getElement($moduleInfo[0], "required")
+		$moduleInfo[8] = getElement($moduleInfo[0], "required")
 		;remove
-		$moduleInfo[10] = getElement($moduleInfo[0], "remove")
+		$moduleInfo[9] = getElement($moduleInfo[0], "remove")
 		;NoOverwrite
-		$moduleInfo[11] = getElement($moduleInfo[0], "Overwrite")
+		$moduleInfo[10] = getElement($moduleInfo[0], "Overwrite")
 
 
 		; Should we install or remove file?
-		If $moduleInfo[10] = "true" Then
+		If $moduleInfo[9] = "true" Then
 			; Remove file from cache
-			rmFile(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[7])
+			rmFile(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[6])
 
 			; Remove file from installation
-			rmFile(@AppDataDir & "\" & $moduleInfo[6] & "\" & $moduleInfo[3])
+			rmFile(@AppDataDir & "\" & $moduleInfo[5] & "\" & $moduleInfo[3])
 		Else
 			; Install file
-			cacheFiles($moduleInfo[4], $moduleInfo[7], $sModPackID)
+			cacheFiles($sBaseModpackURL & "/" & $sModPackID & "/" & $moduleInfo[6], $moduleInfo[6], $sModPackID)
 		EndIf
 	Next
 
@@ -372,7 +379,7 @@ EndFunc
 
 
 Func installFromCache(ByRef $modules, $sModPackID)
-	Local $moduleInfo[12]
+	Local $moduleInfo[11]
 	Local $sPath
     Local $sResult
 
@@ -386,59 +393,57 @@ Func installFromCache(ByRef $modules, $sModPackID)
 		$moduleInfo[2] = getElement($moduleInfo[0], "version")
 		;filename
 		$moduleInfo[3] = getElement($moduleInfo[0], "filename")
-		;url
-		$moduleInfo[4] = getElement($moduleInfo[0], "url")
 		;extract
-		$moduleInfo[5] = getElement($moduleInfo[0], "extract")
+		$moduleInfo[4] = getElement($moduleInfo[0], "extract")
 		;path
-		$moduleInfo[6] = getElement($moduleInfo[0], "path")
+		$moduleInfo[5] = getElement($moduleInfo[0], "path")
 		;md5
-		$moduleInfo[7] = getElement($moduleInfo[0], "md5")
+		$moduleInfo[6] = getElement($moduleInfo[0], "md5")
 		;size
-		$moduleInfo[8] = getElement($moduleInfo[0], "size")
+		$moduleInfo[7] = getElement($moduleInfo[0], "size")
 		;required
-		$moduleInfo[9] = getElement($moduleInfo[0], "required")
+		$moduleInfo[8] = getElement($moduleInfo[0], "required")
 		;remove
-		$moduleInfo[10] = getElement($moduleInfo[0], "remove")
+		$moduleInfo[9] = getElement($moduleInfo[0], "remove")
 		;NoOverwrite
-		$moduleInfo[11] = getElement($moduleInfo[0], "Overwrite")
+		$moduleInfo[10] = getElement($moduleInfo[0], "Overwrite")
 
 		; Skip install of current module if its marked for removal
-		If $moduleInfo[10] = "true" Then
+		If $moduleInfo[9] = "true" Then
 			ContinueLoop
 		EndIf
 
 
-		If $sPath <> $moduleInfo[6] Then
-			$sPath = $moduleInfo[6]
+		If $sPath <> $moduleInfo[5] Then
+			$sPath = $moduleInfo[5]
 			; Create the path
-			createFolder(@AppDataDir & "\" & $moduleInfo[6])
+			createFolder(@AppDataDir & "\" & $moduleInfo[5])
 		EndIf
 
 		; Check if module should be overwritten
-		If $moduleInfo[11] = "true" Then
+		If $moduleInfo[10] = "true" Then
 			; Overwrite file
-			$sResult = FileCopy(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[7],  @AppDataDir & "\" & $moduleInfo[6] & "\" & $moduleInfo[3], 1)
+			$sResult = FileCopy(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[6],  @AppDataDir & "\" & $moduleInfo[5] & "\" & $moduleInfo[3], 1)
 
 			; Check if copy function was successful
 			If  $sResult = True Then
 				ConsoleWrite("[Info]: Successfully installed - " & $moduleInfo[3] & @CRLF)
 			Else
-				ConsoleWrite("[ERROR]: Failed to install - " & $moduleInfo[3] & @CRLF)
+				ConsoleWrite("[ERROR]1: Failed to install - " & $moduleInfo[3] & @CRLF)
 				Exit
 			EndIf
-		ElseIf FileExists( @AppDataDir & "\" & $moduleInfo[6] & "\" & $moduleInfo[3]) Then
+		ElseIf FileExists( @AppDataDir & "\" & $moduleInfo[5] & "\" & $moduleInfo[3]) Then
 			; File already in target location, not overwriting
 			ConsoleWrite("[Info]: File already exists skipping - " & $moduleInfo[3] & @CRLF)
 		Else
 			; File not in target, proceding to install it
-			$sResult = FileCopy(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[7],  @AppDataDir & "\" & $moduleInfo[6] & "\" & $moduleInfo[3], 0)
+			$sResult = FileCopy(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[6],  @AppDataDir & "\" & $moduleInfo[5] & "\" & $moduleInfo[3], 0)
 
 			; Check if copy function was successful
 			If  $sResult = True Then
 				ConsoleWrite("[Info]: Successfully installed - " & $moduleInfo[3] & @CRLF)
 			Else
-				ConsoleWrite("[ERROR]: Failed to install - " & $moduleInfo[3] & @CRLF)
+				ConsoleWrite("[ERROR]2: Failed to install - " & $moduleInfo[3] & @CRLF)
 				Exit
 			EndIf
 		EndIf
@@ -478,17 +483,6 @@ Func checkForValidMCLauncher()
 EndFunc
 
 
-Func ConfigureVanillaLauncher()
-	; Check that the magic launcher config exists - Sanity check
-	If Not FileExists(@AppDataDir & "\.minecraft\launcher_profiles.json") Then
-		ConsoleWrite("[Warning]: Vanilla Launcher config file not found - Unable to auto configure Vanilla Launcher profile" & @CRLF)
-		Return
-	EndIf
-
-
-EndFunc
-
-
 ; **** Main ****
 
 ;Check for program update
@@ -497,36 +491,37 @@ checkUpdate()
 ; Download music
 getBackgroundMusic($sMusicURL)
 ; Play background music
-If FileExists(@WorkingDir & "\PackData\Epiq.mp3") Then
-	SoundPlay(@WorkingDir & "\PackData\Epiq.mp3")
+If FileExists(@WorkingDir & "\PackData\Sounds\Background.mp3") Then
+	SoundPlay(@WorkingDir & "\PackData\Sounds\Background.mp3")
 EndIf
 
 ; Download and store ServerPacks.xml
 getPackXML($sPackURL)
 
-; List all available modpacks + create each mod pack cache folder
-getModPacksInfo()
+; List all available modpacks + create each mod pack cache folder and
+; return base modpack url of specified modpack
+
+; Fix this mess of returning values
+Local $sBaseURL
+$sBaseURL = getModPacksInfo(1)
 
 Local $modules[4096]
 ; Get all the modules for a single mod pack by ServerID
-$modules = getModPackModules(getModPack(1), "TESTSERVER")
+
+; Fix this mess of returning values
+$modules = getModPackModules(getModPack(1), "TestServer")
 
 ; Cache all modules of ServerID
-cacheModules($modules, "TESTSERVER")
+cacheModules($modules, "TestServer", $sBaseURL)
 
 ; Check for new MC launcher, If exist(launcher_profiles.json)
 checkForValidMCLauncher()
 
 ; Install the selected ModPack from cache
-installFromCache($modules, "TESTSERVER")
-
-
-; Configure vanilla launcher profile
-ConfigureVanillaLauncher()
-
+installFromCache($modules, "TestServer")
 
 ; Configure Magic Launcher profile
-ConfigureMagicLauncher("TESTSERVER", "1.6.4-Forge9.11.1.952")
+ConfigureMagicLauncher("TestServer", "1.6.4-Forge9.11.1.952")
 
 
 ; Create shortcuts to desktop for Vanilla + Magic Launchers

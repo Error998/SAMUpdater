@@ -2,6 +2,7 @@
 #include <Crypt.au3>
 #include "Folders.au3"
 #include "RecFileListToArray.au3"
+Opt('MustDeclareVars', 1)
 
 
 Func writePack()
@@ -9,7 +10,6 @@ Func writePack()
 	Local $iFileSize, $iTotalFileSize
 	Local $sPath = @DesktopDir & "\Roaming\1.6.4 Modded Update 3\"
 	Local $bHash
-	Local $sURL = "http://localhost/SAMUpdater/TestServer/"
 
 	$hFile = FileOpen(@WorkingDir & "\PackData\packs.xml", 10) ;erase + create dir)
 	If $hFile = -1 Then
@@ -20,15 +20,21 @@ Func writePack()
 	FileWriteLine($hFile,'<ServerPacks version="1.0">')
 	FileWriteLine($hFile,"	<ModPack>")
 	FileWriteLine($hFile,"		<Info>")
-	FileWriteLine($hFile,"			<ServerID>TESTSERVER</ServerID>")
+	FileWriteLine($hFile,"			<ModPackID>TestServer</ModPackID>")
 	FileWriteLine($hFile,"			<ServerName>SA Minecraft Test Server</ServerName>")
 	FileWriteLine($hFile,"			<ServerVersion>1.6.4 Update 2</ServerVersion>")
-	FileWriteLine($hFile,"			<NewsUrl>http://www.saminecraft.co.za/news.php</NewsUrl>")
-	FileWriteLine($hFile,"			<IconUrl>http://www.saminecraft.co.za/icon.jpg</IconUrl>")
+	FileWriteLine($hFile,"			<NewsPage>news.php</NewsPage>")
+	FileWriteLine($hFile,"			<ModPackIcon>icon.jpg</ModPackIcon>")
 	FileWriteLine($hFile,"			<Discription>SAM Test Server Pack used for testing the newest mods and migration platform.</Discription>")
 	FileWriteLine($hFile,"			<ServerConnection>test.saminecraft.co.za:25567</ServerConnection>")
+	FileWriteLine($hFile,"			<ForgeID>1.6.4-Forge9.11.1.952</ForgeID>")
+	FileWriteLine($hFile,"			<URL>http://localhost/SAMUpdater</URL>")
 	FileWriteLine($hFile,"		</Info>")
 	FileWriteLine($hFile,"		<Files>")
+
+
+
+
 
 	; A sorted list of all files and folders in the AutoIt installation
 	local $aFiles = _RecFileListToArray($sPath, "*", 1, 1, 1)
@@ -40,12 +46,13 @@ Func writePack()
 	; To optimize performance start the crypt library.
 	_Crypt_Startup()
 
+	ProgressOn("Creating modpack","")
+
 	for $i = 1 to $aFiles[0]
 		FileWriteLine($hFile,"			<Module>")
 		FileWriteLine($hFile,"				<name></name>")
 		FileWriteLine($hFile,"				<version></version>")
 		FileWriteLine($hFile,"				<filename>" & getFilename($aFiles[$i]) & "</filename>")
-		FileWriteLine($hFile,"				<url>" & $sURL & StringReplace(getPath($aFiles[$i]), "\","/") & "/" & getFilename($aFiles[$i]) & "</url>")
 		FileWriteLine($hFile,"				<extract>false</extract>")
 		FileWriteLine($hFile,"				<path>" & getPath($aFiles[$i]) & "</path>")
 
@@ -63,6 +70,7 @@ Func writePack()
 		FileWriteLine($hFile,"				<Overwrite>false</Overwrite>")
 		FileWriteLine($hFile,"			</Module>")
 
+		ProgressSet(Floor($i / $aFiles[0] * 100))
 	Next
 
 	; Shutdown the crypt library.
