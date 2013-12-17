@@ -5,7 +5,7 @@ A Minecraft Auto Updater that will update mods and config files.
 
 Todo sanity check :)
 ---------------------
-Planned -> Update Updater
+Done -> Update Updater
 
 Done -> Download pack.xml
 
@@ -35,12 +35,12 @@ Done -> Check hash
 
 Done -> Move download from cache to installation destination
  
-Busy -> Auto configure Magic Launcher Profile
-
-Busy -> Auto configure Vanilla Launcher Profile
+Done -> Auto configure Magic Launcher Profile
 
 Planned -> Create log file with very verbose output on what the Updater is doing
 
-Planned -> Tidy up console output, add progress stuff
+Busy -> Tidy up console output, add progress stuff
  
+Busy -> Make Pack Creator more user friendly
+
 Future -> Create GUI
