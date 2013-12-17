@@ -82,11 +82,24 @@ Func ConfigureMagicLauncher($sModID, $sForgeID)
 	EndIf
 
 	If $bConfigChanged Then
+		Local $iProfileCount = -1
+
+		; Find the profile number for our modpack
+		For $i = 1 to $sMagicLauncher[0]
+			If StringInStr($sMagicLauncher[$i], "<Profile") <> 0 Then
+				$iProfileCount = $iProfileCount + 1
+				If $sMagicLauncher[$i + 1] = '  <Name="' & $sModID & '">' Then
+					; We found our mod pack profile num, exit loop
+					ExitLoop
+				EndIf
+			EndIf
+		Next
+
 		; Set the active profile to our mod pack profile
 		For $i = 1 to $sMagicLauncher[0]
 			If StringInStr($sMagicLauncher[$i], "<ActiveProfileIndex=") <> 0 Then
-				$sMagicLauncher[$i] = '<ActiveProfileIndex="0">'
-				ConsoleWrite("[Info]: Setting active profile to " & $sModID & @CRLF)
+				$sMagicLauncher[$i] = '<ActiveProfileIndex="' & $iProfileCount & '">'
+				ConsoleWrite("[Info]: Setting active profile to " & $iProfileCount & " - " & $sModID & @CRLF)
 				ExitLoop
 			EndIf
 		Next
