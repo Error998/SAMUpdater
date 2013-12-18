@@ -7,9 +7,9 @@
 #include <INet.au3>
 #include <String.au3>
 #include <Crypt.au3>
-#include "Folders.au3"
-#include "XML.au3"
-#include "ConfigureMagicLauncher.au3"
+#include "includes\Folders.au3"
+#include "includes\XML.au3"
+#include "includes\ConfigureMagicLauncher.au3"
 ;#include "ForumAuth.au3"
 
 Opt('MustDeclareVars', 1)
