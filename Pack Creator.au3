@@ -1,8 +1,34 @@
 #include <Array.au3>
 #include <Crypt.au3>
-#include "Folders.au3"
-#include "RecFileListToArray.au3"
+#include "includes\Folders.au3"
+#include "includes\RecFileListToArray.au3"
+#include "forms\frmModpackDetails.au3"
 Opt('MustDeclareVars', 1)
+
+Func recurseFolders($sPath)
+; A sorted list of all files and folders in the AutoIt installation
+	local $aFiles = _RecFileListToArray($sPath, "*", 1, 1, 1)
+	if @error = 1 Then
+		ConsoleWrite("[ERROR]: Unable to recurse folders " & @error & " - " & " Extended: " &  @extended & @CRLF)
+		Exit
+	EndIf
+
+	; Fix derpiness of sorting returned by _RecFileListToArray
+	Local $aTemp[$aFiles[0] + 1][2]
+    ; Split path and filename
+	For $i = 1 To $aFiles[0]
+		$aTemp[$i][0] = getPath($aFiles[$i])
+		$aTemp[$i][1] = getFilename($aFiles[$i])
+	Next
+	; Sort path
+	_ArraySort($aTemp, 0, 1)
+	; Restore fixed sorted array back
+	For $i = 1 To $aFiles[0]
+		$aFiles[$i] = $aTemp[$i][0] & "\" & $aTemp[$i][1]
+	Next
+
+	Return $aFiles
+EndFunc
 
 
 Func writePack()
@@ -32,16 +58,7 @@ Func writePack()
 	FileWriteLine($hFile,"		</Info>")
 	FileWriteLine($hFile,"		<Files>")
 
-
-
-
-
-	; A sorted list of all files and folders in the AutoIt installation
-	local $aFiles = _RecFileListToArray($sPath, "*", 1, 1, 1)
-	if @error = 1 Then
-		ConsoleWrite("[ERROR]: Unable to recuirse folders " & @error & " - " & " Extended: " &  @extended & @CRLF)
-		Exit
-	EndIf
+	Local $aFiles = recurseFolders($sPath)
 
 	; To optimize performance start the crypt library.
 	_Crypt_Startup()
@@ -105,6 +122,11 @@ Func getPath($sPath)
 EndFunc
 
 
-writePack()
+;writePack()
 
+GUISetState(@SW_SHOW,$frmModpackDetails)
+
+While True
+	Sleep(2000)
+WEnd
 
