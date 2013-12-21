@@ -73,6 +73,7 @@ GUICtrlSetOnEvent($cmdForgeVersion, "eventSetForgeVersion")
 GUICtrlSetOnEvent($cmdLoadFiles, "eventLoadModpackFiles")
 GUICtrlSetOnEvent($cmdTest, "eventTest")
 GUICtrlSetOnEvent($cmdExclude, "eventExclude")
+GUICtrlSetOnEvent($cmdInclude, "eventInclude")
 GUICtrlSetOnEvent($cmdSelectBaseSourceFolder, "eventSelectBaseSourceFolder")
 #
 
@@ -84,6 +85,8 @@ Func eventSelectBaseSourceFolder()
 	If $sPath <> "" Then
 		; Base folder must contain the .minecraft folder
 		If FileExists($sPath & "\.minecraft") Then
+			; Clear treeview
+			_GUICtrlTreeView_DeleteAll(GUICtrlGetHandle($treeModpack))
 			GUICtrlSetData($txtBaseSourceFolder, $sPath)
 			eventLoadModpackFiles()
 		Else
@@ -94,55 +97,133 @@ Func eventSelectBaseSourceFolder()
 EndFunc
 
 
-Func eventExclude()
-	Local $htree
-	Local $item
+Func eventInclude()
 
-	$htree = GUICtrlGetHandle($treeModpack)
-	$item = GUICtrlRead($treeModpack) ; Get the controlID of the current selected treeview item
-	If $item = 0 Then
-		MsgBox(64, "Warning", "Please select an item to exclude")
-	Else
-		If Not _GUICtrlTreeView_Delete($htree, $item) Then
-			MsgBox(16, "Error", "Unable to exclude item")
-		EndIf
+EndFunc
+
+Func eventExclude()
+	Local $itemID, $hItem, $hFound
+	Local $sSearch
+	Local $iChildCount
+
+	; Sanity check - something must be selected
+	$itemID = GUICtrlRead($treeModpack) ; Get the controlID of the current selected treeview item
+	If $itemID = 0 Then
+		Return
 	EndIf
 
+	; Get the handle of the selected control
+	$hItem = _GUICtrlTreeView_GetSelection($treeModpack)
 
+	; Check if selected item is a parent
+	$iChildCount = _GUICtrlTreeView_GetChildCount($treeModpack, $hItem)
+	If $iChildCount >= 1 Then
+		; Selected Item is a parent, lets remove all items that match the selection
+		$sSearch = GUICtrlRead($itemID, 1)
+		Do
+			; Search of existing parent in treeview
+			$hFound = _GUICtrlTreeView_FindItem($treeModpack, $sSearch, True)
+
+			if $hFound <> 0 Then
+				ConsoleWrite("Parent Handle: " & $hFound & @CRLF)
+				ConsoleWrite("Parent Text: " & _GUICtrlTreeView_GetText($treeModpack, $hFound) & @CRLF)
+
+				ExcludeItem($hFound)
+			EndIf
+
+		Until $hFound = 0
+
+	Else
+		; Child item selected, remove single item
+		ExcludeItem($hItem)
+	EndIf
+EndFunc
+
+Func ExcludeItem($hItem)
+	Local $itemID, $hChild, $hParent, $hFound
+	Local $iChildCount
+	Local $sSearch
+
+	; Get the handle of the selected control
+	;$hItem = _GUICtrlTreeView_GetSelection($treeModpack)
+
+	; Check if selected item is a parent
+	$iChildCount = _GUICtrlTreeView_GetChildCount($treeModpack, $hItem)
+	If $iChildCount >= 1 Then
+		; Selected Item is a parent
+
+		; Get first child
+		$hChild = _GUICtrlTreeView_GetFirstChild($treeModpack, $hItem)
+		AddToExclude(_GUICtrlTreeView_GetText($treeModpack, $hItem), _GUICtrlTreeView_GetText($treeModpack, $hChild))
+
+		; Get rest of the children
+		For $i = 1 To $iChildCount - 1
+			$hChild = _GUICtrlTreeView_GetNextChild($treeModpack, $hChild)
+			AddToExclude(_GUICtrlTreeView_GetText($treeModpack, $hItem), _GUICtrlTreeView_GetText($treeModpack, $hChild))
+		Next
+
+		; Remove item from tree view
+		_GUICtrlTreeView_Delete($treeModpack, $hItem)
+
+	Else
+		; Selected Item is a child
+		AddToExclude(_GUICtrlTreeView_GetText($treeModpack, _GUICtrlTreeView_GetParentHandle($treeModpack, $hItem)), _GUICtrlTreeView_GetText($treeModpack, $hItem))
+
+		; Check if its the last child, if so remove parent too
+		$hParent = _GUICtrlTreeView_GetParentHandle($treeModpack, $hItem)
+		$iChildCount = _GUICtrlTreeView_GetChildCount($treeModpack, $hParent)
+		If $iChildCount = 1 Then
+			; Remove parent since it only has 1 child
+			_GUICtrlTreeView_Delete($treeModpack, $hParent)
+		Else
+			; Remove item from tree view
+			_GUICtrlTreeView_Delete($treeModpack, $hItem)
+		EndIf
+	EndIf
 EndFunc
 
 
 Func eventTest()
-	Local $item
-	Local $text
-	Local $htree
+	AddToExclude("Parent", "Child 1")
+	AddToExclude("Parent\with more stuff", "Child 2")
 
-	$item = GUICtrlRead($treeModpack) ; Get the controlID of the current selected treeview item
-	If $item = 0 Then
-		MsgBox(64, "TreeView Demo", "No item currently selected")
-	Else
-		$text = GUICtrlRead($item, 1) ; Get the text of the treeview item
-		If $text == "" Then
-			MsgBox(16, "Error", "Error while retrieving infos about item")
-		Else
-			MsgBox(64, "TreeView Demo", "Current item selected is: " & $text)
-		EndIf
-	EndIf
-	$htree = GUICtrlGetHandle($treeModpack)
-	$item = _GUICtrlTreeView_GetParentHandle($htree)
-	If $item = 0 Then
-		MsgBox(64, "TreeView Demo", "No parent found")
-	Else
-		$text = _GUICtrlTreeView_GetText($htree, $item) ; Get the text of the treeview item
-		If $text == "" Then
-			MsgBox(16, "Error", "Error while retrieving infos about parent")
-		Else
-			MsgBox(64, "TreeView Demo", "Current item's parent is: " & $text)
-		EndIf
-	EndIf
 EndFunc
 
+
+Func AddToExclude($sParent, $sChild)
+	Local $hParent
+
+	; Search of existing parent in treeview
+	$hParent = _GUICtrlTreeView_FindItemEx($treeExclude, $sParent)
+	_GUICtrlTreeView_BeginUpdate($treeExclude)
+	If $hParent = 0 Then
+		; Parent not found, create it
+		$hParent = _GUICtrlTreeView_Add($treeExclude, 0, $sParent)
+	EndIf
+
+	_GUICtrlTreeView_AddChild($treeExclude, $hParent, $sChild)
+	_GUICtrlTreeView_EndUpdate($treeExclude)
+EndFunc
+
+
+Func AddToInclude($sParent, $sChild)
+	Local $hParent
+
+	; Search of existing parent in treeview
+	$hParent = _GUICtrlTreeView_FindItemEx($treeModpack, $sParent)
+	_GUICtrlTreeView_BeginUpdate($treeModpack)
+	If $hParent = 0 Then
+		; Parent not found, create it
+		$hParent = _GUICtrlTreeView_Add($treeModpack, 0, $sParent)
+	EndIf
+
+	_GUICtrlTreeView_AddChild($treeModpack, $hParent, $sChild)
+	_GUICtrlTreeView_EndUpdate($treeModpack)
+EndFunc
+
+
 Func eventClose()
+	GUIDelete($frmModpackDetails)
 	Exit
 EndFunc
 
@@ -167,13 +248,19 @@ Func eventLoadModpackFiles()
 	Local $sFilename
 	Local $sPath
 
+	; ******************************* Temp DATA ******************************************************
+	GUICtrlSetData($txtBaseSourceFolder, "C:\Users\Jock\Desktop\Roaming\1.6.4 Modded Update 3")
+	; ************************************************************************************************
 	$sPath = GUICtrlRead($txtBaseSourceFolder)
 	If Not FileExists($sPath) Then
 		Return
 	EndIf
 
 	Local $aFiles = recurseFolders($sPath)
+	; Clear Exclude treeview
+	_GUICtrlTreeView_DeleteAll($treeExclude)
 
+	_GUICtrlTreeView_BeginUpdate($treeModpack)
 	; Clear treeview
 	_GUICtrlTreeView_DeleteAll(GUICtrlGetHandle($treeModpack))
 
@@ -190,4 +277,5 @@ Func eventLoadModpackFiles()
 			GUICtrlCreateTreeViewItem($sFilename, $item)
 		EndIf
 	Next
+	_GUICtrlTreeView_EndUpdate($treeModpack)
 EndFunc
