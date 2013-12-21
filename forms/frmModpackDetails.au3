@@ -98,28 +98,58 @@ EndFunc
 
 
 Func eventInclude()
-
-EndFunc
-
-Func eventExclude()
-	Local $itemID, $hItem, $hFound
+	Local $hItem, $hFound
 	Local $sSearch
 	Local $iChildCount
 
 	; Sanity check - something must be selected
-	$itemID = GUICtrlRead($treeModpack) ; Get the controlID of the current selected treeview item
-	If $itemID = 0 Then
+	$hItem = _GUICtrlTreeView_GetSelection($treeExclude)
+	If $hItem = 0 Then
 		Return
 	EndIf
 
-	; Get the handle of the selected control
+	; Check if selected item is a parent
+	$iChildCount = _GUICtrlTreeView_GetChildCount($treeExclude, $hItem)
+	If $iChildCount >= 1 Then
+		; Selected Item is a parent, lets remove all items that match the selection
+		$sSearch = _GUICtrlTreeView_GetText($treeExclude, $hItem)
+		Do
+			; Search of existing parent in treeview
+			$hFound = _GUICtrlTreeView_FindItem($treeExclude, $sSearch, True)
+
+			if $hFound <> 0 Then
+				ConsoleWrite("Parent Handle: " & $hFound & @CRLF)
+				ConsoleWrite("Parent Text: " & _GUICtrlTreeView_GetText($treeExclude, $hFound) & @CRLF)
+
+				IncludeItem($hFound)
+			EndIf
+
+		Until $hFound = 0
+
+	Else
+		; Child item selected, remove single item
+		IncludeItem($hItem)
+	EndIf
+	_GUICtrlTreeView_Sort($treeModpack)
+EndFunc
+
+
+Func eventExclude()
+	Local $hItem, $hFound
+	Local $sSearch
+	Local $iChildCount
+
+	; Sanity check - something must be selected
 	$hItem = _GUICtrlTreeView_GetSelection($treeModpack)
+	If $hItem = 0 Then
+		Return
+	EndIf
 
 	; Check if selected item is a parent
 	$iChildCount = _GUICtrlTreeView_GetChildCount($treeModpack, $hItem)
 	If $iChildCount >= 1 Then
 		; Selected Item is a parent, lets remove all items that match the selection
-		$sSearch = GUICtrlRead($itemID, 1)
+		$sSearch = _GUICtrlTreeView_GetText($treeModpack, $hItem)
 		Do
 			; Search of existing parent in treeview
 			$hFound = _GUICtrlTreeView_FindItem($treeModpack, $sSearch, True)
@@ -137,7 +167,51 @@ Func eventExclude()
 		; Child item selected, remove single item
 		ExcludeItem($hItem)
 	EndIf
+	_GUICtrlTreeView_Sort($treeExclude)
 EndFunc
+
+
+Func IncludeItem($hItem)
+	Local $itemID, $hChild, $hParent, $hFound
+	Local $iChildCount
+	Local $sSearch
+
+	; Check if selected item is a parent
+	$iChildCount = _GUICtrlTreeView_GetChildCount($treeExclude, $hItem)
+	If $iChildCount >= 1 Then
+		; Selected Item is a parent
+
+		; Get first child
+		$hChild = _GUICtrlTreeView_GetFirstChild($treeExclude, $hItem)
+		AddToInclude(_GUICtrlTreeView_GetText($treeExclude, $hItem), _GUICtrlTreeView_GetText($treeExclude, $hChild))
+
+		; Get rest of the children
+		For $i = 1 To $iChildCount - 1
+			$hChild = _GUICtrlTreeView_GetNextChild($treeExclude, $hChild)
+			AddToInclude(_GUICtrlTreeView_GetText($treeExclude, $hItem), _GUICtrlTreeView_GetText($treeExclude, $hChild))
+		Next
+
+		; Remove item from tree view
+		_GUICtrlTreeView_Delete($treeExclude, $hItem)
+
+	Else
+		; Selected Item is a child
+		AddToInclude(_GUICtrlTreeView_GetText($treeExclude, _GUICtrlTreeView_GetParentHandle($treeExclude, $hItem)), _GUICtrlTreeView_GetText($treeExclude, $hItem))
+
+		; Check if its the last child, if so remove parent too
+		$hParent = _GUICtrlTreeView_GetParentHandle($treeExclude, $hItem)
+		$iChildCount = _GUICtrlTreeView_GetChildCount($treeExclude, $hParent)
+		If $iChildCount = 1 Then
+			; Remove parent since it only has 1 child
+			_GUICtrlTreeView_Delete($treeExclude, $hParent)
+		Else
+			; Remove item from tree view
+			_GUICtrlTreeView_Delete($treeExclude, $hItem)
+		EndIf
+	EndIf
+
+EndFunc
+
 
 Func ExcludeItem($hItem)
 	Local $itemID, $hChild, $hParent, $hFound
@@ -184,9 +258,10 @@ EndFunc
 
 
 Func eventTest()
+	_GUICtrlTreeView_BeginUpdate($treeExclude)
 	AddToExclude("Parent", "Child 1")
 	AddToExclude("Parent\with more stuff", "Child 2")
-
+	_GUICtrlTreeView_EndUpdate($treeExclude)
 EndFunc
 
 
@@ -195,14 +270,14 @@ Func AddToExclude($sParent, $sChild)
 
 	; Search of existing parent in treeview
 	$hParent = _GUICtrlTreeView_FindItemEx($treeExclude, $sParent)
-	_GUICtrlTreeView_BeginUpdate($treeExclude)
+
 	If $hParent = 0 Then
 		; Parent not found, create it
 		$hParent = _GUICtrlTreeView_Add($treeExclude, 0, $sParent)
 	EndIf
 
 	_GUICtrlTreeView_AddChild($treeExclude, $hParent, $sChild)
-	_GUICtrlTreeView_EndUpdate($treeExclude)
+
 EndFunc
 
 
@@ -211,14 +286,14 @@ Func AddToInclude($sParent, $sChild)
 
 	; Search of existing parent in treeview
 	$hParent = _GUICtrlTreeView_FindItemEx($treeModpack, $sParent)
-	_GUICtrlTreeView_BeginUpdate($treeModpack)
+
 	If $hParent = 0 Then
 		; Parent not found, create it
 		$hParent = _GUICtrlTreeView_Add($treeModpack, 0, $sParent)
 	EndIf
 
 	_GUICtrlTreeView_AddChild($treeModpack, $hParent, $sChild)
-	_GUICtrlTreeView_EndUpdate($treeModpack)
+
 EndFunc
 
 
