@@ -106,7 +106,7 @@ EndFunc
 Func getModuleInfo($Modpack)
 	Local $modules[4096]
 	Local $files
-	Dim $moduleInfo[12]
+	Dim $moduleInfo[9]
 
 	; Get Files of Modpack[X]
 	$files = getElement($Modpack, "Files")
@@ -118,30 +118,24 @@ Func getModuleInfo($Modpack)
 	For $x = 1 To $modules[0]
 		;Get module info of module[X]
 		$moduleInfo[0] = $modules[$x]
-		;Name
-		$moduleInfo[1] = getElement($moduleInfo[0], "name")
-		;version
-		$moduleInfo[2] = getElement($moduleInfo[0], "version")
 		;filename
-		$moduleInfo[3] = getElement($moduleInfo[0], "filename")
-		;url
-		$moduleInfo[4] = getElement($moduleInfo[0], "url")
+		$moduleInfo[1] = getElement($moduleInfo[0], "Filename")
 		;extract
-		$moduleInfo[5] = getElement($moduleInfo[0], "extract")
+		$moduleInfo[2] = getElement($moduleInfo[0], "Extract")
 		;path
-		$moduleInfo[6] = getElement($moduleInfo[0], "path")
+		$moduleInfo[3] = getElement($moduleInfo[0], "Path")
 		;md5
-		$moduleInfo[7] = getElement($moduleInfo[0], "md5")
+		$moduleInfo[4] = getElement($moduleInfo[0], "md5")
 		;size
-		$moduleInfo[8] = getElement($moduleInfo[0], "size")
+		$moduleInfo[5] = getElement($moduleInfo[0], "Size")
 		;required
-		$moduleInfo[9] = getElement($moduleInfo[0], "required")
+		$moduleInfo[6] = getElement($moduleInfo[0], "Required")
 		;remove
-		$moduleInfo[10] = getElement($moduleInfo[0], "remove")
+		$moduleInfo[7] = getElement($moduleInfo[0], "Remove")
 		;NoOverwrite
-		$moduleInfo[11] = getElement($moduleInfo[0], "NoOverwrite")
+		$moduleInfo[8] = getElement($moduleInfo[0], "Overwrite")
 
-		For $i = 1 to 11
+		For $i = 1 to 9
 			ConsoleWrite($moduleInfo[$i] & @CRLF)
 		Next
 
@@ -223,7 +217,7 @@ Func getModPackModules($Modpack, $sModPackID = "")
 	Local $modules[4096]
 	Local $files
 
-	;~ ;Get Files of Modpack[X]
+	;Get Files of Modpack[X]
 	$files = getElement($Modpack, "Files")
 
 	;Get each module contained within Files
@@ -249,7 +243,7 @@ EndFunc
 
 
 Func cacheModules(ByRef $modules, $sModPackID, $sBaseModpackURL)
-	Local $moduleInfo[11]
+	Local $moduleInfo[9]
 
 	; To optimize performance start the crypt library.
 	_Crypt_Startup()
@@ -258,38 +252,34 @@ Func cacheModules(ByRef $modules, $sModPackID, $sBaseModpackURL)
 	For $x = 1 To $modules[0]
 		;Get module info of module[X]
 		$moduleInfo[0] = $modules[$x]
-		;Name
-		$moduleInfo[1] = getElement($moduleInfo[0], "name")
-		;version
-		$moduleInfo[2] = getElement($moduleInfo[0], "version")
 		;filename
-		$moduleInfo[3] = getElement($moduleInfo[0], "filename")
+		$moduleInfo[1] = getElement($moduleInfo[0], "Filename")
 		;extract
-		$moduleInfo[4] = getElement($moduleInfo[0], "extract")
+		$moduleInfo[2] = getElement($moduleInfo[0], "Extract")
 		;path
-		$moduleInfo[5] = getElement($moduleInfo[0], "path")
+		$moduleInfo[3] = getElement($moduleInfo[0], "Path")
 		;md5
-		$moduleInfo[6] = getElement($moduleInfo[0], "md5")
+		$moduleInfo[4] = getElement($moduleInfo[0], "md5")
 		;size
-		$moduleInfo[7] = getElement($moduleInfo[0], "size")
+		$moduleInfo[5] = getElement($moduleInfo[0], "Size")
 		;required
-		$moduleInfo[8] = getElement($moduleInfo[0], "required")
+		$moduleInfo[6] = getElement($moduleInfo[0], "Required")
 		;remove
-		$moduleInfo[9] = getElement($moduleInfo[0], "remove")
+		$moduleInfo[7] = getElement($moduleInfo[0], "Remove")
 		;NoOverwrite
-		$moduleInfo[10] = getElement($moduleInfo[0], "Overwrite")
+		$moduleInfo[8] = getElement($moduleInfo[0], "Overwrite")
 
 
 		; Should we install or remove file?
-		If $moduleInfo[9] = "true" Then
+		If $moduleInfo[7] = "TRUE" Then
 			; Remove file from cache
-			rmFile(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[6])
+			rmFile(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[4])
 
 			; Remove file from installation
-			rmFile(@AppDataDir & "\" & $moduleInfo[5] & "\" & $moduleInfo[3])
+			rmFile(@AppDataDir & "\" & $moduleInfo[3] & "\" & $moduleInfo[1])
 		Else
 			; Install file
-			cacheFiles($sBaseModpackURL & "/" & $sModPackID & "/" & $moduleInfo[6], $moduleInfo[6], $sModPackID)
+			cacheFiles($sBaseModpackURL & "/" & $sModPackID & "/" & $moduleInfo[4], $moduleInfo[4], $sModPackID)
 		EndIf
 	Next
 
@@ -379,7 +369,7 @@ EndFunc
 
 
 Func installFromCache(ByRef $modules, $sModPackID)
-	Local $moduleInfo[11]
+	Local $moduleInfo[9]
 	Local $sPath
     Local $sResult
 
@@ -387,63 +377,59 @@ Func installFromCache(ByRef $modules, $sModPackID)
 	For $x = 1 To $modules[0]
 		;Get module info of module[X]
 		$moduleInfo[0] = $modules[$x]
-		;Name
-		$moduleInfo[1] = getElement($moduleInfo[0], "name")
-		;version
-		$moduleInfo[2] = getElement($moduleInfo[0], "version")
 		;filename
-		$moduleInfo[3] = getElement($moduleInfo[0], "filename")
+		$moduleInfo[1] = getElement($moduleInfo[0], "Filename")
 		;extract
-		$moduleInfo[4] = getElement($moduleInfo[0], "extract")
+		$moduleInfo[2] = getElement($moduleInfo[0], "Extract")
 		;path
-		$moduleInfo[5] = getElement($moduleInfo[0], "path")
+		$moduleInfo[3] = getElement($moduleInfo[0], "Path")
 		;md5
-		$moduleInfo[6] = getElement($moduleInfo[0], "md5")
+		$moduleInfo[4] = getElement($moduleInfo[0], "md5")
 		;size
-		$moduleInfo[7] = getElement($moduleInfo[0], "size")
+		$moduleInfo[5] = getElement($moduleInfo[0], "Size")
 		;required
-		$moduleInfo[8] = getElement($moduleInfo[0], "required")
+		$moduleInfo[6] = getElement($moduleInfo[0], "Required")
 		;remove
-		$moduleInfo[9] = getElement($moduleInfo[0], "remove")
+		$moduleInfo[7] = getElement($moduleInfo[0], "Remove")
 		;NoOverwrite
-		$moduleInfo[10] = getElement($moduleInfo[0], "Overwrite")
+		$moduleInfo[8] = getElement($moduleInfo[0], "Overwrite")
 
 		; Skip install of current module if its marked for removal
-		If $moduleInfo[9] = "true" Then
+		If $moduleInfo[7] = "TRUE" Then
 			ContinueLoop
 		EndIf
 
 
-		If $sPath <> $moduleInfo[5] Then
-			$sPath = $moduleInfo[5]
+		If $sPath <> $moduleInfo[3] Then
+			$sPath = $moduleInfo[3]
 			; Create the path
-			createFolder(@AppDataDir & "\" & $moduleInfo[5])
+			createFolder(@AppDataDir & "\" & $moduleInfo[3])
 		EndIf
 
 		; Check if module should be overwritten
-		If $moduleInfo[10] = "true" Then
+		If $moduleInfo[8] = "TRUE" Then
 			; Overwrite file
-			$sResult = FileCopy(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[6],  @AppDataDir & "\" & $moduleInfo[5] & "\" & $moduleInfo[3], 1)
+			$sResult = FileCopy(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[4],  @AppDataDir & "\" & $moduleInfo[3] & "\" & $moduleInfo[1], 1)
 
 			; Check if copy function was successful
 			If  $sResult = True Then
-				ConsoleWrite("[Info]: Successfully installed - " & $moduleInfo[3] & @CRLF)
+				ConsoleWrite("[Info]: Successfully installed - " & $moduleInfo[1] & @CRLF)
 			Else
-				ConsoleWrite("[ERROR]1: Failed to install - " & $moduleInfo[3] & @CRLF)
+				ConsoleWrite("[ERROR] 1: Failed to install - " & $moduleInfo[1] & @CRLF)
 				Exit
 			EndIf
-		ElseIf FileExists( @AppDataDir & "\" & $moduleInfo[5] & "\" & $moduleInfo[3]) Then
+		ElseIf FileExists( @AppDataDir & "\" & $moduleInfo[3] & "\" & $moduleInfo[1]) Then
 			; File already in target location, not overwriting
-			ConsoleWrite("[Info]: File already exists skipping - " & $moduleInfo[3] & @CRLF)
+			ConsoleWrite("[Info]: File already exists skipping - " & $moduleInfo[1] & @CRLF)
 		Else
 			; File not in target, proceding to install it
-			$sResult = FileCopy(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[6],  @AppDataDir & "\" & $moduleInfo[5] & "\" & $moduleInfo[3], 0)
+			$sResult = FileCopy(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[4],  @AppDataDir & "\" & $moduleInfo[3] & "\" & $moduleInfo[1], 0)
 
 			; Check if copy function was successful
 			If  $sResult = True Then
-				ConsoleWrite("[Info]: Successfully installed - " & $moduleInfo[3] & @CRLF)
+				ConsoleWrite("[Info]: Successfully installed - " & $moduleInfo[1] & @CRLF)
 			Else
-				ConsoleWrite("[ERROR]2: Failed to install - " & $moduleInfo[3] & @CRLF)
+				ConsoleWrite("[ERROR] 2: Failed to install - " & $moduleInfo[1] & @CRLF)
 				Exit
 			EndIf
 		EndIf
@@ -460,7 +446,7 @@ Func checkForValidMCLauncher()
 		ConsoleWrite("[Info]: Found valid Vanilla Launcher fingerprint" & @CRLF)
 		Return True
 	Else
-		$sBackupDir = @AppDataDir & "\.minecraft_" & @MDAY & @MON & @YEAR & @HOUR & @MIN & @SEC
+		$sBackupDir = @AppDataDir & "\SAMUpdater\Backup\" & @MDAY & @MON & @YEAR & @HOUR & @MIN & @SEC & "\.minecraft"
 		ConsoleWrite("[Warning]: Could not find a vaild Vanilla Launcher" & @CRLF)
 		ConsoleWrite("[Warning]: Making a backup of your .minecraft folder and saving it in " & $sBackupDir & @CRLF)
 
@@ -476,7 +462,7 @@ Func checkForValidMCLauncher()
 			EndIf
 		Else
 			ConsoleWrite("[Info]: Folder does not exist, nothing to backup - " & @AppDataDir & "\.minecraft" & @CRLF)
-			Return "Clean"
+			Return
 		EndIf
 	EndIf
 
