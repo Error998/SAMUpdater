@@ -67,8 +67,6 @@ Func writePack()
 
 	for $i = 1 to $aFiles[0]
 		FileWriteLine($hFile,"			<Module>")
-		FileWriteLine($hFile,"				<name></name>")
-		FileWriteLine($hFile,"				<version></version>")
 		FileWriteLine($hFile,"				<filename>" & getFilename($aFiles[$i]) & "</filename>")
 		FileWriteLine($hFile,"				<extract>false</extract>")
 		FileWriteLine($hFile,"				<path>" & getPath($aFiles[$i]) & "</path>")
@@ -124,6 +122,7 @@ EndFunc
 
 ;writePack()
 
+LoadFormData()
 GUISetState(@SW_SHOW,$frmModpackDetails)
 
 While True

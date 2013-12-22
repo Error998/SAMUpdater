@@ -3,6 +3,7 @@
 #include <WindowsConstants.au3>
 #Include <GuiButton.au3>
 #include <GuiTreeview.au3>
+#include<File.au3>
 
 Opt("GUIOnEventMode", 1)
 Local $frmModpackDetails
@@ -10,7 +11,7 @@ Local $treeModpack, $treeExclude
 Local $cmdForgeVersion, $cmdTest, $cmdLoadFiles, $cmdExclude, $cmdInclude, $cmdSelectBaseSourceFolder, $cmdSelectLogo
 Local $cmdSelectNews
 Local $txtBaseURL, $txtDiscription, $txtForgeVersion, $txtLogo, $txtModID, $txtNews, $txtServerConnection, $txtServerName
-Local $txtServerVersion, $txtBaseSourceFolder
+Local $txtServerVersion, $txtBaseSourceFolder, $txtAppendPath
 
 
 #region Form
@@ -45,29 +46,33 @@ $txtLogo = GUICtrlCreateInput("",260,290,150,20,-1,512)
 GUICtrlSetState(-1,144)
 GUICtrlCreateLabel("Description",40,330,88,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-$txtDiscription = GUICtrlCreateInput("",42,347,405,213,4,512)
+$txtDiscription = GUICtrlCreateInput("",42,347,405,164,4,512)
 GUICtrlCreateGroup("Modpack Details",10,0,467,582,-1,-1)
 GUICtrlSetBkColor(-1,"0xF0F0F0")
-$treeModpack = GUICtrlCreateTreeView(510,90,424,419,-1,512)
-$cmdLoadFiles = GUICtrlCreateButton("Reload Files",532,530,101,30,-1,-1)
-$cmdTest = GUICtrlCreateButton("Test",642,530,100,30,-1,-1)
-$cmdExclude = GUICtrlCreateButton("Exclude",752,530,100,30,-1,-1)
-GUICtrlCreateLabel("Base Source Folder",511,31,96,15,-1,-1)
+$treeModpack = GUICtrlCreateTreeView(509,90,424,419,-1,512)
+$cmdLoadFiles = GUICtrlCreateButton("Reload Files",531,530,101,30,-1,-1)
+$cmdTest = GUICtrlCreateButton("Test",641,530,100,30,-1,-1)
+$cmdExclude = GUICtrlCreateButton("Exclude",751,530,100,30,-1,-1)
+GUICtrlCreateLabel("Base Source Folder",510,31,96,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-$txtBaseSourceFolder = GUICtrlCreateInput("",511,51,371,20,-1,512)
-$cmdSelectBaseSourceFolder = GUICtrlCreateButton("...",891,51,27,20,-1,-1)
+$txtBaseSourceFolder = GUICtrlCreateInput("",510,51,371,20,-1,512)
+$cmdSelectBaseSourceFolder = GUICtrlCreateButton("...",890,51,27,20,-1,-1)
 $cmdSelectNews = GUICtrlCreateButton("...",200,290,27,20,-1,-1)
 $cmdSelectLogo = GUICtrlCreateButton("...",420,290,27,20,-1,-1)
 GUICtrlCreateGroup("Modpack Files",489,0,904,581,-1,-1)
 GUICtrlSetBkColor(-1,"0xF0F0F0")
-$treeExclude = GUICtrlCreateTreeView(950,90,424,419,-1,512)
-$cmdInclude = GUICtrlCreateButton("Include",1110,530,100,30,-1,-1)
-GUICtrlCreateLabel("Files Excluded from Modpack",950,60,143,15,-1,-1)
+$treeExclude = GUICtrlCreateTreeView(949,90,424,419,-1,512)
+$cmdInclude = GUICtrlCreateButton("Include",1109,530,100,30,-1,-1)
+GUICtrlCreateLabel("Files Excluded from Modpack",949,60,143,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-#
+GUICtrlCreateLabel("Additional Folder - %APPDATA%\<Enter Data>\.minecraft\..",40,530,303,15,-1,-1)
+GUICtrlSetBkColor(-1,"-2")
+$txtAppendPath = GUICtrlCreateInput("",40,550,373,20,-1,512)
+
+
+#endregion Form
 
 #region Events
-
 GUISetOnEvent($GUI_EVENT_CLOSE, "eventClose", $frmModpackDetails)
 GUICtrlSetOnEvent($cmdForgeVersion, "eventSetForgeVersion")
 GUICtrlSetOnEvent($cmdLoadFiles, "eventLoadModpackFiles")
@@ -75,7 +80,61 @@ GUICtrlSetOnEvent($cmdTest, "eventTest")
 GUICtrlSetOnEvent($cmdExclude, "eventExclude")
 GUICtrlSetOnEvent($cmdInclude, "eventInclude")
 GUICtrlSetOnEvent($cmdSelectBaseSourceFolder, "eventSelectBaseSourceFolder")
-#
+#endregion Events
+
+Func SaveFormData()
+	Local $aFormData[12]
+
+	; Modpack Info
+	$aFormData[1] = GUICtrlRead($txtModID)
+	$aFormData[2] = GUICtrlRead($txtServerName)
+	$aFormData[3] = GUICtrlRead($txtServerVersion)
+	$aFormData[4] = GUICtrlRead($txtNews)
+	$aFormData[5] = GUICtrlRead($txtLogo)
+	$aFormData[6] = GUICtrlRead($txtDiscription)
+	$aFormData[7] = GUICtrlRead($txtServerConnection)
+	$aFormData[8] = GUICtrlRead($txtForgeVersion)
+	$aFormData[9] = GUICtrlRead($txtBaseURL)
+
+	; Extra form data
+	$aFormData[10] = GUICtrlRead($txtBaseSourceFolder)
+	$aFormData[11] = GUICtrlRead($txtAppendPath)
+
+	_FileWriteFromArray(@WorkingDir & "\Modpack.dat", $aFormData, 1)
+
+EndFunc
+
+
+Func LoadFormData()
+	Local $aFormData[12]
+
+	If Not FileExists(@WorkingDir & "\Modpack.dat") Then
+		Return
+	EndIf
+
+	_FileReadToArray(@WorkingDir & "\Modpack.dat", $aFormData)
+
+	; Modpack Info
+	GUICtrlSetData($txtModID, $aFormData[1])
+	GUICtrlSetData($txtServerName, $aFormData[2])
+	GUICtrlSetData($txtServerVersion, $aFormData[3])
+	GUICtrlSetData($txtNews, $aFormData[4])
+	GUICtrlSetData($txtLogo, $aFormData[5])
+	GUICtrlSetData($txtDiscription, $aFormData[6])
+	GUICtrlSetData($txtServerConnection, $aFormData[7])
+	GUICtrlSetData($txtForgeVersion, $aFormData[8])
+	GUICtrlSetData($txtBaseURL, $aFormData[9])
+
+	; Extra form data
+	GUICtrlSetData($txtBaseSourceFolder, $aFormData[10])
+	GUICtrlSetData($txtAppendPath, $aFormData[11])
+
+	; Load Modpack Treeview
+	eventLoadModpackFiles()
+
+	GUICtrlSetState($treeModpack, $GUI_FOCUS )
+EndFunc
+
 
 Func eventSelectBaseSourceFolder()
 	Local $sPath
@@ -298,6 +357,7 @@ EndFunc
 
 
 Func eventClose()
+	SaveFormData()
 	GUIDelete($frmModpackDetails)
 	Exit
 EndFunc
@@ -323,9 +383,6 @@ Func eventLoadModpackFiles()
 	Local $sFilename
 	Local $sPath
 
-	; ******************************* Temp DATA ******************************************************
-	GUICtrlSetData($txtBaseSourceFolder, "C:\Users\Jock\Desktop\Roaming\1.6.4 Modded Update 3")
-	; ************************************************************************************************
 	$sPath = GUICtrlRead($txtBaseSourceFolder)
 	If Not FileExists($sPath) Then
 		Return
