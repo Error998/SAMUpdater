@@ -38,15 +38,15 @@ GUICtrlSetBkColor(-1,"-2")
 $txtServerConnection = GUICtrlCreateInput("",40,230,372,20,-1,512)
 GUICtrlCreateLabel("News Page",40,270,89,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-$txtNews = GUICtrlCreateInput("",40,290,150,20,-1,512)
-GUICtrlSetState(-1,144)
-GUICtrlCreateLabel("Logo",260,270,55,15,-1,-1)
+$txtNews = GUICtrlCreateInput("",40,290,370,20,-1,512)
+GUICtrlSetState(-1,16)
+GUICtrlCreateLabel("Logo",40,330,55,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-$txtLogo = GUICtrlCreateInput("",260,290,150,20,-1,512)
-GUICtrlSetState(-1,144)
-GUICtrlCreateLabel("Description",40,330,88,15,-1,-1)
+$txtLogo = GUICtrlCreateInput("",40,350,370,20,-1,512)
+GUICtrlSetState(-1,16)
+GUICtrlCreateLabel("Description",40,390,88,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-$txtDiscription = GUICtrlCreateInput("",42,347,405,164,4,512)
+$txtDiscription = GUICtrlCreateInput("",40,410,405,100,4,512)
 GUICtrlCreateGroup("Modpack Details",10,0,467,582,-1,-1)
 GUICtrlSetBkColor(-1,"0xF0F0F0")
 $treeModpack = GUICtrlCreateTreeView(509,90,424,419,-1,512)
@@ -57,8 +57,8 @@ GUICtrlCreateLabel("Base Source Folder",510,31,96,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
 $txtBaseSourceFolder = GUICtrlCreateInput("",510,51,371,20,-1,512)
 $cmdSelectBaseSourceFolder = GUICtrlCreateButton("...",890,51,27,20,-1,-1)
-$cmdSelectNews = GUICtrlCreateButton("...",200,290,27,20,-1,-1)
-$cmdSelectLogo = GUICtrlCreateButton("...",420,290,27,20,-1,-1)
+$cmdSelectNews = GUICtrlCreateButton("...",420,290,27,20,-1,-1)
+$cmdSelectLogo = GUICtrlCreateButton("...",420,350,27,20,-1,-1)
 GUICtrlCreateGroup("Modpack Files",489,0,904,581,-1,-1)
 GUICtrlSetBkColor(-1,"0xF0F0F0")
 $treeExclude = GUICtrlCreateTreeView(949,90,424,419,-1,512)
@@ -80,7 +80,36 @@ GUICtrlSetOnEvent($cmdTest, "eventTest")
 GUICtrlSetOnEvent($cmdExclude, "eventExclude")
 GUICtrlSetOnEvent($cmdInclude, "eventInclude")
 GUICtrlSetOnEvent($cmdSelectBaseSourceFolder, "eventSelectBaseSourceFolder")
+GUICtrlSetOnEvent($cmdSelectLogo, "eventSelectLogo")
+GUICtrlSetOnEvent($cmdSelectNews, "eventSelectNews")
 #endregion Events
+
+
+Func eventSelectLogo()
+	Local $sPath
+
+	$sPath = FileOpenDialog("Select Picture", @ScriptDir & "\", "Images (*.jpg;*.bmp)", 3)
+	If $sPath = "" Then
+		Return
+	EndIf
+
+	GUICtrlSetData($txtLogo, $sPath)
+
+EndFunc
+
+
+Func eventSelectNews()
+	Local $sPath
+
+	$sPath = FileOpenDialog("Select News Data file", @ScriptDir & "\", "All Files (*.*)", 3)
+	If $sPath = "" Then
+		Return
+	EndIf
+
+	GUICtrlSetData($txtNews, $sPath)
+
+EndFunc
+
 
 Func SaveFormData()
 	Local $aFormData[12]
@@ -100,7 +129,7 @@ Func SaveFormData()
 	$aFormData[10] = GUICtrlRead($txtBaseSourceFolder)
 	$aFormData[11] = GUICtrlRead($txtAppendPath)
 
-	_FileWriteFromArray(@WorkingDir & "\Modpack.dat", $aFormData, 1)
+	_FileWriteFromArray(@ScriptDir & "\Modpack.dat", $aFormData, 1)
 
 EndFunc
 
@@ -108,11 +137,11 @@ EndFunc
 Func LoadFormData()
 	Local $aFormData[12]
 
-	If Not FileExists(@WorkingDir & "\Modpack.dat") Then
+	If Not FileExists(@ScriptDir & "\Modpack.dat") Then
 		Return
 	EndIf
 
-	_FileReadToArray(@WorkingDir & "\Modpack.dat", $aFormData)
+	_FileReadToArray(@ScriptDir & "\Modpack.dat", $aFormData)
 
 	; Modpack Info
 	GUICtrlSetData($txtModID, $aFormData[1])
