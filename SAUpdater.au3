@@ -29,8 +29,8 @@ Const $version = "1.0.0.0"
 Func checkUpdate()
 	ConsoleWrite("[Info]: Checking if an update is available" & @CRLF)
 
-	downloadFile($sUpdateURL, @WorkingDir & "\version.dat")
-	_FileReadToArray(@WorkingDir & "\version.dat", $ver)
+	downloadFile($sUpdateURL, @ScriptDir & "\version.dat")
+	_FileReadToArray(@ScriptDir & "\version.dat", $ver)
 
 	If $ver[1] > $version Then
 		ConsoleWrite("[Info]: Current Version: " & $version & " - Available Version " & $ver[1] & @CRLF)
@@ -38,10 +38,10 @@ Func checkUpdate()
 		For $i = 1 to 3
 			; Download Update
 			ConsoleWrite("[Info]: Downloading new update" & @CRLF)
-			downloadFile($ver[2], @WorkingDir & "\Update.dat")
+			downloadFile($ver[2], @ScriptDir & "\Update.dat")
 
 			;Check Update hash
-			If compareHash(@WorkingDir & "\Update.dat", $ver[3]) Then
+			If compareHash(@ScriptDir & "\Update.dat", $ver[3]) Then
 				ConsoleWrite("[Info]: File integrity passed - Update.dat" & @CRLF)
 				ExitLoop
 			ElseIf $i = 3 Then
@@ -55,10 +55,10 @@ Func checkUpdate()
 		For $i = 1 to 3
 			; Download Update_Helper
 			ConsoleWrite("[Info]: Downloading Update_Helper" & @CRLF)
-			downloadFile($ver[4], @WorkingDir & "\Update_Helper.exe")
+			downloadFile($ver[4], @ScriptDir & "\Update_Helper.exe")
 
 			;Check Update hash
-			If compareHash(@WorkingDir & "\Update_Helper.exe", $ver[5]) Then
+			If compareHash(@ScriptDir & "\Update_Helper.exe", $ver[5]) Then
 				ConsoleWrite("[Info]: File integrity passed - Update_Helper.exe" & @CRLF)
 				ExitLoop
 			ElseIf $i = 3 Then
@@ -69,7 +69,7 @@ Func checkUpdate()
 			EndIf
 		Next
 
-		Run("Update_Helper.exe", @WorkingDir)
+		Run("Update_Helper.exe", @ScriptDir)
 		Exit
 	Else
 		ConsoleWrite("[Info]: Current Version: " & $version & " - No new update available" & @CRLF)
@@ -82,23 +82,23 @@ EndFunc
 ; Download pack
 Func getPackXML($sPackURL)
 
-	createFolder(@WorkingDir & "\PackData")
+	createFolder(@ScriptDir & "\PackData")
 
 	ConsoleWrite("[Info]: Downloading ServerPacks.xml" & @CRLF)
-	downloadFile($sPackURL, @WorkingDir & "\PackData\ServerPacks.xml")
+	downloadFile($sPackURL, @ScriptDir & "\PackData\ServerPacks.xml")
 
 EndFunc
 
 
 Func getBackgroundMusic($sBackgroundMusicURL)
 
-	createFolder(@WorkingDir & "\PackData\Sounds")
+	createFolder(@ScriptDir & "\PackData\Sounds")
 
-	If FileExists(@WorkingDir & "\PackData\Sounds\background.mp3") Then
+	If FileExists(@ScriptDir & "\PackData\Sounds\background.mp3") Then
 		ConsoleWrite("[Info]: Using cached background music" & @CRLF)
 	Else
 		ConsoleWrite("[Info]: Downloading background music" & @CRLF)
-		downloadFile($sBackgroundMusicURL, @WorkingDir & "\PackData\Sounds\background.mp3")
+		downloadFile($sBackgroundMusicURL, @ScriptDir & "\PackData\Sounds\background.mp3")
 	EndIf
 EndFunc
 
@@ -150,7 +150,7 @@ Func getModPacksInfo($BaseModPackURLofModpackNum = 1)
 
 	ConsoleWrite("[Info]: Loading ServerPack.xml")
 	; Get ModPack tag
-	$sXML = loadXML(@WorkingDir & "\PackData\ServerPacks.xml")
+	$sXML = loadXML(@ScriptDir & "\PackData\ServerPacks.xml")
 	$Modpack = getElements($sXML, "ModPack")
 	ConsoleWrite(" ...done" & @CRLF)
 	ConsoleWrite("[Info]: Found " & $Modpack[0] & " modpacks" & @CRLF)
@@ -187,7 +187,7 @@ Func getModPacksInfo($BaseModPackURLofModpackNum = 1)
 		ConsoleWrite("[Info]" & $i & ": Forge Profile ID " & $info[8] & @CRLF & @CRLF)
 		ConsoleWrite("[Info]" & $i & ": Base Modpack URL " & $info[9] & @CRLF & @CRLF)
 		; Create Mod pack cache folder
-		createFolder(@WorkingDir & "\PackData\" & $info[1])
+		createFolder(@ScriptDir & "\PackData\" & $info[1])
 
 		; Save base modpack URL to return
 		If $i = $BaseModPackURLofModpackNum Then
@@ -204,7 +204,7 @@ Func getModPack($iModPackNum)
 
 	ConsoleWrite("[Info]: Getting Modpack " & $iModPackNum & " data")
 	; Get ModPack tag
-	$sXML = loadXML(@WorkingDir & "\PackData\ServerPacks.xml")
+	$sXML = loadXML(@ScriptDir & "\PackData\ServerPacks.xml")
 	$Modpack = getElements($sXML, "ModPack")
 	ConsoleWrite(" ...done" & @CRLF)
 
@@ -273,7 +273,7 @@ Func cacheModules(ByRef $modules, $sModPackID, $sBaseModpackURL)
 		; Should we install or remove file?
 		If $moduleInfo[7] = "TRUE" Then
 			; Remove file from cache
-			rmFile(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[4])
+			rmFile(@ScriptDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[4])
 
 			; Remove file from installation
 			rmFile(@AppDataDir & "\" & $moduleInfo[3] & "\" & $moduleInfo[1])
@@ -293,23 +293,23 @@ Func cacheFiles($sURL, $bHash, $sModPackID)
 	; Retry to download file 3 times if file integrity failed
 	For $i = 1 To 3
 		; Check if file already exist in the cache
-		If FileExists(@WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash) Then
+		If FileExists(@ScriptDir & "\PackData\" & $sModPackID & "\" & $bHash) Then
 			ConsoleWrite("[Info]: File already cached - " & $bHash & @CRLF)
 		Else
 			; Download uncached file
 			ConsoleWrite("[Info]: Downloading file into cache - " & $bHash & @CRLF)
-			downloadFile($sURL, @WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash)
+			downloadFile($sURL, @ScriptDir & "\PackData\" & $sModPackID & "\" & $bHash)
 		EndIf
 
 
 		; Verify file
-		If compareHash(@WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash, $bHash) Then
+		If compareHash(@ScriptDir & "\PackData\" & $sModPackID & "\" & $bHash, $bHash) Then
 			ConsoleWrite("[Info]: File integrity passed" & @CRLF)
 			ExitLoop
 		Else
 			ConsoleWrite("[Error]: File integrity failed." & " Retry " & $i & " of 3" & @CRLF)
 			; Removed corupted file
-			If FileDelete(@WorkingDir & "\PackData\" & $sModPackID & "\" & $bHash) Then
+			If FileDelete(@ScriptDir & "\PackData\" & $sModPackID & "\" & $bHash) Then
 				ConsoleWrite("[Info]: Removed corrupt file" & @CRLF)
 			Else
 				ConsoleWrite("[ERROR]: Failed to remove corrupt file " & $bHash & @CRLF)
@@ -409,7 +409,7 @@ Func installFromCache(ByRef $modules, $sModPackID)
 		; Check if module should be overwritten
 		If $moduleInfo[8] = "TRUE" Then
 			; Overwrite file
-			$sResult = FileCopy(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[4],  @AppDataDir & "\" & $moduleInfo[3] & "\" & $moduleInfo[1], 1)
+			$sResult = FileCopy(@ScriptDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[4],  @AppDataDir & "\" & $moduleInfo[3] & "\" & $moduleInfo[1], 1)
 
 			; Check if copy function was successful
 			If  $sResult = True Then
@@ -423,7 +423,7 @@ Func installFromCache(ByRef $modules, $sModPackID)
 			ConsoleWrite("[Info]: File already exists skipping - " & $moduleInfo[1] & @CRLF)
 		Else
 			; File not in target, proceding to install it
-			$sResult = FileCopy(@WorkingDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[4],  @AppDataDir & "\" & $moduleInfo[3] & "\" & $moduleInfo[1], 0)
+			$sResult = FileCopy(@ScriptDir & "\PackData\" & $sModPackID & "\" & $moduleInfo[4],  @AppDataDir & "\" & $moduleInfo[3] & "\" & $moduleInfo[1], 0)
 
 			; Check if copy function was successful
 			If  $sResult = True Then
@@ -477,8 +477,8 @@ checkUpdate()
 ; Download music
 getBackgroundMusic($sMusicURL)
 ; Play background music
-If FileExists(@WorkingDir & "\PackData\Sounds\Background.mp3") Then
-	SoundPlay(@WorkingDir & "\PackData\Sounds\Background.mp3")
+If FileExists(@ScriptDir & "\PackData\Sounds\Background.mp3") Then
+	SoundPlay(@ScriptDir & "\PackData\Sounds\Background.mp3")
 EndIf
 
 ; Download and store ServerPacks.xml

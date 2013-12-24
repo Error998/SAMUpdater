@@ -37,9 +37,9 @@ Func writePack()
 	Local $sPath = @DesktopDir & "\Roaming\1.6.4 Modded Update 3\"
 	Local $bHash
 
-	$hFile = FileOpen(@WorkingDir & "\PackData\packs.xml", 10) ;erase + create dir)
+	$hFile = FileOpen(@ScriptDir & "\PackData\packs.xml", 10) ;erase + create dir)
 	If $hFile = -1 Then
-		ConsoleWrite("[ERROR]: Unable to open - " & @WorkingDir & "\PackData\packs.xml" & @CRLF)
+		ConsoleWrite("[ERROR]: Unable to open - " & @ScriptDir & "\PackData\packs.xml" & @CRLF)
 		Exit
 	EndIf
 

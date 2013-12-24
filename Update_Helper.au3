@@ -58,30 +58,30 @@ Func UpdateSAMUpdater()
 	ConsoleWrite("[Info]: Checking update file integrity" & @CRLF)
 
 	; Sanity check to make sure a update actually exists
-	If Not FileExists(@WorkingDir & "\Update.dat") Then
+	If Not FileExists(@ScriptDir & "\Update.dat") Then
 		ConsoleWrite("[ERROR]: Update file not found, please run SAMUpdater" & @CRLF)
 		Exit
 	EndIf
 
-	downloadFile($sUpdateURL, @WorkingDir & "\version.dat")
-	_FileReadToArray(@WorkingDir & "\version.dat", $ver)
+	downloadFile($sUpdateURL, @ScriptDir & "\version.dat")
+	_FileReadToArray(@ScriptDir & "\version.dat", $ver)
 
 	;Check Update hash
-	If compareHash(@WorkingDir & "\Update.dat", $ver[3]) Then
+	If compareHash(@ScriptDir & "\Update.dat", $ver[3]) Then
 		ConsoleWrite("[Info]: File integrity passed - Update.dat" & @CRLF)
 
 		; Delete old file
-		If FileExists(@WorkingDir & "\SAMUpdater.exe") Then
-			If Not FileRecycle(@WorkingDir & "\SAMUpdater.exe") Then
+		If FileExists(@ScriptDir & "\SAMUpdater.exe") Then
+			If Not FileRecycle(@ScriptDir & "\SAMUpdater.exe") Then
 				ConsoleWrite("[ERROR]: Unable to delete SAMUpdater.exe - Please remove this file manually and start Update_Helper again" & @CRLF)
 				Exit
 			EndIf
 		EndIf
 
-		If FileMove(@WorkingDir & "\Update.dat", @WorkingDir & "\SAMUpdater.exe") Then
+		If FileMove(@ScriptDir & "\Update.dat", @ScriptDir & "\SAMUpdater.exe") Then
 			ConsoleWrite("[Info]: Update successful" & @CRLF)
 			ConsoleWrite("[Info]: Now starting SAMUpdater.exe" & @CRLF)
-			Run("SAMUpdater.exe", @WorkingDir)
+			Run("SAMUpdater.exe", @ScriptDir)
 			Exit
 		Else
 			ConsoleWrite("[ERROR]: Unable to apply the update to SAMUpdater.exe - Please remove SAMUpdater.exe manually and start Update_Helper again" & @CRLF)
