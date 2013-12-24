@@ -3,6 +3,7 @@
 #include <WindowsConstants.au3>
 #Include <GuiButton.au3>
 #include <GuiTreeview.au3>
+#include <GuiListbox.au3>
 #include<File.au3>
 
 Opt("GUIOnEventMode", 1)
@@ -12,11 +13,11 @@ Local $cmdForgeVersion, $cmdTest, $cmdLoadFiles, $cmdExclude, $cmdInclude, $cmdS
 Local $cmdSelectNews
 Local $txtBaseURL, $txtDiscription, $txtForgeVersion, $txtLogo, $txtModID, $txtNews, $txtServerConnection, $txtServerName
 Local $txtServerVersion, $txtBaseSourceFolder, $txtAppendPath
-
+Local $lstStatus
 
 #region Form
 
-$frmModpackDetails = GUICreate("Modpack Creator",1401,589,-1,-1,-1,-1)
+$frmModpackDetails = GUICreate("Modpack Creator",1401,802,-1,-1,-1,-1)
 GUICtrlCreateLabel("Modpack ID*",40,30,68,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
 $txtModID = GUICtrlCreateInput("",40,50,150,20,-1,512)
@@ -68,7 +69,9 @@ GUICtrlSetBkColor(-1,"-2")
 GUICtrlCreateLabel("Additional Folder - %APPDATA%\<Enter Data>\.minecraft\..",40,530,303,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
 $txtAppendPath = GUICtrlCreateInput("",40,550,373,20,-1,512)
-
+$lstStatus = GUICtrlCreatelist("",40,620,1330,149,-1,512)
+GUICtrlCreateGroup("Status Window",9,595,1381,198,-1,-1)
+GUICtrlSetBkColor(-1,"0xF0F0F0")
 
 #endregion Form
 
@@ -131,10 +134,20 @@ Func SaveFormData()
 
 	_FileWriteFromArray(@ScriptDir & "\Modpack.dat", $aFormData, 1)
 
+	; Get Exclude Treeview items
+	Local $aFiles = ReturnTreeContent($treeExclude)
+
+	; If nothing to save, remove file
+	If $aFiles = 0 And FileExists(@ScriptDir & "\Exclude.dat") Then
+		FileDelete(@ScriptDir & "\Exclude.dat")
+	Else
+		; Save Exclude Treeview
+		_FileWriteFromArray(@ScriptDir & "\Exclude.dat", $aFiles, 1)
+	EndIf
 EndFunc
 
 
-Func LoadFormData()
+Func LoadFormModpackDetails()
 	Local $aFormData[12]
 
 	If Not FileExists(@ScriptDir & "\Modpack.dat") Then
@@ -161,7 +174,109 @@ Func LoadFormData()
 	; Load Modpack Treeview
 	eventLoadModpackFiles()
 
+	GUISetState(@SW_SHOW,$frmModpackDetails)
+
+	SetStatus("[Info]: Loading previously excluded files...")
+	SplashTextOn("Loading previously excluded files...", "Please wait", 300, 45)
+	LoadExcludeTreeviewFromFile()
+	SplashOff()
+	AppendStatus("done")
 	GUICtrlSetState($treeModpack, $GUI_FOCUS )
+EndFunc
+
+
+Func AppendStatus($sText)
+	Local $i
+	; Store last item index
+	$i = _GUICtrlListBox_GetCount($lstStatus) - 1
+
+	_GUICtrlListBox_ReplaceString($lstStatus, $i, _GUICtrlListBox_GetText($lstStatus, $i) & $sText)
+EndFunc
+
+
+Func SetStatus($sText)
+	Local $i
+
+	; Adds text to the status listbox, if its full clear the listbox and add item aggain
+	$i = _GUICtrlListBox_InsertString($lstStatus, $sText)
+	If $i = -1 Then
+		_GUICtrlListBox_ResetContent($lstStatus)
+		_GUICtrlListBox_InsertString($lstStatus, $sText)
+	EndIf
+	_GUICtrlListBox_SetCurSel($lstStatus, $i)
+EndFunc
+
+
+Func LoadExcludeTreeviewFromFile()
+	Local $aFiles
+	Local $sParent, $sChild
+	Local $iChildCount
+	Local $hFound, $hChild
+	Local $bFound = False
+
+	; File must exist
+	If Not FileExists(@ScriptDir & "\Exclude.dat") Then
+		Return
+	EndIf
+
+	_FileReadToArray(@ScriptDir & "\Exclude.dat", $aFiles)
+
+	For $i = 1 to $aFiles[0]
+		$bFound = False
+		$sParent = getPath($aFiles[$i])
+		$sChild = getFilename($aFiles[$i])
+
+		; Check if parent still exists in Modpack tree
+		$hFound = _GUICtrlTreeView_FindItem($treeModpack, $sParent)
+		if $hFound = 0 Then
+			SetStatus("[Warning]: Folder no longer exists in modpack, removing file from exclude list - " & $sParent & "\" & $sChild)
+			ContinueLoop
+		EndIf
+
+		; Parent found, lets check its children
+		$iChildCount = _GUICtrlTreeView_GetChildCount($treeModpack, $hFound)
+
+		; Get first child
+		$hChild = _GUICtrlTreeView_GetFirstChild($treeModpack, $hFound)
+		; Check if hChild = sChild then remove the child from Modpack treeview
+		If _GUICtrlTreeView_GetText($treeModpack, $hChild) = $sChild Then
+			_GUICtrlTreeView_Delete($treeModpack, $hChild)
+
+			; If it was the last child remove the parent too
+			If $iChildCount = 1 Then
+				_GUICtrlTreeView_Delete($treeModpack, $hFound)
+			EndIf
+
+			; Add to exclude treeview
+			AddToExclude($sParent, $sChild)
+			$bFound = True
+		Else
+			; Check the rest of the children
+			For $x = 1 To $iChildCount - 1
+				$hChild = _GUICtrlTreeView_GetNextChild($treeModpack, $hChild)
+				; Check if hChild = sChild then remove the child from Modpack treeview
+				If _GUICtrlTreeView_GetText($treeModpack, $hChild) = $sChild Then
+					_GUICtrlTreeView_Delete($treeModpack, $hChild)
+
+					; If it was the last child remove the parent too
+					If $iChildCount = 1 Then
+						_GUICtrlTreeView_Delete($treeModpack, $hFound)
+					EndIf
+
+					; Add to exclude treeview
+					AddToExclude($sParent, $sChild)
+					$bFound = True
+				EndIf
+			Next
+		EndIf
+
+		; Check if file was found at all
+		If Not $bFound Then
+			SetStatus("[Warning]: File no longer exists in modpack, removing file from exclude list - " & $sParent & "\" & $sChild)
+		EndIf
+
+	Next
+
 EndFunc
 
 
@@ -196,6 +311,7 @@ Func eventInclude()
 		Return
 	EndIf
 
+	SetStatus("[Info]: Including files...")
 	; Check if selected item is a parent
 	$iChildCount = _GUICtrlTreeView_GetChildCount($treeExclude, $hItem)
 	If $iChildCount >= 1 Then
@@ -203,12 +319,9 @@ Func eventInclude()
 		$sSearch = _GUICtrlTreeView_GetText($treeExclude, $hItem)
 		Do
 			; Search of existing parent in treeview
-			$hFound = _GUICtrlTreeView_FindItem($treeExclude, $sSearch, True)
+			$hFound = _GUICtrlTreeView_FindItem($treeExclude, $sSearch)
 
 			if $hFound <> 0 Then
-				ConsoleWrite("Parent Handle: " & $hFound & @CRLF)
-				ConsoleWrite("Parent Text: " & _GUICtrlTreeView_GetText($treeExclude, $hFound) & @CRLF)
-
 				IncludeItem($hFound)
 			EndIf
 
@@ -219,6 +332,7 @@ Func eventInclude()
 		IncludeItem($hItem)
 	EndIf
 	_GUICtrlTreeView_Sort($treeModpack)
+	AppendStatus("done")
 EndFunc
 
 
@@ -233,6 +347,7 @@ Func eventExclude()
 		Return
 	EndIf
 
+	SetStatus("[Info]: Excluding files...")
 	; Check if selected item is a parent
 	$iChildCount = _GUICtrlTreeView_GetChildCount($treeModpack, $hItem)
 	If $iChildCount >= 1 Then
@@ -240,12 +355,9 @@ Func eventExclude()
 		$sSearch = _GUICtrlTreeView_GetText($treeModpack, $hItem)
 		Do
 			; Search of existing parent in treeview
-			$hFound = _GUICtrlTreeView_FindItem($treeModpack, $sSearch, True)
+			$hFound = _GUICtrlTreeView_FindItem($treeModpack, $sSearch)
 
 			if $hFound <> 0 Then
-				ConsoleWrite("Parent Handle: " & $hFound & @CRLF)
-				ConsoleWrite("Parent Text: " & _GUICtrlTreeView_GetText($treeModpack, $hFound) & @CRLF)
-
 				ExcludeItem($hFound)
 			EndIf
 
@@ -256,6 +368,7 @@ Func eventExclude()
 		ExcludeItem($hItem)
 	EndIf
 	_GUICtrlTreeView_Sort($treeExclude)
+	AppendStatus("done")
 EndFunc
 
 
@@ -306,8 +419,6 @@ Func ExcludeItem($hItem)
 	Local $iChildCount
 	Local $sSearch
 
-	; Get the handle of the selected control
-	;$hItem = _GUICtrlTreeView_GetSelection($treeModpack)
 
 	; Check if selected item is a parent
 	$iChildCount = _GUICtrlTreeView_GetChildCount($treeModpack, $hItem)
@@ -346,10 +457,71 @@ EndFunc
 
 
 Func eventTest()
-	_GUICtrlTreeView_BeginUpdate($treeExclude)
-	AddToExclude("Parent", "Child 1")
-	AddToExclude("Parent\with more stuff", "Child 2")
-	_GUICtrlTreeView_EndUpdate($treeExclude)
+	ConsoleWrite(_GUICtrlTreeView_GetChildCount($treeModpack, _GUICtrlTreeView_GetFirstItem($treeModpack)) & @CRLF)
+EndFunc
+
+
+Func ReturnTreeContent($tree)
+	Local $hItem
+	Local $sParent, $sPath
+	Local $i
+
+	;Get child count of entire tree
+	; First item will always be the parent
+	$hItem = _GUICtrlTreeView_GetFirstItem($tree)
+
+	; Sanity check does the tree contain anything?
+	If $hItem = 0 Then
+		Return 0
+	EndIf
+
+	$sParent = _GUICtrlTreeView_GetText($tree, $hItem)
+
+	While $hItem <> 0
+		; Get next item
+		$hItem = _GUICtrlTreeView_GetNext($tree, $hItem)
+		If $hItem <> 0 Then
+			; Check if the item is a parent
+			If _GUICtrlTreeView_GetChildCount($tree, $hItem) > 0 Then
+				; New Parent
+				$sParent = _GUICtrlTreeView_GetText($tree, $hItem)
+				ContinueLoop
+			EndIf
+
+			; Child
+			$sPath = $sParent & "\" & _GUICtrlTreeView_GetText($tree, $hItem)
+			$i = $i + 1
+		EndIf
+	WEnd
+
+	; Store full path of all files
+	Local $aFiles[$i + 1]
+	$aFiles[0] = $i
+
+	; First item will always be the parent
+	$hItem = _GUICtrlTreeView_GetFirstItem($tree)
+	$sParent = _GUICtrlTreeView_GetText($tree, $hItem)
+
+	$i = 1
+	While $hItem <> 0
+		; Get next item
+		$hItem = _GUICtrlTreeView_GetNext($tree, $hItem)
+		If $hItem <> 0 Then
+			; Check if the item is a parent
+			If _GUICtrlTreeView_GetChildCount($tree, $hItem) > 0 Then
+				; New Parent
+				$sParent = _GUICtrlTreeView_GetText($tree, $hItem)
+				ContinueLoop
+			EndIf
+
+			; Child
+			$sPath = $sParent & "\" & _GUICtrlTreeView_GetText($tree, $hItem)
+			$aFiles[$i] = $sPath
+			$i = $i + 1
+		EndIf
+	WEnd
+
+	Return $aFiles
 EndFunc
 
 
@@ -417,6 +589,7 @@ Func eventLoadModpackFiles()
 		Return
 	EndIf
 
+	SetStatus("[Info]: Loading modpack files...")
 	Local $aFiles = recurseFolders($sPath)
 	; Clear Exclude treeview
 	_GUICtrlTreeView_DeleteAll($treeExclude)
@@ -439,4 +612,5 @@ Func eventLoadModpackFiles()
 		EndIf
 	Next
 	_GUICtrlTreeView_EndUpdate($treeModpack)
+	AppendStatus("done")
 EndFunc

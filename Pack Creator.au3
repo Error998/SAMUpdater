@@ -102,6 +102,7 @@ Func writePack()
 
 EndFunc
 
+
 Func getFilename($sPath)
 	Local $i
 	$i = StringInStr($sPath,"\", 0, -1)
@@ -122,8 +123,8 @@ EndFunc
 
 ;writePack()
 
-LoadFormData()
-GUISetState(@SW_SHOW,$frmModpackDetails)
+LoadFormModpackDetails()
+
 
 While True
 	Sleep(2000)
