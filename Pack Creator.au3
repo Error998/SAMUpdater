@@ -3,6 +3,8 @@
 #include "includes\Folders.au3"
 #include "includes\RecFileListToArray.au3"
 #include "forms\frmModpackDetails.au3"
+#include "forms\frmOptions.au3"
+
 Opt('MustDeclareVars', 1)
 
 Func recurseFolders($sPath)
