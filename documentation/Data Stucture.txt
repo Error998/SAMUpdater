@@ -38,7 +38,7 @@ URL:	- ServerPack.xml
 			<ServerVersion>1.6.4 Update 2</ServerVersion>
 			<NewsPage>news.php</NewsPage>
 			<ModPackIcon>icon.jpg</ModPackIcon>
-			<Discription>Test Server Pack used for testing the newest mods and migration platform.</Discription>
+			<Description>Test Server Pack used for testing the newest mods and migration platform.</Description>
 			<ServerConnection>test.domain.co.za</ServerConnection>
 			<ForgeID>1.6.4-Forge9.11.1.952</ForgeID>
 			<URL>http://dl.domain.co.za/SAMUpdater</URL>

@@ -469,7 +469,31 @@ EndFunc
 
 
 Func eventTest()
-	ConsoleWrite(_GUICtrlTreeView_GetChildCount($treeModpack, _GUICtrlTreeView_GetFirstItem($treeModpack)) & @CRLF)
+	Local $aModPackData[12]
+
+	SetStatus("[Info]: Creating Modpack...")
+	GUISetState(@SW_DISABLE, $frmModpackDetails)
+
+	; Modpack Info
+	$aModPackData[1] = GUICtrlRead($txtModID)
+	$aModPackData[2] = GUICtrlRead($txtServerName)
+	$aModPackData[3] = GUICtrlRead($txtServerVersion)
+	$aModPackData[4] = GUICtrlRead($txtNews)
+	$aModPackData[5] = GUICtrlRead($txtLogo)
+	$aModPackData[6] = GUICtrlRead($txtDiscription)
+	$aModPackData[7] = GUICtrlRead($txtServerConnection)
+	$aModPackData[8] = GUICtrlRead($txtForgeVersion)
+	$aModPackData[9] = GUICtrlRead($txtBaseURL)
+
+	; Extra form data
+	$aModPackData[10] = GUICtrlRead($txtBaseSourceFolder)
+	$aModPackData[11] = GUICtrlRead($txtAppendPath)
+
+	Local $aFiles = ReturnTreeContent($treeModpack)
+
+	WriteModpack($aModPackData, $aFiles)
+	GUISetState(@SW_ENABLE, $frmModpackDetails)
+	AppendStatus("done")
 EndFunc
 
 
