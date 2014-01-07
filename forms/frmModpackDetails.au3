@@ -16,6 +16,9 @@ Local $txtServerVersion, $txtBaseSourceFolder, $txtAppendPath
 Local $lstStatus
 Local $mnuExit, $mnuFile, $mnuOptions
 
+Local $aModpack[1][6]
+$aModpack[0][0] = UBound($aModpack)
+
 #region Form
 
 $frmModpackDetails = GUICreate("Modpack Creator",1401,831,-1,-1,-1,-1)
@@ -97,10 +100,12 @@ GUICtrlSetOnEvent($mnuOptions, "eventOptions")
 GUICtrlSetOnEvent($cmdWriteModpack, "eventWriteModpack")
 #endregion Events
 
+
 Func eventOptions()
 	ConsoleWrite("Opening Options" & @CRLF)
 	LoadFormOptions()
 EndFunc
+
 
 Func eventSelectLogo()
 	Local $sPath
@@ -255,10 +260,16 @@ Func LoadExcludeTreeviewFromFile()
 		; Check if hChild = sChild then remove the child from Modpack treeview
 		If _GUICtrlTreeView_GetText($treeModpack, $hChild) = $sChild Then
 			_GUICtrlTreeView_Delete($treeModpack, $hChild)
+			; Remove Child from array
+			_ArrayDelete($aModpack, HandleToIndex($aModpack, $hChild))
+			$aModpack[0][0] = UBound($aModpack)
 
 			; If it was the last child remove the parent too
 			If $iChildCount = 1 Then
 				_GUICtrlTreeView_Delete($treeModpack, $hFound)
+				; Remove parent from array since the last child was removed
+				_ArrayDelete($aModpack, HandleToIndex($aModpack, $hFound))
+				$aModpack[0][0] = UBound($aModpack)
 			EndIf
 
 			; Add to exclude treeview
@@ -271,10 +282,16 @@ Func LoadExcludeTreeviewFromFile()
 				; Check if hChild = sChild then remove the child from Modpack treeview
 				If _GUICtrlTreeView_GetText($treeModpack, $hChild) = $sChild Then
 					_GUICtrlTreeView_Delete($treeModpack, $hChild)
+					; Remove Child from array
+					_ArrayDelete($aModpack, HandleToIndex($aModpack, $hChild))
+					$aModpack[0][0] = UBound($aModpack)
 
 					; If it was the last child remove the parent too
 					If $iChildCount = 1 Then
 						_GUICtrlTreeView_Delete($treeModpack, $hFound)
+						; Remove parent from array since the last child was removed
+						_ArrayDelete($aModpack, HandleToIndex($aModpack, $hFound))
+						$aModpack[0][0] = UBound($aModpack)
 					EndIf
 
 					; Add to exclude treeview
@@ -442,35 +459,68 @@ Func ExcludeItem($hItem)
 		; Get first child
 		$hChild = _GUICtrlTreeView_GetFirstChild($treeModpack, $hItem)
 		AddToExclude(_GUICtrlTreeView_GetText($treeModpack, $hItem), _GUICtrlTreeView_GetText($treeModpack, $hChild))
+		_ArrayDelete($aModpack, HandleToIndex($aModpack, $hChild))
+		$aModpack[0][0] = UBound($aModpack)
 
 		; Get rest of the children
 		For $i = 1 To $iChildCount - 1
 			$hChild = _GUICtrlTreeView_GetNextChild($treeModpack, $hChild)
 			AddToExclude(_GUICtrlTreeView_GetText($treeModpack, $hItem), _GUICtrlTreeView_GetText($treeModpack, $hChild))
+			_ArrayDelete($aModpack, HandleToIndex($aModpack, $hChild))
+			$aModpack[0][0] = UBound($aModpack)
 		Next
 
-		; Remove item from tree view
+		; Remove parent from tree view
 		_GUICtrlTreeView_Delete($treeModpack, $hItem)
+		_ArrayDelete($aModpack, HandleToIndex($aModpack, $hItem))
+		$aModpack[0][0] = UBound($aModpack)
 
 	Else
 		; Selected Item is a child
+
 		AddToExclude(_GUICtrlTreeView_GetText($treeModpack, _GUICtrlTreeView_GetParentHandle($treeModpack, $hItem)), _GUICtrlTreeView_GetText($treeModpack, $hItem))
 
 		; Check if its the last child, if so remove parent too
 		$hParent = _GUICtrlTreeView_GetParentHandle($treeModpack, $hItem)
 		$iChildCount = _GUICtrlTreeView_GetChildCount($treeModpack, $hParent)
 		If $iChildCount = 1 Then
-			; Remove parent since it only has 1 child
+			; Remove parent since we removed the last child
 			_GUICtrlTreeView_Delete($treeModpack, $hParent)
+
+			; Remove Parent ad Child from array
+			_ArrayDelete($aModpack, HandleToIndex($aModpack, $hParent))
+			$aModpack[0][0] = UBound($aModpack)
+			_ArrayDelete($aModpack, HandleToIndex($aModpack, $hItem))
+			$aModpack[0][0] = UBound($aModpack)
 		Else
 			; Remove item from tree view
 			_GUICtrlTreeView_Delete($treeModpack, $hItem)
+			; Remove child from array
+			_ArrayDelete($aModpack, HandleToIndex($aModpack, $hItem))
+			$aModpack[0][0] = UBound($aModpack)
 		EndIf
 	EndIf
+	ConsoleWrite(UBound($aModpack) & @CRLF)
+EndFunc
+
+
+Func HandleToIndex(ByRef $array, $hItem)
+	ConsoleWrite("Array UBound " & UBound($array) & @CRLF & $hItem & @CRLF)
+	For $i = 1 To UBound($array) - 1
+		If $array[$i][0] = $hItem Then
+			ConsoleWrite($array[$i][1] & @CRLF)
+			Return $i
+		EndIf
+	Next
+	ConsoleWrite("[ERROR]: We failed to find an index for the handle" & @CRLF)
 EndFunc
 
 
 Func eventTest()
+	MsgBox(0,"test", _GUICtrlTreeView_GetText($treeExclude, $aModpack[UBound($aModpack)-1][0]) & @CRLF)
+
+	Return
+
 	Local $hItem
 	Local $sParent, $sPath
 	Local $i
@@ -621,6 +671,7 @@ EndFunc
 
 Func AddToInclude($sParent, $sChild)
 	Local $hParent
+	Local $hChild
 
 	; Search of existing parent in treeview
 	$hParent = _GUICtrlTreeView_FindItemEx($treeModpack, $sParent)
@@ -628,9 +679,28 @@ Func AddToInclude($sParent, $sChild)
 	If $hParent = 0 Then
 		; Parent not found, create it
 		$hParent = _GUICtrlTreeView_Add($treeModpack, 0, $sParent)
+		; Add parent to array
+		ReDim $aModpack[UBound($aModpack) + 1][6]
+		$aModpack[0][0] = UBound($aModpack)
+		$aModpack[$aModpack[0][0] - 1][0] = $hParent						; NodeHandle
+		$aModpack[$aModpack[0][0] - 1][1] = $sParent						; NodeText
+		$aModpack[$aModpack[0][0] - 1][2] = "FALSE"							; Extract
+		$aModpack[$aModpack[0][0] - 1][3] = "TRUE"							; Required
+		$aModpack[$aModpack[0][0] - 1][4] = "FALSE"							; Remove
+		$aModpack[$aModpack[0][0] - 1][5] = "FALSE"							; Overwrite
 	EndIf
 
-	_GUICtrlTreeView_AddChild($treeModpack, $hParent, $sChild)
+	$hChild = _GUICtrlTreeView_AddChild($treeModpack, $hParent, $sChild)
+	; Add child to array
+	ReDim $aModpack[UBound($aModpack) + 1][6]
+	$aModpack[0][0] = UBound($aModpack)
+	$aModpack[$aModpack[0][0] - 1][0] = $hChild								; NodeHandle
+	$aModpack[$aModpack[0][0] - 1][1] = $sParent & "\" & $sChild			; NodeText
+	$aModpack[$aModpack[0][0] - 1][2] = "FALSE"								; Extract
+	$aModpack[$aModpack[0][0] - 1][3] = "TRUE"								; Required
+	$aModpack[$aModpack[0][0] - 1][4] = "FALSE"								; Remove
+	$aModpack[$aModpack[0][0] - 1][5] = "FALSE"								; Overwrite
+
 
 EndFunc
 
@@ -657,10 +727,11 @@ EndFunc
 
 
 Func eventLoadModpackFiles()
-	Local $item
+	Local $item, $tempItem
 	Local $sTemp
 	Local $sFilename
 	Local $sPath
+
 
 	$sPath = GUICtrlRead($txtBaseSourceFolder)
 	If Not FileExists($sPath) Then
@@ -675,6 +746,8 @@ Func eventLoadModpackFiles()
 	_GUICtrlTreeView_BeginUpdate($treeModpack)
 	; Clear treeview
 	_GUICtrlTreeView_DeleteAll(GUICtrlGetHandle($treeModpack))
+	ReDim $aModpack [1][6]
+	$aModpack[0][0] = UBound($aModpack)
 
 	; Populate treeview
 	For $i = 1 To $aFiles[0]
@@ -682,13 +755,44 @@ Func eventLoadModpackFiles()
 		$sFilename = getFilename($aFiles[$i])
 
 		If $sPath = $sTemp Then
-			GUICtrlCreateTreeViewItem($sFilename, $item)
+			; Increase array dim by 1
+			$aModpack[0][0] = $aModpack[0][0] + 1
+			ReDim $aModpack[$aModpack[0][0]][6]
+
+			; Child
+			$tempItem = _GUICtrlTreeView_AddChild($treeModpack,$item,$sFilename)
+			$aModpack[$aModpack[0][0] - 1][0] = $tempItem						; NodeHandle
+			$aModpack[$aModpack[0][0] - 1][1] = $sPath & "\" & $sFilename		; NodeText
+			$aModpack[$aModpack[0][0] - 1][2] = "FALSE"							; Extract
+			$aModpack[$aModpack[0][0] - 1][3] = "TRUE"							; Required
+			$aModpack[$aModpack[0][0] - 1][4] = "FALSE"							; Remove
+			$aModpack[$aModpack[0][0] - 1][5] = "FALSE"							; Overwrite
 		Else
+			; Increase array dim by 2
+			$aModpack[0][0] = $aModpack[0][0] + 2
+			ReDim $aModpack[$aModpack[0][0]][6]
 			$sTemp = $sPath
-			$item = GUICtrlCreateTreeViewItem($sPath, $treeModpack)
-			GUICtrlCreateTreeViewItem($sFilename, $item)
+
+			; Parent
+			$item =_GUICtrlTreeView_Add($treeModpack, 0, $sPath)
+			$aModpack[$aModpack[0][0] - 2][0] = $item							; NodeHandle
+			$aModpack[$aModpack[0][0] - 2][1] = $sPath							; NodeText
+			$aModpack[$aModpack[0][0] - 2][2] = "FALSE"							; Extract
+			$aModpack[$aModpack[0][0] - 2][3] = "TRUE"							; Required
+			$aModpack[$aModpack[0][0] - 2][4] = "FALSE"							; Remove
+			$aModpack[$aModpack[0][0] - 2][5] = "FALSE"							; Overwrite
+
+			; Child
+			$tempItem = _GUICtrlTreeView_AddChild($treeModpack, $item, $sFilename)
+			$aModpack[$aModpack[0][0] - 1][0] = $tempItem						; NodeHandle
+			$aModpack[$aModpack[0][0] -1][1] = $sPath & "\" & $sFilename		; NodeText
+			$aModpack[$aModpack[0][0] -1][2] = "FALSE"							; Extract
+			$aModpack[$aModpack[0][0] -1][3] = "TRUE"							; Required
+			$aModpack[$aModpack[0][0] -1][4] = "FALSE"							; Remove
+			$aModpack[$aModpack[0][0] -1][5] = "FALSE"							; Overwrite
 		EndIf
 	Next
+	_GUICtrlTreeView_Sort($treeModpack)
 	_GUICtrlTreeView_EndUpdate($treeModpack)
 	AppendStatus("done")
 EndFunc
