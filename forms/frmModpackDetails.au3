@@ -10,7 +10,7 @@ Opt("GUIOnEventMode", 1)
 Local $frmModpackDetails
 Local $treeModpack, $treeExclude
 Local $cmdForgeVersion, $cmdTest, $cmdLoadFiles, $cmdExclude, $cmdInclude, $cmdSelectBaseSourceFolder, $cmdSelectLogo
-Local $cmdSelectNews
+Local $cmdSelectNews, $cmdWriteModpack
 Local $txtBaseURL, $txtDiscription, $txtForgeVersion, $txtLogo, $txtModID, $txtNews, $txtServerConnection, $txtServerName
 Local $txtServerVersion, $txtBaseSourceFolder, $txtAppendPath
 Local $lstStatus
@@ -19,60 +19,61 @@ Local $mnuExit, $mnuFile, $mnuOptions
 #region Form
 
 $frmModpackDetails = GUICreate("Modpack Creator",1401,831,-1,-1,-1,-1)
-GUICtrlCreateLabel("Modpack ID*",40,40,68,15,-1,-1)
+GUICtrlCreateLabel("Modpack ID*",40,60,68,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-$txtModID = GUICtrlCreateInput("",40,60,150,20,-1,512)
-GUICtrlCreateLabel("Forge Version*",260,40,70,15,-1,-1)
+$txtModID = GUICtrlCreateInput("",40,80,150,20,-1,512)
+GUICtrlCreateLabel("Forge Version*",260,60,70,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-$txtForgeVersion = GUICtrlCreateInput("",260,60,151,20,-1,512)
-$cmdForgeVersion = GUICtrlCreateButton("...",420,60,28,21,-1,-1)
-GUICtrlCreateLabel("Modpack Base URL*",41,100,102,15,-1,-1)
+$txtForgeVersion = GUICtrlCreateInput("",260,80,151,20,-1,512)
+$cmdForgeVersion = GUICtrlCreateButton("...",420,80,28,21,-1,-1)
+GUICtrlCreateLabel("Modpack Base URL*",41,120,102,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-$txtBaseURL = GUICtrlCreateInput("",41,120,370,20,-1,512)
-GUICtrlCreateLabel("Server Name",40,160,67,15,-1,-1)
+$txtBaseURL = GUICtrlCreateInput("",40,140,371,20,-1,512)
+GUICtrlCreateLabel("Server Name",40,180,67,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-$txtServerName = GUICtrlCreateInput("",40,180,150,20,-1,512)
-GUICtrlCreateLabel("Server Version",260,160,83,15,-1,-1)
+$txtServerName = GUICtrlCreateInput("",40,200,150,20,-1,512)
+GUICtrlCreateLabel("Server Version",260,180,83,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-$txtServerVersion = GUICtrlCreateInput("",260,180,150,20,-1,512)
-GUICtrlCreateLabel("Server Connection",40,220,91,15,-1,-1)
+$txtServerVersion = GUICtrlCreateInput("",260,200,150,20,-1,512)
+GUICtrlCreateLabel("Server Connection",40,240,91,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-$txtServerConnection = GUICtrlCreateInput("",40,240,372,20,-1,512)
-GUICtrlCreateLabel("News Page",40,280,89,15,-1,-1)
+$txtServerConnection = GUICtrlCreateInput("",40,260,372,20,-1,512)
+GUICtrlCreateLabel("News Page",40,300,89,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-$txtNews = GUICtrlCreateInput("",40,300,370,20,-1,512)
+$txtNews = GUICtrlCreateInput("",40,320,370,20,-1,512)
 GUICtrlSetState(-1,16)
-GUICtrlCreateLabel("Logo",40,340,55,15,-1,-1)
+GUICtrlCreateLabel("Logo",40,360,55,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-$txtLogo = GUICtrlCreateInput("",40,360,370,20,-1,512)
+$txtLogo = GUICtrlCreateInput("",40,380,370,20,-1,512)
 GUICtrlSetState(-1,16)
-GUICtrlCreateLabel("Description",40,400,88,15,-1,-1)
+GUICtrlCreateLabel("Description",40,420,88,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-$txtDiscription = GUICtrlCreateInput("",40,420,405,100,4,512)
-GUICtrlCreateGroup("Modpack Details",10,10,467,582,-1,-1)
+$txtDiscription = GUICtrlCreateInput("",40,440,405,100,4,512)
+GUICtrlCreateGroup("Modpack Details",10,30,467,582,-1,-1)
 GUICtrlSetBkColor(-1,"0xF0F0F0")
-$treeModpack = GUICtrlCreateTreeView(509,100,424,419,-1,512)
-$cmdLoadFiles = GUICtrlCreateButton("Reload Files",531,540,101,30,-1,-1)
-$cmdTest = GUICtrlCreateButton("Test",641,540,100,30,-1,-1)
-$cmdExclude = GUICtrlCreateButton("Exclude",751,540,100,30,-1,-1)
-GUICtrlCreateLabel("Base Source Folder",510,41,96,15,-1,-1)
+$treeModpack = GUICtrlCreateTreeView(509,120,424,419,-1,512)
+$cmdLoadFiles = GUICtrlCreateButton("Reload Files",571,560,101,30,-1,-1)
+$cmdWriteModpack = GUICtrlCreateButton("Write Modpack",790,560,100,30,-1,-1)
+$cmdExclude = GUICtrlCreateButton("Exclude",681,560,100,30,-1,-1)
+GUICtrlCreateLabel("Base Source Folder",510,61,96,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-$txtBaseSourceFolder = GUICtrlCreateInput("",510,61,371,20,-1,512)
-$cmdSelectBaseSourceFolder = GUICtrlCreateButton("...",890,61,27,20,-1,-1)
-$cmdSelectNews = GUICtrlCreateButton("...",420,300,27,20,-1,-1)
-$cmdSelectLogo = GUICtrlCreateButton("...",420,360,27,20,-1,-1)
-GUICtrlCreateGroup("Modpack Files",489,10,904,581,-1,-1)
+$txtBaseSourceFolder = GUICtrlCreateInput("",510,81,371,20,-1,512)
+$cmdSelectBaseSourceFolder = GUICtrlCreateButton("...",890,81,27,20,-1,-1)
+$cmdSelectNews = GUICtrlCreateButton("...",420,320,27,20,-1,-1)
+$cmdSelectLogo = GUICtrlCreateButton("...",420,380,27,20,-1,-1)
+GUICtrlCreateGroup("Modpack Files",489,30,904,581,-1,-1)
 GUICtrlSetBkColor(-1,"0xF0F0F0")
-$treeExclude = GUICtrlCreateTreeView(949,100,424,419,-1,512)
-$cmdInclude = GUICtrlCreateButton("Include",1109,540,100,30,-1,-1)
-GUICtrlCreateLabel("Files Excluded from Modpack",949,70,143,15,-1,-1)
+$treeExclude = GUICtrlCreateTreeView(949,120,424,419,-1,512)
+$cmdInclude = GUICtrlCreateButton("Include",1109,560,100,30,-1,-1)
+GUICtrlCreateLabel("Files Excluded from Modpack",949,90,143,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-GUICtrlCreateLabel("Additional Folder - %APPDATA%\<Enter Data>\.minecraft\..",40,540,303,15,-1,-1)
+GUICtrlCreateLabel("Additional Folder - %APPDATA%\<Enter Data>\.minecraft\..",40,560,303,15,-1,-1)
 GUICtrlSetBkColor(-1,"-2")
-$txtAppendPath = GUICtrlCreateInput("",40,560,373,20,-1,512)
-$lstStatus = GUICtrlCreatelist("",40,630,1330,149,-1,512)
-GUICtrlCreateGroup("Status Window",9,605,1381,198,-1,-1)
+$txtAppendPath = GUICtrlCreateInput("",40,580,373,20,-1,512)
+$lstStatus = GUICtrlCreatelist("",40,650,1330,149,-1,512)
+GUICtrlCreateGroup("Status Window",9,625,1381,198,-1,-1)
 GUICtrlSetBkColor(-1,"0xF0F0F0")
+$cmdTest = GUICtrlCreateButton("Test",1000,560,100,30,-1,-1)
 
 
 ; Menu
@@ -93,6 +94,7 @@ GUICtrlSetOnEvent($cmdSelectLogo, "eventSelectLogo")
 GUICtrlSetOnEvent($cmdSelectNews, "eventSelectNews")
 GUICtrlSetOnEvent($mnuExit, "eventClose")
 GUICtrlSetOnEvent($mnuOptions, "eventOptions")
+GUICtrlSetOnEvent($cmdWriteModpack, "eventWriteModpack")
 #endregion Events
 
 Func eventOptions()
@@ -469,6 +471,45 @@ EndFunc
 
 
 Func eventTest()
+	Local $hItem
+	Local $sParent, $sPath
+	Local $i
+
+	;Get child count of entire tree
+	; First item will always be the parent
+	$hItem = _GUICtrlTreeView_GetFirstItem($treeModpack)
+
+	; Sanity check does the tree contain anything?
+	If $hItem = 0 Then
+		Return 0
+	EndIf
+
+	$sParent = _GUICtrlTreeView_GetText($treeModpack, $hItem)
+	ConsoleWrite($hItem & @CRLF)
+	While $hItem <> 0
+		; Get next item
+		$hItem = _GUICtrlTreeView_GetNext($treeModpack, $hItem)
+		If $hItem <> 0 Then
+			; Check if the item is a parent
+			If _GUICtrlTreeView_GetChildCount($treeModpack, $hItem) > 0 Then
+				; New Parent
+				$sParent = _GUICtrlTreeView_GetText($treeModpack, $hItem)
+				ConsoleWrite($hItem & @CRLF)
+				ContinueLoop
+			EndIf
+
+			; Child
+			ConsoleWrite($hItem  & @CRLF)
+			$sPath = $sParent & "\" & _GUICtrlTreeView_GetText($treeModpack, $hItem)
+			$i = $i + 1
+		EndIf
+	WEnd
+
+
+EndFunc
+
+
+Func eventWriteModpack()
 	Local $aModPackData[12]
 
 	SetStatus("[Info]: Creating Modpack...")
@@ -563,6 +604,7 @@ EndFunc
 
 Func AddToExclude($sParent, $sChild)
 	Local $hParent
+	Local $hChild
 
 	; Search of existing parent in treeview
 	$hParent = _GUICtrlTreeView_FindItemEx($treeExclude, $sParent)
@@ -572,8 +614,8 @@ Func AddToExclude($sParent, $sChild)
 		$hParent = _GUICtrlTreeView_Add($treeExclude, 0, $sParent)
 	EndIf
 
-	_GUICtrlTreeView_AddChild($treeExclude, $hParent, $sChild)
-
+	$hChild = _GUICtrlTreeView_AddChild($treeExclude, $hParent, $sChild)
+	_GUICtrlTreeView_SelectItem($treeExclude,$hChild)
 EndFunc
 
 
