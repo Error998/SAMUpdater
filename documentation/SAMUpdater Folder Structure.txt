@@ -1,0 +1,29 @@
+SAMUpdater Folder Structure
+---------------------------
+
+[App Folder]
+- SAMUpdater.exe
+- version.dat
+- update.dat
+- Update_Helper.exe
+[PackData Folder]
+- ServerPacks.xml
+- [Modpack ID Folder]
+  - modules
+  
+Source Files
+------------
+Pack XML:			<Base url>/Packs.xml
+Modules:			<Base url>/<ModpackID>/<md5>
+News:				<Base url>/<ModpackID>/Data/<NewsPage>
+Modpack Icon:		<Base url>/<ModpackID>/Data/<ModPackIcon>
+
+SAMUpdater.exe:		<Base url>/SAMUpdater.exe
+version.dat:		<Base url>/version.dat
+update.dat:			<Base url>/update.dat
+Update_Helper.exe:	<Base url>/Update_Helper.exe
+
+
+Saved Files
+------------
+Backup Folder:		<%AppData%>\SAMUpdater\Backup\<Day><Month><Year><Hour><Min><Sec>\.minecraft

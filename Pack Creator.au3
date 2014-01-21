@@ -124,7 +124,7 @@ Func WriteModpack(ByRef $aModpackHeader, ByRef $aFiles)
 
 		FileWriteLine($hFile,"			<Module>")
 		FileWriteLine($hFile,"				<Filename>" & getFilename($sPath) & "</Filename>")
-		FileWriteLine($hFile,"				<Extract>false</Extract>")
+		FileWriteLine($hFile,"				<Extract>FALSE</Extract>")
 		; Prefix extra path if present
 		If $aModpackHeader[11] = "" Then
 			FileWriteLine($hFile,"				<Path>" & getPath($aFiles[$i]) & "</Path>")
