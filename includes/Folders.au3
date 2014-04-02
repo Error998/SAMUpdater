@@ -69,6 +69,7 @@ Func removeFile($sPath)
 EndFunc
 
 
+
 ; #FUNCTION# ===================================================================
 ; Name...........: fileSize($sPath)
 ; Description ...: Returns the filesize in bytes
