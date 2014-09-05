@@ -1,5 +1,6 @@
 #include <Array.au3>
 #include <Crypt.au3>
+#include <File.au3>
 #include "includes\Folders.au3"
 #include "includes\RecFileListToArray.au3"
 #include "forms\frmModpackDetails.au3"
@@ -7,27 +8,40 @@
 
 Opt('MustDeclareVars', 1)
 
-Func recurseFolders($sPath)
-; A sorted list of all files and folders in the AutoIt installation
-	local $aFiles = _RecFileListToArray($sPath, "*", 1, 1, 1)
+
+
+
+; A file can be in 1 of 4 states:
+; 1) Added - done
+; 2) Removed - done
+; 3) Unchanged - done
+; 4) Changed - done
+
+
+Func recurseFolders($sPath, $sExcludeFile = "", $sExcludeEntireFolder = "")
+    ; A sorted list of all files and folders with optional exclusions
+	local $aFiles = _RecFileListToArray($sPath, "*|" & $sExcludeFile & "|" & $sExcludeEntireFolder, 1, 1, 1)
 	if @error = 1 Then
 		ConsoleWrite("[ERROR]: Unable to recurse folders " & @error & " - " & " Extended: " &  @extended & @CRLF)
 		Exit
 	EndIf
 
-	; Fix derpiness of sorting returned by _RecFileListToArray
-	Local $aTemp[$aFiles[0] + 1][2]
-    ; Split path and filename
-	For $i = 1 To $aFiles[0]
-		$aTemp[$i][0] = getPath($aFiles[$i])
-		$aTemp[$i][1] = getFilename($aFiles[$i])
-	Next
-	; Sort path
-	_ArraySort($aTemp, 0, 1)
-	; Restore fixed sorted array back
-	For $i = 1 To $aFiles[0]
-		$aFiles[$i] = $aTemp[$i][0] & "\" & $aTemp[$i][1]
-	Next
+;------------------------------------------------------------------
+;Errrhm wtf? Remove, then again I did something with the path...
+;------------------------------------------------------------------
+;~ 	; Fix derpiness of sorting returned by _RecFileListToArray
+;~ 	Local $aTemp[$aFiles[0] + 1][2]
+;~     ; Split path and filename
+;~ 	For $i = 1 To $aFiles[0]
+;~ 		$aTemp[$i][0] = getPath($aFiles[$i])
+;~ 		$aTemp[$i][1] = getFilename($aFiles[$i])
+;~ 	Next
+;~ 	; Sort path
+;~ 	_ArraySort($aTemp, 0, 1)
+;~ 	; Restore fixed sorted array back
+;~ 	For $i = 1 To $aFiles[0]
+;~ 		$aFiles[$i] = $aTemp[$i][0] & "\" & $aTemp[$i][1]
+;~ 	Next
 
 	Return $aFiles
 EndFunc
@@ -221,11 +235,111 @@ Func getPath($sPath)
 EndFunc
 
 
+Func GetDiff(ByRef $aArray1, ByRef $aArray2, ByRef $aUnchangedFiles)
+	Dim $aTemp[1]
 
-LoadFormModpackDetails()
+	;No items in array
+	$aTemp[0] = 0
+
+	;For each item to search
+	For $i = 1 to $aArray2[0]
+
+		Dim $iKeyIndex = _ArrayBinarySearch($aArray1, $aArray2[$i], 1, $aArray1[0])
+		If Not @error Then
+			;These files are still the same
+			_ArrayAdd($aUnchangedFiles, $aArray2[$i])
+			$aUnchangedFiles[0] = $aUnchangedFiles[0] + 1
+		Else
+			;MsgBox(0, 'Entry Not found - Error: ' & @error, $i & ": " & $aArray2[$i])
+			;ConsoleWrite($aArray2[$i] & @CRLF)
+			_ArrayAdd($aTemp, $aArray2[$i])
+			$aTemp[0] = $aTemp[0] + 1
+		EndIf
+	Next
+
+	Return $aTemp
+EndFunc
 
 
-While True
-	Sleep(2000)
-WEnd
+Func SplitChangedUnchangedFiles($sPath, $sPathNew, ByRef $aUnchangedFiles, ByRef $aChangedFiles)
+	Dim $aTempUnchangedFiles[1]
+	Dim $aTempChangedFiles[1]
+
+	$aTempChangedFiles[0] = 0
+	$aTempUnchangedFiles[0] = 0
+
+	For $i = 1 To $aUnchangedFiles[0]
+		; Create a md5 hash of the file.
+		If _Crypt_HashFile($sPath & "\" & $aUnchangedFiles[$i], $CALG_MD5) = _Crypt_HashFile($sPathNew & "\" & $aUnchangedFiles[$i], $CALG_MD5) Then
+			;ConsoleWrite("[OK] - " & $aFiles[$i] & @CRLF)
+			_ArrayAdd($aTempUnchangedFiles, $aUnchangedFiles[$i])
+			$aTempUnchangedFiles[0] = $aTempUnchangedFiles[0] + 1
+
+		Else
+			;ConsoleWrite("[FAILED] - " & $aFiles[$i] & @CRLF)
+			_ArrayAdd($aTempChangedFiles, $aUnchangedFiles[$i])
+			$aTempChangedFiles[0] = $aTempChangedFiles[0] + 1
+		EndIf
+	Next
+
+	$aUnchangedFiles = $aTempUnchangedFiles
+	$aChangedFiles = $aTempChangedFiles
+EndFunc
+
+Dim $aFilesOrignal
+Dim $aFilesNew
+Dim $aAddedFiles
+Dim $aRemovedFiles
+Dim $aUnchangedFiles[1]
+Dim $aChangedFiles[1]
+
+$aUnchangedFiles[0] = 0
+$aChangedFiles[0] = 0
+
+;Get old files and sort it in an array
+Dim $sPath = "C:\Data\Games - ISO\Minecraft\SA Minecraft\Client\MC 1.6.4 Core\.minecraft"
+$aFilesOrignal = recurseFolders($sPath,"cauldron.*","world;dynmap")
+_ArraySort($aFilesOrignal, 0, 1)
+ConsoleWrite("Original File Count: " & UBound($aFilesOrignal) - 1 & @CRLF)
+
+;Get current files and sort it in an array
+Dim $sPathNew = "C:\Users\Jock\AppData\Roaming\.minecraft"
+$aFilesNew = recurseFolders($sPathNew,"cauldron.*","world;dynmap;modpacks")
+_ArraySort($aFilesNew, 0, 1)
+ConsoleWrite("Current File Count: " & UBound($aFilesNew) - 1 & @CRLF)
+
+
+;Store all new files
+$aAddedFiles = GetDiff($aFilesOrignal, $aFilesNew, $aUnchangedFiles)
+ConsoleWrite("New files added: " & UBound($aAddedFiles) - 1 & @CRLF)
+_ArrayDisplay($aAddedFiles, "Added Files")
+
+ReDim $aUnchangedFiles[1]
+$aUnchangedFiles[0] = 0
+
+;Store all removed files
+$aRemovedFiles = GetDiff($aFilesNew, $aFilesOrignal, $aUnchangedFiles)
+ConsoleWrite("Files removed: " & UBound($aRemovedFiles) - 1 & @CRLF)
+_ArrayDisplay($aRemovedFiles, "Removed Files")
+
+; Above function also returns all the unchanged files
+_ArraySort($aUnchangedFiles,0,1)
+;_ArrayDisplay($aUnchangedFiles)
+
+
+; Check if any of the unchanged files had any internal changes made and mark them as changed
+
+SplitChangedUnchangedFiles($sPath, $sPathNew, $aUnchangedFiles, $aChangedFiles)
+ConsoleWrite("Unchanged files: " & UBound($aUnchangedFiles) - 1 & @CRLF)
+_ArrayDisplay($aUnchangedFiles, "Unchanged Files")
+ConsoleWrite("Changed files: " & UBound($aChangedFiles) - 1 & @CRLF)
+_ArrayDisplay($aChangedFiles, "Changed Files")
+
+
+
+;~ $aAddedFiles
+;~ $aRemovedFiles
+;~ $aChangedFiles
+;~ $aUnchangedFiles
+
 

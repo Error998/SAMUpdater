@@ -1,19 +1,29 @@
-SAMUpdater v1.0.0 alpha
+SAMUpdater v0.0.4 alpha
 ========================
 
 A Minecraft Auto Updater that will update mods and config files.
+
+
+Lisence
+-------
+Copyright © 2014 Error_998 <support@saminecraft.co.za>
+This work is free. You can redistribute it and/or modify it under the
+terms of the Do What The Fuck You Want To Public License, Version 2,
+as published by Sam Hocevar. See the COPYING file or visit
+http://www.wtfpl.net/ for more details.
+
 
 Todo sanity check :)
 ---------------------
 Done -> Update Updater
 
-Done -> Download pack.xml
+Download pack.xml
 
-Done -> Get pack details
+Get pack details
 
-Done -> Parse modules
+Parse modules
 
-Done -> Parse files
+Parse files
  - path
  - filename
  - url
@@ -33,14 +43,12 @@ Done -> Check cache
 
 Done -> Check hash
 
-Done -> Move download from cache to installation destination
+Move download from cache to installation destination
  
-Done -> Auto configure Magic Launcher Profile
+Auto configure Magic Launcher Profile
 
-Planned -> Create log file with very verbose output on what the Updater is doing
+Create log file with very verbose output on what the Updater is doing
 
-Busy -> Tidy up console output, add progress stuff
- 
-Busy -> Make Pack Creator more user friendly
+Make Pack Creator more user friendly
 
-Future -> Create GUI
+Create GUI

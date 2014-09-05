@@ -7,8 +7,18 @@ Data
 Version - SAMUpdater.exe
 URL 	- SAMUpdater.exe
 Hash 	- SAMUpdater.exe
+Version - Update Helper.exe
 URL		- Update_Helper.exe
 Hash	- Updater_Helper.exe
+Path	- Path to SAMUpdater.exe updated at runtime
+
+Example:
+1.0.0.0
+http://localhost/samupdater/SAMUpdater.exe
+0x2B091292206D1D5ACCE657242F403807
+1.0.0.2
+http://localhost/samupdater/update_helper.exe
+0xC8871E166EBA63AD41EBAF8F899EB607
 
 ---------------------------------------------
 

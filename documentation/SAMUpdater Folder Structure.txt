@@ -1,27 +1,37 @@
 SAMUpdater Folder Structure
 ---------------------------
 
-[App Folder]
-- SAMUpdater.exe
-- version.dat
-- update.dat
-- Update_Helper.exe
-[PackData Folder]
-- ServerPacks.xml
-- [Modpack ID Folder]
-  - modules
-  
-Source Files
-------------
-Pack XML:			<Base url>/Packs.xml
-Modules:			<Base url>/<ModpackID>/<md5>
-News:				<Base url>/<ModpackID>/Data/<NewsPage>
-Modpack Icon:		<Base url>/<ModpackID>/Data/<ModPackIcon>
+# SAMUpdater.exe can be run from anywhere with write file permissions
 
+Application Data Folder
+-----------------------
+|<%appdata%>\SAMUpdater
+|--- version.dat
+|--- update.dat
+|--- Update_Helper.exe
+|---| PackData
+|	|--- Packs.xml
+|	|---| Sounds
+|		|--- background.mp3
+|		| [Modpack ID Folder]
+|		|--- modules
+|		|--- <ModpackID>.xml
+|---| Backup
+	|---| <Day><Month><Year><Hour><Min><Sec>
+		|---| .minecraft
+
+
+Remote Repository File Structure
+--------------------------------
 SAMUpdater.exe:		<Base url>/SAMUpdater.exe
 version.dat:		<Base url>/version.dat
 update.dat:			<Base url>/update.dat
 Update_Helper.exe:	<Base url>/Update_Helper.exe
+Pack XML:			<Base url>/Packs.xml
+Modules:			<Base url>/Modpacks/<ModpackID>/<md5>
+Modules XML:		<Base url>/Modpacks/<ModpackID>/Data/<ModpackID>.xml
+News:				<Base url>/Modpacks/<ModpackID>/Data/<NewsPage>
+Modpack Icon:		<Base url>/Modpacks/<ModpackID>/Data/<ModPackIcon>
 
 
 Saved Files
