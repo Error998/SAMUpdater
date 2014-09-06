@@ -7,15 +7,18 @@ Application Data Folder
 -----------------------
 |<%appdata%>\SAMUpdater
 |--- version.dat
-|--- update.dat
+|--- Update.dat
 |--- Update_Helper.exe
 |---| PackData
 |	|--- Packs.xml
 |	|---| Sounds
 |		|--- background.mp3
 |		| [Modpack ID Folder]
-|		|--- modules
-|		|--- <ModpackID>.xml
+|		|--- cache files
+|		|---| Data
+|			|--- <ModpackID>.xml
+|			|--- <NewsPage>
+|			|--- <ModPackIcon>
 |---| Backup
 	|---| <Day><Month><Year><Hour><Min><Sec>
 		|---| .minecraft
@@ -23,15 +26,15 @@ Application Data Folder
 
 Remote Repository File Structure
 --------------------------------
-SAMUpdater.exe:		<Base url>/SAMUpdater.exe
+SAMUpdater.exe:		<Base url>/samupdater.exe
 version.dat:		<Base url>/version.dat
 update.dat:			<Base url>/update.dat
-Update_Helper.exe:	<Base url>/Update_Helper.exe
-Pack XML:			<Base url>/Packs.xml
-Modules:			<Base url>/Modpacks/<ModpackID>/<md5>
-Modules XML:		<Base url>/Modpacks/<ModpackID>/Data/<ModpackID>.xml
-News:				<Base url>/Modpacks/<ModpackID>/Data/<NewsPage>
-Modpack Icon:		<Base url>/Modpacks/<ModpackID>/Data/<ModPackIcon>
+Update_Helper.exe:	<Base url>/update_helper.exe
+Pack XML:			<Base url>/packs.xml
+Modules:			<Base url>/modpacks/<ModpackID>/<md5>
+Modules XML:		<Base url>/modpacks/<ModpackID>/data/<ModpackID>.xml
+News:				<Base url>/modpacks/<ModpackID>/data/<NewsPage>
+Modpack Icon:		<Base url>/modpacks/<ModpackID>/data/<ModPackIcon>
 
 
 Saved Files

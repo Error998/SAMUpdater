@@ -26,7 +26,7 @@ Func callbackPlayBackgroundMusic($hWnd, $Msg, $iIDTimer, $dwTime)
 
 	; Sanity cehck that background.mp3 does exists then plays the sound
 	If FileExists($dataFolder & "\PackData\Sounds\Background.mp3") Then
-		ConsoleWrite("[INFO]: Playing background music..." & @CRLF)
+		ConsoleWrite("[Info]: Playing background music..." & @CRLF)
 		SoundPlay($dataFolder & "\PackData\Sounds\Background.mp3")
 	EndIf
 EndFunc

@@ -1,8 +1,5 @@
-Function:	checkUpdate()
-Datafile:	version.dat
-
-Data
-----
+version.dat
+-----------
 
 Version - SAMUpdater.exe
 URL 	- SAMUpdater.exe
@@ -11,66 +8,103 @@ Version - Update Helper.exe
 URL		- Update_Helper.exe
 Hash	- Updater_Helper.exe
 Path	- Path to SAMUpdater.exe updated at runtime
-
+------------------------------------------------------
 Example:
+
 1.0.0.0
-http://localhost/samupdater/SAMUpdater.exe
+http://localhost/samupdater/samupdater.exe
 0x2B091292206D1D5ACCE657242F403807
 1.0.0.2
 http://localhost/samupdater/update_helper.exe
 0xC8871E166EBA63AD41EBAF8F899EB607
 
----------------------------------------------
+------------------------------------------------------
 
-Function: getBackgroundMusic(URL)
-Datafile:	Hard coded
 
-Data
-----
-
-URL:	- Background music
-
----------------------------------------------
-
-Function: getPackXML(URL)
-Datafile:	ServerPacks.xml
-
-Data
-----
-
-URL:	- ServerPack.xml
-
-<ServerPacks version="1.0">
+packs.xml
+---------
+<Packs version="1.0">
 	<ModPack>
-		<Info>
-			<ModPackID>TestServer</ModPackID>
-			<ServerName>Minecraft Test Server</ServerName>
-			<ServerVersion>1.6.4 Update 2</ServerVersion>
-			<NewsPage>news.php</NewsPage>
-			<ModPackIcon>icon.jpg</ModPackIcon>
-			<Description>Test Server Pack used for testing the newest mods and migration platform.</Description>
-			<ServerConnection>test.domain.co.za</ServerConnection>
-			<ForgeID>1.6.4-Forge9.11.1.952</ForgeID>
-			<URL>http://dl.domain.co.za/SAMUpdater</URL>
-		</Info>
-		<Files>
-			<Module>
-				<Filename>mod.jar</Filename>
-				<Extract>FALSE</Extract>
-				<Path>.minecraft\mods</Path>
-				<md5>0x1EEA6FDA0CA03698EFBA7B045B5375F9</md5>
-				<Size>36650</Size>
-				<Required>TRUE</Required>
-				<Remove>FALSE</Remove>
-				<Overwrite>FALSE</Overwrite>
-			</Module>
-			<Module>
-				..
-			</Module>
-		</Files>
+		<ModPackID>TestServer</ModPackID>
+		<ModPackName>Minecraft Test Server</ModPackName>
+		<ServerVersion>1.6.4 Update 2</ServerVersion>
+		<NewsPage>news.php</NewsPage>
+		<ModPackIcon>icon.jpg</ModPackIcon>
+		<Description>Test Server Pack used for testing the newest mods and migration platform.</Description>
+		<ServerConnection>test.domain.co.za</ServerConnection>
+		<ForgeID>1.6.4-Forge9.11.1.952</ForgeID>
+		<URL>http://dl.domain.co.za/SAMUpdater</URL>
+		<Active>True</Active>
 	</ModPack>
 	<ModPack>
 		..
-	</ModPack>
-</ServerPacks>
+	<ModPack>
+</Packs>
+
+
+
+<ModPackID>.xml
+---------------
+<ModPack version="1.0">
+	<Removed>
+		<File>
+			<Filename>mod.jar</Filename>
+			<Extract>FALSE</Extract>
+			<Path>.minecraft\mods</Path>
+			<md5>0x1EEA6FDA0CA03698EFBA7B045B5375F9</md5>
+			<Size>36650</Size>
+		</File>
+		<File>
+			..
+		</File>
+	</Removed>
+	<Added>
+		<File>
+			<Filename>mod.jar</Filename>
+			<Extract>FALSE</Extract>
+			<Path>.minecraft\mods</Path>
+			<md5>0x1EEA6FDA0CA03698EFBA7B045B5375F9</md5>
+			<Size>36650</Size>
+		</File>
+		<File>
+			..
+		</File>
+	</Added>
+	<Changed>
+		<File>
+			<Filename>mod.jar</Filename>
+			<Extract>FALSE</Extract>
+			<Path>.minecraft\mods</Path>
+			<md5>0x1EEA6FDA0CA03698EFBA7B045B5375F9</md5>
+			<Size>36650</Size>
+		</File>
+		<File>
+			..
+		</File>
+	</Changed>
+	<Unchanged>
+		<File>
+			<Filename>mod.jar</Filename>
+			<Extract>FALSE</Extract>
+			<Path>.minecraft\mods</Path>
+			<md5>0x1EEA6FDA0CA03698EFBA7B045B5375F9</md5>
+			<Size>36650</Size>
+		</File>
+		<File>
+			..
+		</File>
+	</Unchanged>
+	<Optional>
+		<File>
+			<Filename>mod.jar</Filename>
+			<Extract>FALSE</Extract>
+			<Path>.minecraft\mods</Path>
+			<md5>0x1EEA6FDA0CA03698EFBA7B045B5375F9</md5>
+			<Size>36650</Size>
+		</File>
+		<File>
+			..
+		</File>
+	</Optional>
+</ModPack>
 

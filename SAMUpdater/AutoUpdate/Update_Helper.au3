@@ -1,7 +1,7 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
-#AutoIt3Wrapper_Res_Fileversion=0.0.0.3
+#AutoIt3Wrapper_Res_Fileversion=0.0.0.4
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
 #include <File.au3>
@@ -10,14 +10,13 @@
 Opt('MustDeclareVars', 1)
 
 ; ### Init Varibles ###
-Const $version = "0.0.0.3"
-Const $updateURL = "http://localhost/samupdater/version.dat"
+Const $version = "0.0.0.4"
 Local $updatePath
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: verifyUpdateFiles
 ; Description ...:
-; Syntax ........: verifyUpdateFiles($version, $updateURL)
+; Syntax ........: verifyUpdateFiles()
 ; Parameters ....:
 ; Return values .: Success				- Path to SAMUpdater.exe
 ;				   Failure				- Application closes
