@@ -34,11 +34,12 @@ autoUpdate($version, $updateURL, $dataFolder)
 
 
 ; Play background music
-playBackgroundMusic($musicURL, $dataFolder, 227)
+;playBackgroundMusic($musicURL, $dataFolder, 227)
 
 
-; Load Packs.xml
-loadPackList($packsURL, $dataFolder)
+; Load and parse Packs.xml
+parseModpack($packsURL, $dataFolder)
+
 
 
 MsgBox(64,"Auto Update Test","Just a test....")
