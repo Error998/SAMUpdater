@@ -34,7 +34,9 @@ Func loadPackList($packsURL, $dataFolder)
 	; Array for each modpack
 	$modpacksXML = getElements($xml, "ModPack")
 
+
 	Return $modpacksXML
+
 EndFunc
 
 
@@ -49,7 +51,7 @@ EndFunc
 ;										- Dim 2 = All modpack elements (10)
 ; Author ........: Error_998
 ; Modified ......:
-; Remarks .......:
+; Remarks .......: Zero based 2d array holding mod modpacks, modpack elements
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
@@ -57,12 +59,15 @@ EndFunc
 Func parseModpack($packsURL, $dataFolder)
 	Local $modpacksXML
 
+
 	; Load Packs.xml
 	$modpacksXML = loadPackList($packsURL, $dataFolder)
+
 
 	; Zero based 2d array holding mod modpacks, modpack elements
 	Dim $modpacks[ $modpacksXML[0] ][10]
 	ConsoleWrite("[Info]: " & UBound($modpacks) & " Modpacks available" & @CRLF)
+
 
 	; Store all elemetns
 	For $i = 0 To (UBound($modpacks) - 1)
@@ -76,8 +81,8 @@ Func parseModpack($packsURL, $dataFolder)
 		$modpacks[$i][7] = getElement($modpacksXML[$i + 1], "ForgeID")
 		$modpacks[$i][8] = getElement($modpacksXML[$i + 1], "URL")
 		$modpacks[$i][9] = getElement($modpacksXML[$i + 1], "Active")
-		ConsoleWrite($modpacks[$i][1] & ":" & @CRLF )
 	Next
 
 	Return $modpacks
+
 EndFunc
