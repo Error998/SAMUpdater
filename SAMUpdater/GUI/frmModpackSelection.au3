@@ -1,3 +1,4 @@
+#include-once
 #include <ButtonConstants.au3>
 #include <GUIConstantsEx.au3>
 #include <StaticConstants.au3>
@@ -9,26 +10,17 @@ Opt("GUIOnEventMode", 1)
 Global $ctrlIDs[5][3]
 
 
-#Region ### START Koda GUI section ### Form=c:\users\jock\documents\autoit\samupdater\samupdater\gui\modpack selection.kxf
-$Form1_1 = GUICreate("Form1", 869, 486, 192, 124)
-GUISetOnEvent($GUI_EVENT_CLOSE, "CLOSEButton")
-
-
-
-
-
-; ############ Modpack Display Right ############
-$picmainPodpackPic = GUICtrlCreatePic("Splash.jpg", 456, 13, 400, 200)
-
-$hRichEdit = _GUICtrlRichEdit_Create($Form1_1, "This a place for some decription about the modpack",456, 216, 400, 255, BitOR($ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL))
-; ###############################################
-
-GUISetState(@SW_SHOW)
-#EndRegion ### END Koda GUI section ###
 
 
 Func addModpack($modpackNum, ByRef $ctrlIDs)
 	Local $offset = $modpackNum * 100
+	; Border
+	$ctrlIDs[$modpackNum][2] = GUICtrlCreateLabel("", 13, 13 + $offset, 315, 80)
+	GUICtrlSetOnEvent(-1, "ModpackClicked")
+
+	; Border part under buttons thats not clickable
+	GUICtrlCreateLabel("", 328, 13 + $offset, 86, 80)
+	GUICtrlSetState(-1, $GUI_DISABLE)
 
 	; Info Button
 	$ctrlIDs[$modpackNum][0] =  GUICtrlCreateButton("Info", 328, 24+ $offset, 75, 25)
@@ -38,10 +30,6 @@ Func addModpack($modpackNum, ByRef $ctrlIDs)
 	$ctrlIDs[$modpackNum][1]  = GUICtrlCreateButton("Download", 328, 56+ $offset, 75, 25)
 	GUICtrlSetOnEvent(-1, "btnDownload")
 	ConsoleWrite(String($ctrlIDs[$modpackNum][1]) & @CRLF)
-
-	; Border
-	$ctrlIDs[$modpackNum][2] = GUICtrlCreateLabel("", 13, 13 + $offset, 401, 80, $SS_SUNKEN)
-	GUICtrlSetOnEvent(-1, "ModpackClicked")
 
 	; Icon
 	GUICtrlCreatePic("Icon.jpg", 21, 21 + $offset, 64, 64)
@@ -106,14 +94,42 @@ Func CLOSEButton()
 EndFunc
 
 
-For $i =  0 to 4
-	addModpack($i, $ctrlIDs)
+Func createGUI()
 
-Next
+	$frmMopackSelection = GUICreate("SAMUpdater", 869, 486, 192, 124)
 
-GUICtrlCreatePic("carbon.jpg", 0, 0, 869, 486)
+	; GUI Background
+	GUICtrlCreatePic("background.jpg", 0, 0, 869, 486)
+	GUICtrlSetState(-1, $GUI_DISABLE)
+
+	; Modpack Splash picture
+	$picSplash = GUICtrlCreatePic("Splash.jpg", 456, 13, 400, 200)
+
+	; Modpack News control
+	$hRichEdit = _GUICtrlRichEdit_Create($frmMopackSelection, "This a place for some decription about the modpack",456, 216, 400, 255, BitOR($ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL))
 
 
-While 1
+	; Populate Modpack list
+	For $i =  0 to 4
+		addModpack($i, $ctrlIDs)
+	Next
 
-WEnd
+
+	GUISetOnEvent($GUI_EVENT_CLOSE, "CLOSEButton")
+	GUISetState(@SW_SHOW)
+
+
+EndFunc
+
+Func DisplayModpackSelection()
+
+	createGUI()
+	While True
+
+	WEnd
+EndFunc
+
+; Get GUI background
+; Get modpack splash pictures
+; Get modpack news
+

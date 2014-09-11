@@ -103,3 +103,61 @@ Func downloadAndVerify($fileURL, $filename, $dataFolder, $hash = "", $retryCount
 	Next
 
 EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: verifyAndDownload
+; Description ...: Verifies is supplied hash equals local file, if not downloads remote file and verifies file integrity
+; Syntax ........: verifyAndDownload($fileURL, $filename, $dataFolder, $hash = "", [$retryCount = 3])
+; Parameters ....: $fileURL             - Remote file URL to download
+;                  $filename            - Filename to use for the downloaded file
+;                  $dataFolder          - Application data folder
+;                  $hash                - MD5 hash to verify file integrity
+;                  $retryCount          - (Optional) How many times file should be redownloaded if integrity fails
+; Return values .: Success				- True
+;				   Failure				- Exit Application
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func verifyAndDownload($fileURL, $filename, $dataFolder, $hash, $retryCount = 3)
+
+	; Verify hash with downloaded file
+	If FileExists($dataFolder & "\" & $filename) Then
+		If compareHash($dataFolder & "\" & $filename, $hash) Then
+			ConsoleWrite("[Info]: File integrity passed - " & $filename & @CRLF)
+			Return True
+		EndIf
+	EndIf
+
+
+	For $i = 1 to $retryCount
+		; Download File
+		if Not downloadFile($fileURL, $dataFolder & "\" & $filename) Then
+			ConsoleWrite("[ERROR]: Download failed - " & $filename & @CRLF)
+			ConsoleWrite("[ERROR]: Please check your internet connection!" & @CRLF)
+			ConsoleWrite("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
+			MsgBox(48, "Download failed", "Please check your internet connection" & @CRLF & "Then run SAMUpdater again")
+			Exit
+		EndIf
+
+
+		; Verify hash with downloaded file
+		If compareHash($dataFolder & "\" & $filename, $hash) Then
+			ConsoleWrite("[Info]: File integrity passed - " & $filename & @CRLF)
+			Return True
+
+		ElseIf $i = $retryCount Then
+			ConsoleWrite("[ERROR]: File integrity failed " & $retryCount & " out of " & $retryCount & " times - " & $filename & @CRLF)
+			ConsoleWrite("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
+			MsgBox(48, "Downloaded file integerity Failed", "Please contact your mod pack creator")
+			Exit
+
+		Else
+			ConsoleWrite("[ERROR]: File integrity failed " & $i & " of " & $retryCount & " times, restarting download" & @CRLF)
+		EndIf
+	Next
+
+EndFunc

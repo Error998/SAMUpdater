@@ -27,7 +27,8 @@ packs.xml
 	<ModPack>
 		<ModPackID>TestServer</ModPackID>
 		<ModPackName>Minecraft Test Server</ModPackName>
-		<ServerVersion>1.6.4 Update 2</ServerVersion>
+		<ModPackVersion>Modpack version: 1.6.4 Update 2</ModPackVersion>
+		<GameVersion>Minecraft version 1.6.4</GameVersion>
 		<NewsPage>news.php</NewsPage>
 		<ModPackIcon>icon.jpg</ModPackIcon>
 		<Description>Test Server Pack used for testing the newest mods and migration platform.</Description>

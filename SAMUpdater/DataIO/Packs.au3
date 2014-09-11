@@ -2,6 +2,8 @@
 #include <Array.au3>
 #include "..\DataIO\XML.au3"
 #include "..\DataIO\Download.au3"
+#include "..\DataIO\Folders.au3"
+
 Opt('MustDeclareVars', 1)
 
 
@@ -65,24 +67,90 @@ Func parseModpack($packsURL, $dataFolder)
 
 
 	; Zero based 2d array holding mod modpacks, modpack elements
-	Dim $modpacks[ $modpacksXML[0] ][10]
-	ConsoleWrite("[Info]: " & UBound($modpacks) & " Modpacks available" & @CRLF)
+	Dim $modpacks[ $modpacksXML[0] ][13]
+	ConsoleWrite("[Info]: Modpacks available: " & UBound($modpacks) & @CRLF & @CRLF)
 
 
 	; Store all elemetns
 	For $i = 0 To (UBound($modpacks) - 1)
 		$modpacks[$i][0] = getElement($modpacksXML[$i + 1], "ModPackID")
 		$modpacks[$i][1] = getElement($modpacksXML[$i + 1], "ModPackName")
-		$modpacks[$i][2] = getElement($modpacksXML[$i + 1], "ServerVersion")
-		$modpacks[$i][3] = getElement($modpacksXML[$i + 1], "NewsPage")
-		$modpacks[$i][4] = getElement($modpacksXML[$i + 1], "ModPackIcon")
-		$modpacks[$i][5] = getElement($modpacksXML[$i + 1], "Description")
-		$modpacks[$i][6] = getElement($modpacksXML[$i + 1], "ServerConnection")
-		$modpacks[$i][7] = getElement($modpacksXML[$i + 1], "ForgeID")
-		$modpacks[$i][8] = getElement($modpacksXML[$i + 1], "URL")
-		$modpacks[$i][9] = getElement($modpacksXML[$i + 1], "Active")
+		$modpacks[$i][2] = getElement($modpacksXML[$i + 1], "ModPackVersion")
+		$modpacks[$i][3] = getElement($modpacksXML[$i + 1], "GameVersion")
+		$modpacks[$i][4] = getElement($modpacksXML[$i + 1], "Description")
+		$modpacks[$i][5] = getElement($modpacksXML[$i + 1], "DescriptionMD5")
+		$modpacks[$i][6] = getElement($modpacksXML[$i + 1], "ModPackIcon")
+		$modpacks[$i][7] = getElement($modpacksXML[$i + 1], "ModPackIconMD5")
+		$modpacks[$i][8] = getElement($modpacksXML[$i + 1], "ModPackSplash")
+		$modpacks[$i][9] = getElement($modpacksXML[$i + 1], "ModPackSplashMD5")
+		$modpacks[$i][10] = getElement($modpacksXML[$i + 1], "ForgeID")
+		$modpacks[$i][11] = getElement($modpacksXML[$i + 1], "URL")
+		$modpacks[$i][12] = getElement($modpacksXML[$i + 1], "Active")
 	Next
 
 	Return $modpacks
+
+EndFunc
+
+Func initModpackFolders($modpacks, $dataFolder)
+	; Create all modpack folders
+	For $i = 0 To (UBound($modpacks) - 1)
+		createFolder($dataFolder & "\PackData\" & $modpacks[$i][0] & "\Data")
+	Next
+EndFunc
+
+
+
+Func initModpackFiles($modpacks, $dataFolder)
+	; Download Modpack description, icon and splash files for each modpack
+	Local $url
+	Local $path
+	Local $hash
+
+	For $i = 0 To (UBound($modpacks) - 1)
+
+		; Verify local file else download remote Description
+		If Not $modpacks[$i][4] = "" Then
+			$url = $modpacks[$i][11] & "/modpacks/" & $modpacks[$i][0] & "/data/" & $modpacks[$i][4]
+			$path = "\PackData\" & $modpacks[$i][0] & "\Data\" & $modpacks[$i][4]
+			$hash = $modpacks[$i][5]
+
+			verifyAndDownload($url, $path, $dataFolder, $hash)
+		EndIf
+
+		; Verify local file else download remote ModpackIcon
+		If Not $modpacks[$i][6] = "" Then
+			$url = $modpacks[$i][11] & "/modpacks/" & $modpacks[$i][0] & "/data/" & $modpacks[$i][6]
+			$path = "\PackData\" & $modpacks[$i][0] & "\Data\" & $modpacks[$i][6]
+			$hash = $modpacks[$i][7]
+
+			verifyAndDownload($url, $path, $dataFolder, $hash)
+		EndIf
+
+
+		; Verify local file else download remote ModpackIcon
+		If Not $modpacks[$i][8] = "" Then
+			$url = $modpacks[$i][11] & "/modpacks/" & $modpacks[$i][0] & "/data/" & $modpacks[$i][8]
+			$path = "\PackData\" & $modpacks[$i][0] & "\Data\" & $modpacks[$i][8]
+			$hash = $modpacks[$i][9]
+
+			verifyAndDownload($url, $path, $dataFolder, $hash)
+		EndIf
+	Next
+
+
+
+EndFunc
+
+
+
+Func initModpacks($modpacks, $dataFolder)
+	ConsoleWrite("[Info]: Initializing Modpack data" & @CRLF)
+	;Create all needed Modpack folders
+	initModpackFolders($modpacks, $dataFolder)
+
+
+	; Download Modpack files (Icon, splash and description)
+	initModpackFiles($modpacks, $dataFolder)
 
 EndFunc

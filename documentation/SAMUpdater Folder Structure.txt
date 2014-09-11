@@ -13,12 +13,15 @@ Application Data Folder
 |	|--- Packs.xml
 |	|---| Sounds
 |		|--- background.mp3
+|		| GUI
+|		|--- background.jpg
 |		| [Modpack ID Folder]
 |		|--- cache files
 |		|---| Data
 |			|--- <ModpackID>.xml
-|			|--- <NewsPage>
+|			|--- <Description>
 |			|--- <ModPackIcon>
+|			|--- <ModPackSplash>
 |---| Backup
 	|---| <Day><Month><Year><Hour><Min><Sec>
 		|---| .minecraft
@@ -33,8 +36,9 @@ Update_Helper.exe:	<Base url>/update_helper.exe
 Pack XML:			<Base url>/packs.xml
 Modules:			<Base url>/modpacks/<ModpackID>/<md5>
 Modules XML:		<Base url>/modpacks/<ModpackID>/data/<ModpackID>.xml
-News:				<Base url>/modpacks/<ModpackID>/data/<NewsPage>
+Description:		<Base url>/modpacks/<ModpackID>/data/<Description>
 Modpack Icon:		<Base url>/modpacks/<ModpackID>/data/<ModPackIcon>
+Modpack Splash:		<Base url>/modpacks/<ModpackID>/data/<ModPackSplash>
 
 
 Saved Files

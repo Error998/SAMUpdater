@@ -60,21 +60,6 @@
 			</properties>
 			<components/>
 		</object>
-		<object type="TALabel" name="smodpack">
-			<properties>
-				<property name="Left" vt="Int8">0</property>
-				<property name="Top" vt="Int8">0</property>
-				<property name="Width" vt="Int16">449</property>
-				<property name="Height" vt="Int16">441</property>
-				<property name="AutoSize" vt="False">False</property>
-				<property name="TabOrder" vt="Int8">8</property>
-				<property name="HaveVariable" vt="False">False</property>
-				<property name="CtrlStyle" vt="Int32">1342308608</property>
-				<property name="CtrlExStyle" vt="Int8">0</property>
-				<property name="Resizing" vt="Set"/>
-			</properties>
-			<components/>
-		</object>
 		<object type="TAButton" name="btnInfo">
 			<properties>
 				<property name="Left" vt="Int16">328</property>
@@ -98,7 +83,7 @@
 				<property name="Height" vt="Int8">64</property>
 				<property name="CtrlStyle" vt="Int32">1342308622</property>
 				<property name="CtrlExStyle" vt="Int8">0</property>
-				<property name="PicturePath" vt="String">C:\Users\Jock\Documents\AutoIt\MC Updater\Mod Pack Logos\DW20v2Icon.jpg</property>
+				<property name="PicturePath" vt="String">C:\Users\Jock\Documents\AutoIt\SAMUpdater\SAMUpdater\GUI\Icon.jpg</property>
 				<property name="TabOrder" vt="Int8">1</property>
 				<property name="Resizing" vt="Set">DockWidth, DockHeight</property>
 			</properties>
@@ -165,7 +150,7 @@
 				<property name="Height" vt="Int16">200</property>
 				<property name="CtrlStyle" vt="Int32">1342308622</property>
 				<property name="CtrlExStyle" vt="Int8">0</property>
-				<property name="PicturePath" vt="String">C:\Users\Jock\Downloads\-b- - Imgur\003 - CR3jZ8p.jpg</property>
+				<property name="PicturePath" vt="String">C:\Users\Jock\Documents\AutoIt\SAMUpdater\SAMUpdater\GUI\Splash.jpg</property>
 				<property name="TabOrder" vt="Int8">5</property>
 				<property name="Resizing" vt="Set">DockWidth, DockHeight</property>
 			</properties>
@@ -177,7 +162,7 @@
 				<property name="Top" vt="Int16">216</property>
 				<property name="Width" vt="Int16">401</property>
 				<property name="Height" vt="Int8">21</property>
-				<property name="TabOrder" vt="Int8">9</property>
+				<property name="TabOrder" vt="Int8">8</property>
 				<property name="Text" vt="String">InfoScroll</property>
 				<property name="CtrlStyle" vt="Int32">1342374016</property>
 				<property name="CtrlExStyle" vt="Int16">512</property>

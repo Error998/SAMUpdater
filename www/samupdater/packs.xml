@@ -1,0 +1,47 @@
+<Packs version="1.0">
+	<ModPack>
+		<ModPackID>TestServer</ModPackID>
+		<ModPackName>Minecraft Test Server</ModPackName>
+		<ModPackVersion>Modpack version: 1.6.4 Update 4</ModPackVersion>
+		<GameVersion>Minecraft version: 1.6.4</GameVersion>
+		<Description>description.rtf</Description>
+		<DescriptionMD5>0x3B058AA48F81F3657D9111486B1BA54A</DescriptionMD5>
+		<ModPackIcon>icon.jpg</ModPackIcon>
+		<ModPackIconMD5>0xFD97C667E8D578EB3B4CA15562943272</ModPackIconMD5>
+		<ModPackSplash>splash.jpg</ModPackSplash>
+		<ModPackSplashMD5>0xC48470E9DB55F6F5817AA14C75F1BC50</ModPackSplashMD5>
+		<ForgeID>1.6.4-Forge9.11.1.952</ForgeID>
+		<URL>http://localhost/samupdater</URL>
+		<Active>True</Active>
+	</ModPack>
+	<ModPack>
+		<ModPackID>TestServer2</ModPackID>
+		<ModPackName>Minecraft Test Server</ModPackName>
+		<ModPackVersion>Modpack version: 1.7.10 Update 0</ModPackVersion>
+		<GameVersion>Minecraft version: 1.7.10</GameVersion>
+		<Description></Description>
+		<DescriptionMD5></DescriptionMD5>
+		<ModPackIcon></ModPackIcon>
+		<ModPackIconMD5></ModPackIconMD5>
+		<ModPackSplash></ModPackSplash>
+		<ModPackSplashMD5></ModPackSplashMD5>
+		<ForgeID>1.7.10-Forge10.13.0.1207</ForgeID>
+		<URL>http://dl.domain.co.za/SAMUpdater</URL>
+		<Active>True</Active>
+	</ModPack>
+	<ModPack>
+		<ModPackID>TestServer3</ModPackID>
+		<ModPackName>Minecraft Vanilla Test Server</ModPackName>
+		<ModPackVersion>Modpack version: 1.8 Update 0</ModPackVersion>
+		<GameVersion>Minecraft version: 1.8</GameVersion>
+		<Description></Description>
+		<DescriptionMD5></DescriptionMD5>
+		<ModPackIcon></ModPackIcon>
+		<ModPackIconMD5></ModPackIconMD5>
+		<ModPackSplash></ModPackSplash>
+		<ModPackSplashMD5></ModPackSplashMD5>
+		<ForgeID></ForgeID>
+		<URL>http://dl.domain.co.za/SAMUpdater</URL>
+		<Active>True</Active>
+	</ModPack>
+</Packs>

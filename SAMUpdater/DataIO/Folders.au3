@@ -32,7 +32,7 @@ EndFunc
 ; Return values .: Failure			- Application closes
 ; Author ........: Error_998
 ; Modified ......:
-; Remarks .......: App will close if the folder can not be created!
+; Remarks .......: All parent folders will be created if they dont exsist
 Func createFolder($sPath)
 	If (doesFolderExist($sPath)) Then
 		ConsoleWrite("[Info]: Using folder -  " & $sPath & @CRLF)

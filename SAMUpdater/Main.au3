@@ -8,6 +8,8 @@
 #include "DataIO\Folders.au3"
 #include "DataIO\Packs.au3"
 #include "Sound\Sounds.au3"
+#include "GUI\frmModpackSelection.au3"
+
 Opt('MustDeclareVars', 1)
 
 
@@ -18,13 +20,12 @@ Const $musicURL = "http://localhost/samupdater/sounds/background.mp3"
 Const $packsURL = "http://localhost/samupdater/packs.xml"
 
 Global $dataFolder = @AppDataDir & "\SAMUpdater"
-
+Local $modpacks
 
 ; ### Init Data Folders ###
 ConsoleWrite("[Info]: Initializing folders..." & @CRLF)
-createFolder($dataFolder)
-createFolder($dataFolder & "\PackData")
 createFolder($dataFolder & "\PackData\Sounds")
+createFolder($dataFolder & "\PackData\GUI")
 ConsoleWrite("[Info]: Folders initialized" & @CRLF & @CRLF)
 ; #########################
 
@@ -38,9 +39,10 @@ autoUpdate($version, $updateURL, $dataFolder)
 
 
 ; Load and parse Packs.xml
-parseModpack($packsURL, $dataFolder)
+$modpacks = parseModpack($packsURL, $dataFolder)
 
-
+;Initialize all Modpacks
+initModpacks($modpacks, $dataFolder)
 
 MsgBox(64,"Auto Update Test","Just a test....")
 
