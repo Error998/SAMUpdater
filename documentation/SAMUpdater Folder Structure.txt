@@ -11,17 +11,24 @@ Application Data Folder
 |--- Update_Helper.exe
 |---| PackData
 |	|--- Packs.xml
+|	|
 |	|---| Sounds
-|		|--- background.mp3
-|		| GUI
-|		|--- background.jpg
-|		| [Modpack ID Folder]
+|	|	|--- background.mp3
+|	|
+|	|---| GUI
+|	|	|--- GUI.xml
+|	|	|--- background.jpg
+|	|	|--- defaultsplash.jpg
+|	|	|--- defaulticon.jpg
+|	|
+|	|---| [Modpack ID Folder]
 |		|--- cache files
 |		|---| Data
 |			|--- <ModpackID>.xml
 |			|--- <Description>
 |			|--- <ModPackIcon>
 |			|--- <ModPackSplash>
+|
 |---| Backup
 	|---| <Day><Month><Year><Hour><Min><Sec>
 		|---| .minecraft
@@ -34,8 +41,12 @@ version.dat:		<Base url>/version.dat
 update.dat:			<Base url>/update.dat
 Update_Helper.exe:	<Base url>/update_helper.exe
 Pack XML:			<Base url>/packs.xml
-Modules:			<Base url>/modpacks/<ModpackID>/<md5>
-Modules XML:		<Base url>/modpacks/<ModpackID>/data/<ModpackID>.xml
+GUI.XML				<Base url>/gui/gui.xml
+Default Mod Icon:	<Base url>/gui/defaulticon.jpg
+Default Mod Splash:	<Base url>/gui/defaultsplash.jpg>
+
+Files:				<Base url>/modpacks/<ModpackID>/<md5>
+Modpack XML:		<Base url>/modpacks/<ModpackID>/data/<ModpackID>.xml
 Description:		<Base url>/modpacks/<ModpackID>/data/<Description>
 Modpack Icon:		<Base url>/modpacks/<ModpackID>/data/<ModPackIcon>
 Modpack Splash:		<Base url>/modpacks/<ModpackID>/data/<ModPackSplash>

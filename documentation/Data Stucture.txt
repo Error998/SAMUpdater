@@ -109,3 +109,15 @@ packs.xml
 	</Optional>
 </ModPack>
 
+
+
+GUI.xml
+---------
+<GUI version="1.0">
+	<ModPackSelection>
+		<BackgroundMD5></BackgroundMD5>
+		<DefaultIconMD5></DefaultIconMD5>
+		<DefaultSplashMD5></DefaultSplashMD5>
+		<DefaultDescriptionMD5></DefaultDescriptionMD5>
+	</ModPackSelection>
+</GUI>
