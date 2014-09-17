@@ -22,7 +22,7 @@ Opt('MustDeclareVars', 1)
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func loadFileList($modpackURL, $dataFolder, $modID, $section)
+Func loadFileList($modpackURL, $dataFolder, $modID)
 	Local $xml
 	Dim $fileSectionXML[4]
 
@@ -63,10 +63,10 @@ Func parseFileList($modpackURL, $dataFolder, $modID, $section)
 	Local $fileSectionXML
 
 	; Load <modID>.xml
-	$fileSectionXML = loadFileList($modpackURL, $dataFolder, $modID, $section)
+	$fileSectionXML = loadFileList($modpackURL, $dataFolder, $modID)
 
 	; Zero based 2d array holding mod modpacks, modpack elements
-	Dim $modpackFiles[3][ $modpacksXML[0] ][5]
+	;Dim $modpackFiles[3][ $modpacksXML[0] ][5]
 	ConsoleWrite("[Info]: " & UBound($modpacks) & " Modpacks available" & @CRLF)
 
 

@@ -1,7 +1,7 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
-#AutoIt3Wrapper_Res_Fileversion=0.0.0.6
+#AutoIt3Wrapper_Res_Fileversion=0.0.0.7
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
 #include "AutoUpdate\AutoUpdate.au3"
@@ -15,7 +15,7 @@ Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.0.0.6"
+Const $version = "0.0.0.7"
 Const $baseURL = "http://localhost/samupdater"
 Const $updateURL = $baseURL & "/version.dat"
 Const $musicURL = $baseURL & "/sounds/background.mp3"
@@ -40,14 +40,18 @@ autoUpdate($version, $updateURL, $dataFolder)
 ;playBackgroundMusic($musicURL, $dataFolder, 227)
 
 
-; Load and parse Packs.xml
-$modpacks = parseModpack($packsURL, $dataFolder)
+; Load and parse Packs.xml, returns 2d array [modpackNum][elements]
+$modpacks = parsePacks($packsURL, $dataFolder)
 
-;Initialize all Modpacks
+;Initialize all Modpacks, create needed folders, download modpack descriptions, splash and icons
 initModpacks($modpacks, $dataFolder)
 
-; Initialize ModSelection GUI files
+; Initialize ModSelection GUI, download default files and background.
 initGUImodSelection($baseURL, $dataFolder)
+
+; Display Modpack selection GUI
+DisplayModpackSelection()
+
 
 MsgBox(64,"Auto Update Test","Just a test....")
 

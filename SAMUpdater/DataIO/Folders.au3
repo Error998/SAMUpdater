@@ -35,7 +35,7 @@ EndFunc
 ; Remarks .......: All parent folders will be created if they dont exsist
 Func createFolder($sPath)
 	If (doesFolderExist($sPath)) Then
-		ConsoleWrite("[Info]: Using folder -  " & $sPath & @CRLF)
+		ConsoleWrite("[Info]: Using folder - " & $sPath & @CRLF)
 	Else
 		DirCreate($sPath)
 		If @error = -1 Then

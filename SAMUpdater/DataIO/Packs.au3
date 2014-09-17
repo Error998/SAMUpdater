@@ -44,9 +44,9 @@ EndFunc
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: parseModpack
+; Name ..........: parsePacks
 ; Description ...:
-; Syntax ........: parseModpack($packsURL, $dataFolder)
+; Syntax ........: parsePacks($packsURL, $dataFolder)
 ; Parameters ....: $packsURL            - URL location to Packs.xml
 ;                  $dataFolder          - Application data folder
 ; Return values .: 2 dimentional array	- Dim 1 = Modpack
@@ -58,7 +58,7 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func parseModpack($packsURL, $dataFolder)
+Func parsePacks($packsURL, $dataFolder)
 	Local $modpacksXML
 
 
@@ -67,7 +67,7 @@ Func parseModpack($packsURL, $dataFolder)
 
 
 	; Zero based 2d array holding mod modpacks, modpack elements
-	Dim $modpacks[ $modpacksXML[0] ][13]
+	Global $modpacks[ $modpacksXML[0] ][13]
 	ConsoleWrite("[Info]: Modpacks available: " & UBound($modpacks) & @CRLF & @CRLF)
 
 

@@ -15,7 +15,7 @@ Opt('MustDeclareVars', 1)
 ; Return values .: XML document
 ; Author ........: Error_998
 ; Modified ......:
-; Remarks .......:
+; Remarks .......: $guiID is used to return a specific forms data, GUI.XML can contain more than 1 forms data
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
@@ -82,7 +82,7 @@ Func initGUImodSelection($baseURL, $dataFolder)
 
 	verifyAndDownload($url, $path, $dataFolder, $hash)
 
-
+	ConsoleWrite("[Info]: Initialized" & @CRLF & @CRLF)
 
 EndFunc
 

@@ -135,6 +135,7 @@ Func verifyAndDownload($fileURL, $filename, $dataFolder, $hash, $retryCount = 3)
 
 	For $i = 1 to $retryCount
 		; Download File
+		ConsoleWrite("[Info]: Downloading - " & $filename & @CRLF)
 		if Not downloadFile($fileURL, $dataFolder & "\" & $filename) Then
 			ConsoleWrite("[ERROR]: Download failed - " & $filename & @CRLF)
 			ConsoleWrite("[ERROR]: Please check your internet connection!" & @CRLF)

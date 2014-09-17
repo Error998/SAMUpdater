@@ -20,14 +20,15 @@ Application Data Folder
 |	|	|--- background.jpg
 |	|	|--- defaultsplash.jpg
 |	|	|--- defaulticon.jpg
+|	|	|--- defaultdescription.rtf
 |	|
 |	|---| [Modpack ID Folder]
 |		|--- cache files
 |		|---| Data
 |			|--- <ModpackID>.xml
-|			|--- <Description>
-|			|--- <ModPackIcon>
-|			|--- <ModPackSplash>
+|			|--- description.rtf
+|			|--- icon.jpg
+|			|--- splash.jpg
 |
 |---| Backup
 	|---| <Day><Month><Year><Hour><Min><Sec>
@@ -45,11 +46,11 @@ GUI.XML				<Base url>/gui/gui.xml
 Default Mod Icon:	<Base url>/gui/defaulticon.jpg
 Default Mod Splash:	<Base url>/gui/defaultsplash.jpg>
 
-Files:				<Base url>/modpacks/<ModpackID>/<md5>
-Modpack XML:		<Base url>/modpacks/<ModpackID>/data/<ModpackID>.xml
-Description:		<Base url>/modpacks/<ModpackID>/data/<Description>
-Modpack Icon:		<Base url>/modpacks/<ModpackID>/data/<ModPackIcon>
-Modpack Splash:		<Base url>/modpacks/<ModpackID>/data/<ModPackSplash>
+Files:				<Base url from packs.xml>/modpacks/<ModpackID>/<md5>
+Modpack XML:		<Base url from packs.xml>/modpacks/<ModpackID>/data/<ModpackID>.xml
+Description:		<Base url from packs.xml>/modpacks/<ModpackID>/data/description.rtf
+Modpack Icon:		<Base url from packs.xml>/modpacks/<ModpackID>/data/icon.jpg
+Modpack Splash:		<Base url from packs.xml>/modpacks/<ModpackID>/data/splash.jpg
 
 
 Saved Files
