@@ -37,8 +37,7 @@ autoUpdate($version, $updateURL, $dataFolder)
 
 
 ; Play background music
-;playBackgroundMusic($musicURL, $dataFolder, 227)
-
+playBackgroundMusic($musicURL, $dataFolder, 22)
 
 ; Load and parse Packs.xml, returns 2d array [modpackNum][elements]
 $modpacks = parsePacks($packsURL, $dataFolder)
@@ -53,7 +52,7 @@ initGUImodSelection($baseURL, $dataFolder)
 DisplayModpackSelection()
 
 
-MsgBox(64,"Auto Update Test","Just a test....")
+MsgBox(64,"SAMUpdater version " & $version,"Development Mode" &@CRLF & "More stuff comming soon...")
 
 ;~ displayGUI()
 	; Populate Modpacks
