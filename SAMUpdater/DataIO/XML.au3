@@ -21,14 +21,14 @@ Func loadXML($_XMLFilename)
 
 	; Check if file opened for reading OK
 	If $hfile = -1 Then
-		ConsoleWrite("[Error] Unable to open the server pack list" & @CRLF)
+		ConsoleWrite("[Error] Unable to open xml document" & @CRLF)
 		SetError(1)
 		Return False
 	EndIf
 
 	$xml = FileRead($hfile)
 	If @error = 1 Then
-		ConsoleWrite("[Error] Unable to read the server pack list" & @CRLF)
+		ConsoleWrite("[Error] Unable to read xml document" & @CRLF)
 		SetError(2)
 		Return False
 	EndIf
@@ -63,8 +63,30 @@ Func getElements($_doc, $_tag)
 	Local $tagStartLoc
 	Local $tagEndLoc
 	Local $tagData
-	Dim $element[4096]
 	Local $elementNum = 1
+
+	; Simulated run to determine size of array needed
+	While True
+		$tagStartLoc = StringInStr($_doc, $tagStart, 2, 1, $start)
+		$tagEndLoc = StringInStr($_doc, $tagEnd, 2, 1, $start)
+		If $tagStartLoc = 0 or $tagEndLoc = 0 Then ExitLoop
+
+		;All data within specified Tag
+		$tagData = (StringMid($_doc, $tagStartLoc + StringLen($tagStart), ($tagEndLoc - $tagStartLoc - StringLen($tagStart))))
+		;Strip CRLF on first line
+		$tagData = StringReplace($tagData, @CRLF, "", 1)
+
+		;Start searching from end of last tag
+		$start = $tagEndLoc + StringLen($tagEnd)
+		$elementNum = $elementNum + 1
+	WEnd
+
+	; Create array big enough to hold the data
+	Dim $element[$elementNum]
+
+	; Re-initialize varibles for real run
+	$start = 1
+	$elementNum = 1
 
 	While True
 		$tagStartLoc = StringInStr($_doc, $tagStart, 2, 1, $start)
@@ -78,7 +100,7 @@ Func getElements($_doc, $_tag)
 
 		$element[$elementNum] = $tagData
 
-		;Start sreaching from end of last tag
+		;Start searching from end of last tag
 		$start = $tagEndLoc + StringLen($tagEnd)
 		$elementNum = $elementNum + 1
 	WEnd

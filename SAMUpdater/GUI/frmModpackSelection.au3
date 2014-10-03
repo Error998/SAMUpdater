@@ -111,14 +111,14 @@ Func showSplashAndDescription($modpackNum)
 
 	; Set splash path
 	If $modpacks[$modpackNum][9] == "" Then
-		$splashPath = $dataFolder & "\Packdata\GUI\defaultsplash.jpg"
+		$splashPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\defaultsplash.jpg"
 	Else
 		$splashPath = $dataFolder & "\Packdata\" & $modpacks[$modpackNum][0] & "\Data\splash.jpg"
 	EndIf
 
 	; Set description path
 	If $modpacks[$modpackNum][5] == "" Then
-		$descriptionPath = $dataFolder & "\Packdata\GUI\defaultdescription.rtf"
+		$descriptionPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\defaultdescription.rtf"
 	Else
 		$descriptionPath = $dataFolder & "\Packdata\" & $modpacks[$modpackNum][0] & "\Data\description.rtf"
 	EndIf
@@ -275,9 +275,9 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func createModpackSelectionGUI()
-	Local $backgroundPath = $dataFolder & "\PackData\GUI\background.jpg"
-	Local $splashPath = $dataFolder & "\PackData\GUI\defaultsplash.jpg"
-	Local $descriptionPath = $dataFolder & "\PackData\GUI\defaultdescription.rtf"
+	Local $backgroundPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\background.jpg"
+	Local $splashPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\defaultsplash.jpg"
+	Local $descriptionPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\defaultdescription.rtf"
 
 	Global $frmModpackSelection = GUICreate("SAMUpdater", 869, 486, 192, 124)
 
@@ -317,7 +317,7 @@ EndFunc
 ; Description ...: Populate the and create the GUI controls then display it. User can select which modpack to download.
 ; Syntax ........: DisplayModpackSelection()
 ; Parameters ....: None
-; Return values .: Zero basex modpack index to download
+; Return values .: Zero based modpack index to download
 ; Author ........: Error_998
 ; Modified ......:
 ; Remarks .......:

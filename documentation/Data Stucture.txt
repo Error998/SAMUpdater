@@ -20,6 +20,10 @@ http://localhost/samupdater/update_helper.exe
 
 ------------------------------------------------------
 
+assets.dat
+----------
+Hash	- background.mp3 md5
+
 
 packs.xml
 ---------
@@ -111,13 +115,16 @@ packs.xml
 
 
 
-GUI.xml
+assets.xml
 ---------
-<GUI version="1.0">
+<assets version="1.0">
+	<Sounds>
+		<BackgroundMusicMD5></BackgroundMusicMD5>
+	<Sounds>
 	<ModPackSelection>
 		<BackgroundMD5></BackgroundMD5>
 		<DefaultIconMD5></DefaultIconMD5>
 		<DefaultSplashMD5></DefaultSplashMD5>
 		<DefaultDescriptionMD5></DefaultDescriptionMD5>
 	</ModPackSelection>
-</GUI>
+</assets>

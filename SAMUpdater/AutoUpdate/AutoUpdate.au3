@@ -71,7 +71,7 @@ Func updateApp($dataFolder)
 
 	; Download new SAMUpdater.exe and save it as Update.dat
 	ConsoleWrite("[Info]: Downloading new updates..." & @CRLF)
-	downloadAndVerify($versionInfo[2], "Update.dat", $dataFolder, $versionInfo[3])
+	downloadAndVerify($versionInfo[2], "update.dat", $dataFolder, $versionInfo[3])
 
 
 	; Check if Update_Helper.exe actually needs updating
@@ -119,6 +119,7 @@ Func saveAppLaunchLocation($dataFolder)
 		Exit
 	EndIf
 
+	; Append location of running app's path to version.dat
 	FileWrite($file, @CRLF & @ScriptDir)
 
 	FileClose($file)

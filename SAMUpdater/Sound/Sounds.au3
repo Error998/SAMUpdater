@@ -1,13 +1,13 @@
 #include-once
 #include <Timers.au3>
 #include "..\DataIO\Download.au3"
+#include "..\DataIO\Assets.au3"
 
-; Play background music callback function
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: playBackgroundMusic
-; Description ...:
+; Description ...: Play background music callback function
 ; Syntax ........: playBackgroundMusic($hWnd, $Msg, $iIDTimer, $dwTime)
-; Parameters ....: $hWnd                - A handle value.
+; Parameters ....: $hWnd                - Window handle to the Hidden AutoIt window
 ;                  $Msg                 - An unknown value.
 ;                  $iIDTimer            - An integer value.
 ;                  $dwTime              - An unknown value.
@@ -25,44 +25,16 @@ Func callbackPlayBackgroundMusic($hWnd, $Msg, $iIDTimer, $dwTime)
 	Dim $dataFolder
 
 	; Sanity cehck that background.mp3 does exists then plays the sound
-	If FileExists($dataFolder & "\PackData\Sounds\Background.mp3") Then
+	If FileExists($dataFolder & "\PackData\Assets\Sounds\Background.mp3") Then
 		; Stop playing sound just in case its still playing
 		SoundPlay("")
 
 		; Start music
 		ConsoleWrite("[Info]: Playing background music..." & @CRLF)
-		SoundPlay($dataFolder & "\PackData\Sounds\Background.mp3")
+		SoundPlay($dataFolder & "\PackData\Assets\Sounds\Background.mp3")
 	EndIf
 EndFunc
 
-
-
-; #FUNCTION# ====================================================================================================================
-; Name ..........: getBackgroundMusic
-; Description ...: Use cached music, if a hash is supplied verify music, if hash fails or music does not exist download it.
-; Syntax ........: getBackgroundMusic($musicURL, $dataFolder, [$hash = ""])
-; Parameters ....: $musicURL 				- URL of remote background.mp3
-;				   $dataFolder				- Application data folder
-;				   $hash					- (Optional) MD5 hash of background.mp3
-; Return values .: None
-; Author ........: Error_998
-; Modified ......:
-; Remarks .......: Added hash parameter as optional until its fully implemented in the calling function
-; Related .......:
-; Link ..........:
-; Example .......: No
-; ===============================================================================================================================
-Func getBackgroundMusic($musicURL, $dataFolder, $hash = "")
-	If FileExists($dataFolder & "\PackData\Sounds\background.mp3") Then
-		If (Not $hash = "" And compareHash($dataFolder & "\PackData\Sounds\background.mp3", $hash)) Or $hash = "" Then
-			ConsoleWrite("[Info]: Using cached background music" & @CRLF)
-			Return
-		EndIf
-	EndIf
-
-	ConsoleWrite("[Info]: Downloading background music" & @CRLF)
-	downloadAndVerify($musicURL, "PackData\Sounds\background.mp3", $dataFolder)
-EndFunc
 
 
 
@@ -81,12 +53,13 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func playBackgroundMusic($musicURL, $dataFolder, $playLenght)
+Func playBackgroundMusic($dataFolder, $playLenght)
 	Local $hWndTimer
 
 	; Download background music if it does not exist in data folder
-	getBackgroundMusic($musicURL, $dataFolder)
-
+	ConsoleWrite("[Info]: Initializing Sound data" & @CRLF)
+	initSoundAssets($baseURL, $dataFolder)
+	ConsoleWrite("[Info]: Initialized" & @CRLF & @CRLF)
 
 	; Start playing background music
 	callbackPlayBackgroundMusic("","","","")

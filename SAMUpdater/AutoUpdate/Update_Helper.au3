@@ -1,7 +1,11 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
+#AutoIt3Wrapper_Icon=..\GUI\update.ico
+#AutoIt3Wrapper_Compression=4
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
-#AutoIt3Wrapper_Res_Fileversion=0.0.0.4
+#AutoIt3Wrapper_Res_Description=Update helper for samupdater.exe
+#AutoIt3Wrapper_Res_Fileversion=0.0.0.5
+#AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
 #include <File.au3>
@@ -10,7 +14,7 @@
 Opt('MustDeclareVars', 1)
 
 ; ### Init Varibles ###
-Const $version = "0.0.0.4"
+Const $version = "0.0.0.5"
 Local $updatePath
 
 ; #FUNCTION# ====================================================================================================================
@@ -33,7 +37,7 @@ Func verifyUpdateFiles()
 	ConsoleWrite("[Info]: Checking update file integrity" & @CRLF)
 
 	; Sanity check to make sure a update actually exists
-	If Not FileExists(@ScriptDir & "\Update.dat") Then
+	If Not FileExists(@ScriptDir & "\update.dat") Then
 		ConsoleWrite("[ERROR]: Update file not found, please run SAMUpdater" & @CRLF)
 		ConsoleWrite("[ERROR]: Is this issue persists please contact your mod pack creator" & @CRLF & @CRLF)
 		MsgBox(48, "Update file not found","Could not locate Update.dat! Please run SAMUpdater again.")
@@ -52,11 +56,11 @@ Func verifyUpdateFiles()
 	EndIf
 
 
-	; Verify the integrity of Update.dat
-	If Not compareHash(@ScriptDir & "\Update.dat", $versionInfo[3]) Then
+	; Verify the integrity of update.dat
+	If Not compareHash(@ScriptDir & "\update.dat", $versionInfo[3]) Then
 		ConsoleWrite("[ERROR]: File corrupt, integrity failed - Update.dat, please run SAMUpdater again" & @CRLF)
 		ConsoleWrite("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
-		MsgBox(48, "Invalid Update.dat", "Please run SAMUpdater again")
+		MsgBox(48, "Invalid update.dat", "Please run SAMUpdater again")
 		Exit
 	EndIf
 
@@ -68,7 +72,7 @@ EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: UpdateSAMUpdater
-; Description ...: Verify Update.dat and version.dat, remove old SAMUpdater and install new version
+; Description ...: Verify update.dat and version.dat, remove old SAMUpdater and install new version
 ; Syntax ........: UpdateSAMUpdater()
 ; Parameters ....:
 ; Return values .: Success					- Returns the path to SAMUpdater.exe
@@ -92,10 +96,10 @@ Func UpdateSAMUpdater()
 
 
 	; Install the update
-	If Not FileMove(@ScriptDir & "\Update.dat", $updatePath & "\SAMUpdater.exe") Then
+	If Not FileMove(@ScriptDir & "\update.dat", $updatePath & "\SAMUpdater.exe") Then
 		ConsoleWrite("[ERROR]: Unable to apply the update to SAMUpdater.exe" & @CRLF)
 		ConsoleWrite("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
-		MsgBox(48, "Unable to update SAMUpdater", "Please run SAMUpdater again")
+		MsgBox(48, "Unable to update SAMUpdater", "Please redownload the latest SAMUpdater")
 		Exit
 	EndIf
 

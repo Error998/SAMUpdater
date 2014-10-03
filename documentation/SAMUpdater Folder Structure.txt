@@ -7,20 +7,24 @@ Application Data Folder
 -----------------------
 |<%appdata%>\SAMUpdater
 |--- version.dat
-|--- Update.dat
+|--- update.dat
 |--- Update_Helper.exe
+|
 |---| PackData
 |	|--- Packs.xml
 |	|
-|	|---| Sounds
-|	|	|--- background.mp3
-|	|
-|	|---| GUI
-|	|	|--- GUI.xml
-|	|	|--- background.jpg
-|	|	|--- defaultsplash.jpg
-|	|	|--- defaulticon.jpg
-|	|	|--- defaultdescription.rtf
+|	|---| Assets
+|	|	|--- assets.xml
+|	|	|
+|	|	|---| Sounds
+|	|	|	|--- background.mp3
+|	|	|
+|	|	|---| GUI
+|	|	|	|---| ModpackSelection
+|	|	|	|	|--- background.jpg
+|	|	|	|	|--- defaultsplash.jpg
+|	|	|	|	|--- defaulticon.jpg
+|	|	|	|	|--- defaultdescription.rtf
 |	|
 |	|---| [Modpack ID Folder]
 |		|--- cache files
@@ -42,7 +46,8 @@ version.dat:		<Base url>/version.dat
 update.dat:			<Base url>/update.dat
 Update_Helper.exe:	<Base url>/update_helper.exe
 Pack XML:			<Base url>/packs.xml
-GUI.XML				<Base url>/gui/gui.xml
+assets.xml			<Base url>/assets/assets.xml
+background.mp3		<Base url>/assets/sounds/background.mp3
 Default Mod Icon:	<Base url>/gui/defaulticon.jpg
 Default Mod Splash:	<Base url>/gui/defaultsplash.jpg>
 
