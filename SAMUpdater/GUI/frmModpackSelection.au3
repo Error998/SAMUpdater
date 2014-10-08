@@ -9,7 +9,11 @@ Opt("GUIOnEventMode", 1)
 ; Number of modpack and ctrl id of the 2 buttons and label of the modpack region
 Global $ctrlIDs[5][3]
 
+; The zero based index of the modpack to download - Used as return value
+Global $downloadModpackNum = -1
 
+; Used to determine if the splash and description should be reloaded or not
+Global $selectedModpackNum
 
 
 ; #FUNCTION# ====================================================================================================================
@@ -169,12 +173,25 @@ EndFunc
 
 
 
+; #FUNCTION# ====================================================================================================================
+; Name ..........: btnDownload
+; Description ...: Download button event, set flags to close gui and save the modpack num
+; Syntax ........: btnDownload()
+; Parameters ....:
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
 Func btnDownload()
-	Local $modpackNum
 
-	$modpackNum = findModpackNumFromCtrlID(@GUI_CtrlId, 1, $ctrlIDs)
+	$downloadModpackNum = findModpackNumFromCtrlID(@GUI_CtrlId, 1, $ctrlIDs)
 
-	ConsoleWrite("[Info]: Modpack: " & $modpackNum & " selected for download - To be implemented..." & @CRLF)
+	ConsoleWrite("[Info]: Modpack #: " & $downloadModpackNum & " selected for download" & @CRLF)
+	$closeGUI = True
 EndFunc
 
 
@@ -298,7 +315,7 @@ Func createModpackSelectionGUI()
 	Next
 
 	; Display Splash and description from first modpack
-	Global $selectedModpackNum = -1
+	$selectedModpackNum = -1
 	showSplashAndDescription(0)
 
 
@@ -318,6 +335,7 @@ EndFunc
 ; Syntax ........: DisplayModpackSelection()
 ; Parameters ....: None
 ; Return values .: Zero based modpack index to download
+;				 : If no modpack was selected to download return  -1
 ; Author ........: Error_998
 ; Modified ......:
 ; Remarks .......:
@@ -336,6 +354,8 @@ Func DisplayModpackSelection()
 	While Not $closeGUI
 
 	WEnd
+
+	Return $downloadModpackNum
 EndFunc
 
 

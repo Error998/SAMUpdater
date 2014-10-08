@@ -26,6 +26,7 @@ Const $packsURL = $baseURL & "/packs.xml"
 
 Global $dataFolder = @AppDataDir & "\SAMUpdater"
 Local $modpacks
+Local $modpackNum
 
 ; ### Init Data Folders ###
 ConsoleWrite("[Info]: Initializing folders..." & @CRLF)
@@ -52,7 +53,14 @@ initModpacks($modpacks, $dataFolder)
 initGUImodSelectionAssets($baseURL, $dataFolder)
 
 ; Display Modpack selection GUI
-DisplayModpackSelection()
+$modpackNum = DisplayModpackSelection()
+
+; Exit application - no modpack was selected to download
+If $modpackNum = -1 Then
+	ConsoleWrite("[Info]: Exiting application" & @CRLF)
+	Exit
+EndIf
+
 
 
 MsgBox(64,"SAMUpdater version " & $version,"Development Mode" &@CRLF & "More stuff comming soon...")
