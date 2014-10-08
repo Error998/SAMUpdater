@@ -1,5 +1,6 @@
 #include-once
 #include <Crypt.au3>
+#include "RecFileListToArray.au3"
 
 Opt('MustDeclareVars', 1)
 
@@ -122,4 +123,88 @@ Func compareHash($sPath, $bCacheHash)
 		Return False
 	EndIf
 
+EndFunc
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: getFilename
+; Description ...: Get just the filename from a string containing a path + filename
+; Syntax ........: getFilename($sPath)
+; Parameters ....: $sPath               - Full path to file.
+; Return values .: filename
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func getFilename($sPath)
+	Local $i
+
+	If $sPath = "" Then
+		Return ""
+	EndIf
+
+	$i = StringInStr($sPath,"\", 0, -1)
+	Return StringRight($sPath, (StringLen($sPath) - $i))
+
+EndFunc
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: getPath
+; Description ...: Get just the path from a string containing a path + filename
+; Syntax ........: getPath($sPath)
+; Parameters ....: $sPath               - Full path to file
+; Return values .: Path of file
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func getPath($sPath)
+	Local $i
+	Local $sLen
+
+	$i = StringInStr($sPath,"\", 0, -1)
+
+	Return StringLeft($sPath, $i - 1)
+EndFunc
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: recurseFolders
+; Description ...: Recurse a path returning an array of filenames
+; Syntax ........: recurseFolders($sPath[, $sExcludeFile = ""[, $sExcludeEntireFolder = ""]])
+; Parameters ....: $sPath               - Path to recurse
+;                  $sExcludeFile        - [optional] Any files that should be excluded from the search, seperate with ;
+;                  $sExcludeEntireFolder- [optional] Any folders that should be excluded from the search, seperate with ;
+; Return values .: A one dimentional array containing the path + filenames
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......: Index zero contains the number of items in the array, files start at index 1
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func recurseFolders($sPath, $sExcludeFile = "", $sExcludeEntireFolder = "")
+    ; A sorted list of all files and folders with optional exclusions
+	local $aFiles = _RecFileListToArray($sPath, "*|" & $sExcludeFile & "|" & $sExcludeEntireFolder, 1, 1, 1)
+	if @error = 1 Then
+		ConsoleWrite("[ERROR]: Unable to recurse folders " & @error & " - " & " Extended: " &  @extended & @CRLF)
+
+		; Set aFiles as an array that as 0 files in it - prevents crashing when doing opperations on an array with no items
+		ReDim $aFiles[1]
+		$aFiles[0] = 0
+	EndIf
+
+	Return $aFiles
 EndFunc

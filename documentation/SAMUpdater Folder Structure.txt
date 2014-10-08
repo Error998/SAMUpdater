@@ -20,11 +20,11 @@ Application Data Folder
 |	|	|	|--- background.mp3
 |	|	|
 |	|	|---| GUI
-|	|	|	|---| ModpackSelection
-|	|	|	|	|--- background.jpg
-|	|	|	|	|--- defaultsplash.jpg
-|	|	|	|	|--- defaulticon.jpg
-|	|	|	|	|--- defaultdescription.rtf
+|	|		|---| ModpackSelection
+|	|			|--- background.jpg
+|	|			|--- defaultsplash.jpg
+|	|			|--- defaulticon.jpg
+|	|			|--- defaultdescription.rtf
 |	|
 |	|---| [Modpack ID Folder]
 |		|--- cache files
@@ -41,21 +41,39 @@ Application Data Folder
 
 Remote Repository File Structure
 --------------------------------
-SAMUpdater.exe:		<Base url>/samupdater.exe
-version.dat:		<Base url>/version.dat
-update.dat:			<Base url>/update.dat
-Update_Helper.exe:	<Base url>/update_helper.exe
-Pack XML:			<Base url>/packs.xml
-assets.xml			<Base url>/assets/assets.xml
-background.mp3		<Base url>/assets/sounds/background.mp3
-Default Mod Icon:	<Base url>/gui/defaulticon.jpg
-Default Mod Splash:	<Base url>/gui/defaultsplash.jpg>
+<Base url>
+|--- samupdater.exe
+|--- version.dat
+|--- update.dat
+|--- update_helper.exe
+|--- packs.xml
+|
+|--- assets
+|	|--- assets.xml
+|	|
+|	|--- sounds
+|	|	|--- background.mp3
+|	|
+|	|--- gui
+|		|--- defaulticon.jpg
+|		|--- defaultsplash.jpg
+|		|--- defaultdescription.rtf
 
-Files:				<Base url from packs.xml>/modpacks/<ModpackID>/<md5>
-Modpack XML:		<Base url from packs.xml>/modpacks/<ModpackID>/data/<ModpackID>.xml
-Description:		<Base url from packs.xml>/modpacks/<ModpackID>/data/description.rtf
-Modpack Icon:		<Base url from packs.xml>/modpacks/<ModpackID>/data/icon.jpg
-Modpack Splash:		<Base url from packs.xml>/modpacks/<ModpackID>/data/splash.jpg
+
+<Modpack Base url>
+|--- modpacks
+|	|---<modID>
+|		|---<modID>.xml
+|		|---<md5>
+|		|---<md5>
+|		|---<md5>
+|		|---<md5>
+|		|
+|		|--- data
+|			|--- description.rtf
+|			|--- icon.jpg
+|			|--- splash.jpg
+
 
 
 Saved Files

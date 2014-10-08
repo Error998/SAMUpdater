@@ -1,0 +1,34 @@
+Pack Creator Folder Structure
+-----------------------------
+
+| Application Folder
+|--- PackData
+|	|--- samupdater.exe
+|	|--- version.dat
+|	|--- update.dat
+|	|--- update_helper.exe
+|	|--- packs.xml
+|	|
+|	|--- assets
+|	|	|--- assets.xml
+|	|	|
+|	|	|--- sounds
+|	|	|	|--- background.mp3
+|	|	|
+|	|	|--- gui
+|	|		|--- defaulticon.jpg
+|	|		|--- defaultsplash.jpg
+|	|		|--- defaultdescription.rtf
+|	|
+|	|--- modpacks
+|		|---<modID>
+|			|---<modID>.xml
+|			|---<md5>
+|			|---<md5>
+|			|---<md5>
+|			|---<md5>
+|			|
+|			|--- data
+|				|--- description.rtf
+|				|--- icon.jpg
+|				|--- splash.jpg

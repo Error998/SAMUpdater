@@ -1,9 +1,9 @@
 #include <Array.au3>
 #include <Crypt.au3>
-#include "includes\Folders.au3"
-#include "includes\RecFileListToArray.au3"
-#include "forms\frmModpackDetails.au3"
-#include "forms\frmOptions.au3"
+#include "..\SAMUpdater\DataIO\Folders.au3"
+#include "..\SAMUpdater\DataIO\RecFileListToArray.au3"
+#include "GUI\frmModpackDetails.au3"
+#include "GUI\frmOptions.au3"
 
 Opt('MustDeclareVars', 1)
 

@@ -99,18 +99,6 @@ packs.xml
 			..
 		</File>
 	</Unchanged>
-	<Optional>
-		<File>
-			<Filename>mod.jar</Filename>
-			<Extract>FALSE</Extract>
-			<Path>.minecraft\mods</Path>
-			<md5>0x1EEA6FDA0CA03698EFBA7B045B5375F9</md5>
-			<Size>36650</Size>
-		</File>
-		<File>
-			..
-		</File>
-	</Optional>
 </ModPack>
 
 
