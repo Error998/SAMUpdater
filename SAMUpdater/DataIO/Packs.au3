@@ -95,7 +95,7 @@ EndFunc
 Func initModpackFolders($modpacks, $dataFolder)
 	; Create all modpack folders
 	For $i = 0 To (UBound($modpacks) - 1)
-		createFolder($dataFolder & "\PackData\" & $modpacks[$i][0] & "\Data")
+		createFolder($dataFolder & "\PackData\ModPacks\" & $modpacks[$i][0] & "\Data")
 	Next
 EndFunc
 
@@ -112,7 +112,7 @@ Func initModpackFiles($modpacks, $dataFolder)
 		; Verify local file else download remote Description
 		If Not $modpacks[$i][4] = "" Then
 			$url = $modpacks[$i][11] & "/modpacks/" & $modpacks[$i][0] & "/data/" & $modpacks[$i][4]
-			$path = "\PackData\" & $modpacks[$i][0] & "\Data\" & $modpacks[$i][4]
+			$path = "\PackData\Modpacks\" & $modpacks[$i][0] & "\Data\" & $modpacks[$i][4]
 			$hash = $modpacks[$i][5]
 
 			verifyAndDownload($url, $path, $dataFolder, $hash)
@@ -121,7 +121,7 @@ Func initModpackFiles($modpacks, $dataFolder)
 		; Verify local file else download remote ModpackIcon
 		If Not $modpacks[$i][6] = "" Then
 			$url = $modpacks[$i][11] & "/modpacks/" & $modpacks[$i][0] & "/data/" & $modpacks[$i][6]
-			$path = "\PackData\" & $modpacks[$i][0] & "\Data\" & $modpacks[$i][6]
+			$path = "\PackData\Modpacks\" & $modpacks[$i][0] & "\Data\" & $modpacks[$i][6]
 			$hash = $modpacks[$i][7]
 
 			verifyAndDownload($url, $path, $dataFolder, $hash)
@@ -131,7 +131,7 @@ Func initModpackFiles($modpacks, $dataFolder)
 		; Verify local file else download remote ModpackIcon
 		If Not $modpacks[$i][8] = "" Then
 			$url = $modpacks[$i][11] & "/modpacks/" & $modpacks[$i][0] & "/data/" & $modpacks[$i][8]
-			$path = "\PackData\" & $modpacks[$i][0] & "\Data\" & $modpacks[$i][8]
+			$path = "\PackData\Modpacks\" & $modpacks[$i][0] & "\Data\" & $modpacks[$i][8]
 			$hash = $modpacks[$i][9]
 
 			verifyAndDownload($url, $path, $dataFolder, $hash)

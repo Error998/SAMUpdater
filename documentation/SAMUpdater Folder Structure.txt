@@ -26,13 +26,14 @@ Application Data Folder
 |	|			|--- defaulticon.jpg
 |	|			|--- defaultdescription.rtf
 |	|
-|	|---| [Modpack ID Folder]
-|		|--- cache files
-|		|---| Data
-|			|--- <ModpackID>.xml
-|			|--- description.rtf
-|			|--- icon.jpg
-|			|--- splash.jpg
+|	|---| Modpacks
+|		|---[Modpack ID Folder]
+|			|--- cache files
+|			|---| Data
+|				|--- <ModpackID>.xml
+|				|--- description.rtf
+|				|--- icon.jpg
+|				|--- splash.jpg
 |
 |---| Backup
 	|---| <Day><Month><Year><Hour><Min><Sec>

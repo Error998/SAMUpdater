@@ -182,7 +182,7 @@ EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: recurseFolders
-; Description ...: Recurse a path returning an array of filenames
+; Description ...: Recurse a path returning a sorted array of path + filenames
 ; Syntax ........: recurseFolders($sPath[, $sExcludeFile = ""[, $sExcludeEntireFolder = ""]])
 ; Parameters ....: $sPath               - Path to recurse
 ;                  $sExcludeFile        - [optional] Any files that should be excluded from the search, seperate with ;
@@ -199,11 +199,25 @@ Func recurseFolders($sPath, $sExcludeFile = "", $sExcludeEntireFolder = "")
     ; A sorted list of all files and folders with optional exclusions
 	local $aFiles = _RecFileListToArray($sPath, "*|" & $sExcludeFile & "|" & $sExcludeEntireFolder, 1, 1, 1)
 	if @error = 1 Then
-		ConsoleWrite("[ERROR]: Unable to recurse folders " & @error & " - " & " Extended: " &  @extended & @CRLF)
+		if @extended = 9 Then
+			; Error 9 =  no files found
+			; Set aFiles as an array that as 0 files in it
+			Dim $aFiles[1]
+			$aFiles[0] = 0
+		Else
+			ConsoleWrite("[ERROR]: Unable to recurse folders - Error code:" & " Extended: " &  @extended & @CRLF)
+			MsgBox(48, "Error recursing folders", "Unable to recurse folders: " & @CRLF & $sPath & @CRLF & @CRLF & "Error code: " & @extended)
 
-		; Set aFiles as an array that as 0 files in it - prevents crashing when doing opperations on an array with no items
-		ReDim $aFiles[1]
-		$aFiles[0] = 0
+			; Continue app and prevent crashing when doing opperations on an array with no items
+			; Set aFiles as an array that as 0 files in it
+			Dim $aFiles[1]
+			$aFiles[0] = 0
+		EndIf
+
+	Else
+		; Sort final array if it contains files
+		_ArraySort($aFiles, 0, 1)
+
 	EndIf
 
 	Return $aFiles
