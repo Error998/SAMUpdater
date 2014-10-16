@@ -222,3 +222,49 @@ Func recurseFolders($sPath, $sExcludeFile = "", $sExcludeEntireFolder = "")
 
 	Return $aFiles
 EndFunc
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: getHumanReadableFilesize
+; Description ...: Converts a byte filesize value into a human readable value of either B/KB/MB/GB
+; Syntax ........: getHumanReadableFilesize($byte)
+; Parameters ....: $byte                - filesize in bytes
+; Return values .: A String with human readable filesize
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func getHumanReadableFilesize($byte)
+	; Return Byte
+	If $byte < 1024 Then
+		$byte = $byte & "B"
+		Return $byte
+	EndIf
+
+
+	; Return KB
+	If $byte < 1048576 Then
+		$byte = Round($byte / 1024, 1)
+		$byte = $byte & "KB"
+		Return $byte
+	EndIf
+
+
+	; Return MB
+	if $byte < 1073741824 Then
+		$byte = Round($byte / 1048576,1)
+		$byte = $byte & "MB"
+		Return $byte
+	EndIf
+
+
+	; Return GB 0_0 omg u insane?
+	$byte = Round($byte / 1073741824, 3)
+	$byte = $byte & "GB"
+	Return $byte
+
+
+EndFunc

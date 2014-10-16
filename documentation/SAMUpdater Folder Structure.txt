@@ -27,7 +27,7 @@ Application Data Folder
 |	|			|--- defaultdescription.rtf
 |	|
 |	|---| Modpacks
-|		|---[Modpack ID Folder]
+|		|--- <modID>
 |			|--- cache files
 |			|---| Data
 |				|--- <ModpackID>.xml

@@ -4,6 +4,8 @@
 #include <File.au3>
 #include "..\..\SAMUpdater\DataIO\XML.au3"
 #include "..\..\SAMUpdater\DataIO\Download.au3"
+#include "FileState.au3"
+
 Opt('MustDeclareVars', 1)
 
 
@@ -77,8 +79,6 @@ Func getXMLfilesFromSection($modID, $dataFolder, $section)
 
 	Return $aXMLFiles
 EndFunc
-
-
 
 
 
@@ -182,6 +182,7 @@ Func WriteModpack($modPackID, $path, ByRef $aFiles, ByRef $aRemovedFiles)
 EndFunc
 
 
+
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _GetFileInfos
 ; Description ...: Internal function to convert a 1d file array to a 2d section modpack.xml file format
@@ -197,36 +198,46 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func _GetFileInfos($path, $aFiles)
+	; Return 0 filled array if aFiles contain no files
 	If $aFiles[0] = 0 Then
 		Dim $aFileInfo[1][5]
 		$aFileInfo[0][0] = 0
+		Return $aFileInfo
+	EndIf
 
-	Else
-		Dim $aFileInfo[ $aFiles[0] + 1 ][5]
 
-		; Startup crypt libary to speedup hash generation
-		 _Crypt_Startup()
+	Dim $aFileInfo[ $aFiles[0] + 1 ][5]
 
-		; Calculate info section for each file
-		For $i =  1 To $aFiles[0]
-			$aFileInfo[$i][0] =	getFilename($path & "\" & $aFiles[$i])
-			$aFileInfo[$i][1] = "FALSE"
-			$aFileInfo[$i][2] = getPath($aFiles[$i])
+	; Startup crypt libary to speedup hash generation
+	 _Crypt_Startup()
+
+	; Calculate info section for each file
+	For $i =  1 To $aFiles[0]
+		$aFileInfo[$i][0] =	getFilename($path & "\" & $aFiles[$i])
+		$aFileInfo[$i][1] = "FALSE"
+		$aFileInfo[$i][2] = getPath($aFiles[$i])
+
+		; Only perform file operations if the file exist
+		If FileExists($path & "\" & $aFiles[$i]) Then
 			$aFileInfo[$i][3] = _Crypt_HashFile($path &  "\" & $aFiles[$i], $CALG_MD5)
 			$aFileInfo[$i][4] = getFileSize($path & "\" & $aFiles[$i])
-		Next
 
-		; Close the crypt libary to free resources
-		_Crypt_Shutdown()
+		Else
+			; Fill with black values since the file does not exist
+			$aFileInfo[$i][3] = ""
+			$aFileInfo[$i][4] = ""
+		EndIf
 
-		$aFileInfo[0][0] = $aFiles[0]
-	EndIf
+	Next
+
+	; Close the crypt libary to free resources
+	_Crypt_Shutdown()
+
+	$aFileInfo[0][0] = $aFiles[0]
+
 
 	Return $aFileInfo
 EndFunc
-
-
-
 
 
 
@@ -244,21 +255,99 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func getRemovedSourceFiles($modID, $pathToSourceFiles)
-	; Read removed files already saved in <modID>.xml
+Func getRemovedSourceFiles($modID, $dataFolder, $aSourceFiles)
+	; <modID>.xml does not exist return an empty filled array to prevent null error
+	If Not FileExists($dataFolder & "\PackData\Modpacks\" & $modID & "\" & $modID & ".xml") Then
 
-	; Calculate removed files bewteen current server state and <modID>.xml
+		Dim $aRemovedSourceFiles [1]
+		$aRemovedSourceFiles[0] = 0
+		Return $aRemovedSourceFiles
+	EndIf
+
+
+	Dim $aRemovedSourceFiles		; Removed source files when comparing current files with xml files
+	Dim $aRemovedXMLfiles			; File array of removed files from XML file
+	Dim $removedXMLfiles			; XML files array for removed files
+	Dim $aCurrentXMLFiles			; XML files array of current files
+	Dim $aUnchangedFiles[1]			; Unused but needed by GetDiff
+
+
+	; Read removed files already saved in <modID>.xml
+	$removedXMLfiles = getXMLfilesFromSection($modID, $dataFolder, "Removed")
+
+	; Convert the XML files to aFiles array
+	$aRemovedXMLfiles = convertXMLfilesToaFiles($removedXMLfiles)
+
+
+	; Get current files from <modID>.xml
+	$aCurrentXMLFiles = convertXMLfilesToaFiles( getXMLfilesFromSection($modID, $dataFolder, "Files"))
+
+
+	; Calculate removed files bewteen current modpack state and <modID>.xml
+	$aRemovedSourceFiles = GetDiff($aSourceFiles, $aCurrentXMLFiles, $aUnchangedFiles)
+
 
 
 	; Merge the exsisting and newly removed files
+	for $i = 1 To $aRemovedXMLfiles[0]
+		_ArrayAdd($aRemovedSourceFiles, $aRemovedXMLfiles[$i])
+	Next
 
+	; Adjust new file count
+	$aRemovedSourceFiles[0] = UBound($aRemovedSourceFiles) - 1
 
-	; If above calulations return no files return an empty filled array to prevent null error
-	Dim $aRemovedSourceFiles [1]
-	$aRemovedSourceFiles[0] = 0
 
 	Return $aRemovedSourceFiles
 EndFunc
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: convertXMLfilesToaFiles
+; Description ...: Convert a XML files array to a aFiles array (convert <modID>.xml file section to the same format as returned
+;				   by the recurseFolder function)
+; Syntax ........: convertXMLfilesToaFiles($aXMLFiles)
+; Parameters ....: $aXMLFiles           - An array of XMLFiles section array.
+; Return values .: An 2d array of files, Index 0 = file count
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func convertXMLfilesToaFiles($aXMLFiles)
+	; If no files exsit return a 0 array to prevent Null errors
+	If UBound($aXMLFiles) = 0 Then
+		Dim $aFiles[1]
+		$aFiles[0] = 0
+
+		Return $aFiles
+	EndIf
+
+
+	; Dynamic array just big enought to store all files + file count in index 0
+	Dim $aFiles[ UBound($aXMLFiles) + 1]
+
+
+	; Index 0 contains number of files
+	$aFiles[0] = UBound($aXMLFiles)
+
+	for $i =  1 to UBound($aXMLFiles)
+		If $aXMLFiles[$i - 1][2] = "" Then
+			; Path is blank
+			$aFiles[$i] = $aXMLFiles[$i - 1][0]
+		Else
+			; Include path
+			$aFiles[$i] = $aXMLFiles[$i - 1][2] & "\" & $aXMLFiles[$i - 1][0]
+		EndIf
+	Next
+
+
+	Return $aFiles
+EndFunc
+
 
 
 ; #FUNCTION# ====================================================================================================================
@@ -276,17 +365,17 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func saveModpack($modID, $pathToSourceFiles)
+Func saveModpack($modID, $dataFolder, $pathToSourceFiles)
 	Dim $aSourceFiles
 	Dim $aRemovedSourceFiles
 
-	; Get server files
+	; Get current modpack files
 	$aSourceFiles = recurseFolders($pathToSourceFiles)
-	ConsoleWrite("[Info]: Source File Count: " & UBound($aSourceFiles) - 1 & @CRLF)
+	ConsoleWrite("[Info]: Modpack consist out of " & UBound($aSourceFiles) - 1 & " files" & @CRLF)
 
 
 	; ****** Get Removed Files **********
-	$aRemovedSourceFiles = getRemovedSourceFiles($modID, $pathToSourceFiles)
+	$aRemovedSourceFiles = getRemovedSourceFiles($modID, $dataFolder, $aSourceFiles)
 
 
 	; Write <modID>.xml
@@ -295,8 +384,31 @@ EndFunc
 
 
 
-Func readModpack($modID, $dataFolder)
+; #FUNCTION# ====================================================================================================================
+; Name ..........: getTotalModpackFilesizeFromXML
+; Description ...: Calculates the total filesize in bytes of the Files section of <modID>.xml
+; Syntax ........: getTotalModpackFilesizeFromXML($modID, $dataFolder)
+; Parameters ....: $modID               - The modID
+;                  $dataFolder          - Application data flder
+; Return values .: total filesize of modpack in bytes
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func getTotalModpackFilesizeFromXML($modID, $dataFolder)
+	Local $currentXMLFiles
+	Local $totalSize = 0
 
+	; Get all the file info of the current files
+	$currentXMLFiles = getXMLfilesFromSection($modID, $dataFolder, "Files")
 
+	; Calculate total file size
+	For $i =  0 to UBound($currentXMLFiles) - 1
+		$totalSize = $totalSize + $currentXMLFiles[$i][4]
+	Next
 
+	Return $totalSize
 EndFunc

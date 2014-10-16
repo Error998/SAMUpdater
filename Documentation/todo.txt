@@ -1,0 +1,12 @@
+Fix console and all related output for saveModpack()
+
+Add overwrite tag to files - Setting this to false should prevent overwriting an existing file that stores user defined data such as options.txt
+
+Add custom cache location - Enable multiple modpacks to use the same cache location
+
+Add archive extraction - Need to add a test to figure out if archive needs to be downloaded
+
+Add GUI scrollbar
+
+Add a donation GUI
+
