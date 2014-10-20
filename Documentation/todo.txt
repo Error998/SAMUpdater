@@ -1,4 +1,4 @@
-Fix console and all related output for saveModpack()
+Add searh exclude filters
 
 Add overwrite tag to files - Setting this to false should prevent overwriting an existing file that stores user defined data such as options.txt
 

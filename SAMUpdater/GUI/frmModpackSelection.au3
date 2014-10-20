@@ -4,6 +4,7 @@
 #include <StaticConstants.au3>
 #include <WindowsConstants.au3>
 #include <GuiRichEdit.au3>
+#include "GUIScrollbars_Size.au3"
 
 Opt("GUIOnEventMode", 1)
 ; Number of modpack and ctrl id of the 2 buttons and label of the modpack region
@@ -320,12 +321,13 @@ Func createModpackSelectionGUI()
 
 
 	GUISetOnEvent($GUI_EVENT_CLOSE, "CLOSEButton")
+
+
 	ConsoleWrite("[Info]: Displaying ModpackSelection GUI" & @CRLF)
 	GUISetState(@SW_SHOW)
 
 
 EndFunc
-
 
 
 

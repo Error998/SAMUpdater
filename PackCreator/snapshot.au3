@@ -93,13 +93,13 @@ Dim $removedXMLfiles  ; All files that were removed from modpack
 Dim $currentXMLfiles  ; All files that exist in the current modpack
 
 
-$removedXMLfiles =  getXMLfilesFromSection($modID, @ScriptDir, "Removed")
-ConsoleWrite("[Info]: Files marked for removal: " & UBound($removedXMLfiles) & @CRLF)
+;~ $removedXMLfiles =  getXMLfilesFromSection($modID, @ScriptDir, "Removed")
+;~ ConsoleWrite("[Info]: Files marked for removal: " & UBound($removedXMLfiles) & @CRLF)
 
-$currentXMLfiles = getXMLfilesFromSection($modID, @ScriptDir, "Files")
+;~ $currentXMLfiles = getXMLfilesFromSection($modID, @ScriptDir, "Files")
 
-ConsoleWrite("[Info]: Modpack consists out of " & UBound($currentXMLfiles) & " files" & @CRLF)
-ConsoleWrite("[Info]: Modpack size: " & getHumanReadableFilesize( getTotalModpackFilesizeFromXML($modID, @ScriptDir) ) & @CRLF)
+;~ ConsoleWrite("[Info]: Modpack consists out of " & UBound($currentXMLfiles) & " files" & @CRLF)
+;~ ConsoleWrite("[Info]: Modpack size: " & getHumanReadableFilesize( getTotalModpackFilesizeFromXML($modID, @ScriptDir) ) & @CRLF)
 
 
 saveModpack($modID, @ScriptDir, $pathToSourceFiles)

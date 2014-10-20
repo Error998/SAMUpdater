@@ -261,6 +261,8 @@ Func getRemovedSourceFiles($modID, $dataFolder, $aSourceFiles)
 
 		Dim $aRemovedSourceFiles [1]
 		$aRemovedSourceFiles[0] = 0
+
+		ConsoleWrite("[Info]: 0 Files are marked for removal in " & $modID & ".xml" & @CRLF)
 		Return $aRemovedSourceFiles
 	EndIf
 
@@ -277,15 +279,17 @@ Func getRemovedSourceFiles($modID, $dataFolder, $aSourceFiles)
 
 	; Convert the XML files to aFiles array
 	$aRemovedXMLfiles = convertXMLfilesToaFiles($removedXMLfiles)
+	ConsoleWrite("[Info]: " & $aRemovedXMLfiles[0] & " Files are marked for removal in " & $modID & ".xml" & @CRLF & @CRLF)
 
 
+	ConsoleWrite("[Info]: Calculate removed files between " & $modID & ".xml" & " and current files" & @CRLF)
 	; Get current files from <modID>.xml
 	$aCurrentXMLFiles = convertXMLfilesToaFiles( getXMLfilesFromSection($modID, $dataFolder, "Files"))
 
 
 	; Calculate removed files bewteen current modpack state and <modID>.xml
 	$aRemovedSourceFiles = GetDiff($aSourceFiles, $aCurrentXMLFiles, $aUnchangedFiles)
-
+	ConsoleWrite("[Info]: " & $aRemovedSourceFiles[0] & " New files are marked for removal" & @CRLF & @CRLF)
 
 
 	; Merge the exsisting and newly removed files
@@ -351,40 +355,6 @@ EndFunc
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: saveModpack
-; Description ...: Save the <modID>.xml file depending on the state of the current source files and save any previously removed
-;				   files, including newly removed files
-; Syntax ........: saveModpack($modID, $pathToSourceFiles)
-; Parameters ....: $modID               - The modID, also used for determining the location of the saved file
-;                  $pathToSourceFiles   - Path to the source files of the current mod state.
-; Return values .: None
-; Author ........: Error_998
-; Modified ......:
-; Remarks .......: If no removed files exsist (first time saving modpack) a blank <Removed> section will be created
-; Related .......:
-; Link ..........:
-; Example .......: No
-; ===============================================================================================================================
-Func saveModpack($modID, $dataFolder, $pathToSourceFiles)
-	Dim $aSourceFiles
-	Dim $aRemovedSourceFiles
-
-	; Get current modpack files
-	$aSourceFiles = recurseFolders($pathToSourceFiles)
-	ConsoleWrite("[Info]: Modpack consist out of " & UBound($aSourceFiles) - 1 & " files" & @CRLF)
-
-
-	; ****** Get Removed Files **********
-	$aRemovedSourceFiles = getRemovedSourceFiles($modID, $dataFolder, $aSourceFiles)
-
-
-	; Write <modID>.xml
-	WriteModpack($modID, $pathToSourceFiles, $aSourceFiles, $aRemovedSourceFiles)
-EndFunc
-
-
-
-; #FUNCTION# ====================================================================================================================
 ; Name ..........: getTotalModpackFilesizeFromXML
 ; Description ...: Calculates the total filesize in bytes of the Files section of <modID>.xml
 ; Syntax ........: getTotalModpackFilesizeFromXML($modID, $dataFolder)
@@ -411,4 +381,41 @@ Func getTotalModpackFilesizeFromXML($modID, $dataFolder)
 	Next
 
 	Return $totalSize
+EndFunc
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: saveModpack
+; Description ...: Save the <modID>.xml file depending on the state of the current source files and save any previously removed
+;				   files, including newly removed files
+; Syntax ........: saveModpack($modID, $pathToSourceFiles)
+; Parameters ....: $modID               - The modID, also used for determining the location of the saved file
+;                  $pathToSourceFiles   - Path to the source files of the current mod state.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......: If no removed files exsist (first time saving modpack) a blank <Removed> section will be created
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func saveModpack($modID, $dataFolder, $pathToSourceFiles)
+	Dim $aSourceFiles
+	Dim $aRemovedSourceFiles
+
+	; Get current modpack files
+	ConsoleWrite("[Info]: Calculating current source files..." & @CRLF)
+	$aSourceFiles = recurseFolders($pathToSourceFiles)
+	ConsoleWrite("[Info]: " & UBound($aSourceFiles) - 1 & " Source files found" & @CRLF & @CRLF)
+
+
+	; ****** Get Removed Files **********
+	ConsoleWrite("[Info]: Calculating removed files..." & @CRLF)
+	$aRemovedSourceFiles = getRemovedSourceFiles($modID, $dataFolder, $aSourceFiles)
+	ConsoleWrite("[Info]: " & (UBound($aRemovedSourceFiles) - 1) & " Total files in removal section"  & @CRLF & @CRLF)
+
+	; Write <modID>.xml
+	WriteModpack($modID, $pathToSourceFiles, $aSourceFiles, $aRemovedSourceFiles)
 EndFunc
