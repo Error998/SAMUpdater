@@ -52,11 +52,11 @@ Func initSoundAssets($baseURL, $dataFolder)
 	Local $hash
 
 	; Get list of MD5 hashes from assets.xml
-	$MD5ListXML = loadAssetMD5List($baseURL & "/assets/assets.xml", $dataFolder, "Sounds")
+	$MD5ListXML = loadAssetMD5List($baseURL & "/packdata/assets/assets.xml", $dataFolder, "Sounds")
 
 
 	; Download background.mp3
-	$url = $baseURL & "/assets/sounds/background.mp3"
+	$url = $baseURL & "/packdata/assets/sounds/background.mp3"
 	$path = "\PackData\Assets\Sounds\background.mp3"
 	$hash = getElement($MD5ListXML[1], "BackgroundMusicMD5")
 
@@ -73,11 +73,11 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 	Local $hash
 
 	; Get list of MD5 hashes from assets.xml
-	$MD5ListXML = loadAssetMD5List($baseURL & "/assets/assets.xml", $dataFolder, "ModPackSelection", True)
+	$MD5ListXML = loadAssetMD5List($baseURL & "/packdata/assets/assets.xml", $dataFolder, "ModPackSelection", True)
 
 
 	; Download background.jpg
-	$url = $baseURL & "/assets/gui/modpackselection/background.jpg"
+	$url = $baseURL & "/packdata/assets/gui/modpackselection/background.jpg"
 	$path = "\PackData\Assets\GUI\ModpackSelection\background.jpg"
 	$hash = getElement($MD5ListXML[1], "BackgroundMD5")
 
@@ -85,7 +85,7 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 
 
 	; Download defaulticon.jpg
-	$url = $baseURL & "/assets/gui/modpackselection/defaulticon.jpg"
+	$url = $baseURL & "/packdata/assets/gui/modpackselection/defaulticon.jpg"
 	$path = "\PackData\Assets\GUI\ModpackSelection\defaulticon.jpg"
 	$hash = getElement($MD5ListXML[1], "DefaultIconMD5")
 
@@ -93,7 +93,7 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 
 
 	; Download defaultsplash.jpg
-	$url = $baseURL & "/assets/gui/modpackselection/defaultsplash.jpg"
+	$url = $baseURL & "/packdata/assets/gui/modpackselection/defaultsplash.jpg"
 	$path = "\PackData\Assets\GUI\ModpackSelection\defaultsplash.jpg"
 	$hash = getElement($MD5ListXML[1], "DefaultSplashMD5")
 
@@ -101,7 +101,7 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 
 
 	; Download defaultdescription.rtf
-	$url = $baseURL & "/assets/gui/modpackselection/defaultdescription.rtf"
+	$url = $baseURL & "/packdata/assets/gui/modpackselection/defaultdescription.rtf"
 	$path = "\PackData\Assets\GUI\ModpackSelection\defaultdescription.rtf"
 	$hash = getElement($MD5ListXML[1], "DefaultDescriptionMD5")
 

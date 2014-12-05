@@ -13,9 +13,10 @@ Opt('MustDeclareVars', 1)
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: loadXMLfileSection
 ; Description ...: Read <modID>.xml and return a specific file section
-; Syntax ........: loadFileList($modpackURL, $dataFolder, $modID)
+; Syntax ........: loadXMLfileSection($modID, $dataFolder, $section)
 ; Parameters ....: $modID				- modID
 ;				   $dataFolder 			- Application data folder
+;				   $section				- either "Removed" or "Files"
 ; Return values .: Trimed XML data containing a file section
 ; Author ........: Error_998
 ; Modified ......:
@@ -29,7 +30,7 @@ Func loadXMLfileSection($modID, $dataFolder, $section)
 	Dim $filesSectionXML
 
 	; Load and parse xml document
-	$xml = loadXML($dataFolder & "\PackData\Modpacks\" & $modID & "\" & $modID & ".xml")
+	$xml = loadXML($dataFolder & "\PackData\Modpacks\" & $modID & "\Data\" & $modID & ".xml")
 
 	; Array for each file section
 	$filesSectionXML = getElement($xml, $section)
@@ -140,10 +141,10 @@ Func WriteModpack($modPackID, $path, ByRef $aFiles, ByRef $aRemovedFiles)
 	Local $aFilesWithFileInfo
 
 	; Open a new xml document for writing
-	$hFile = FileOpen(@ScriptDir & "\PackData\Modpacks\" & $modPackID & "\" & $modPackID & ".xml", 10) ; erase + create dir
+	$hFile = FileOpen(@ScriptDir & "\PackData\Modpacks\" & $modPackID & "\Data\" & $modPackID & ".xml", 10) ; erase + create dir
 	If $hFile = -1 Then
-		ConsoleWrite("[ERROR]: Unable to create - " & @ScriptDir & "\PackData\Modpacks\" & $modPackID & "\" & $modPackID & ".xml" & @CRLF)
-		MsgBox(48, "Error creating xml document", "Unable to create xml document:" & @CRLF & @ScriptDir & "\PackData\Modpacks\" & $modPackID & "\" & $modPackID & ".xml")
+		ConsoleWrite("[ERROR]: Unable to create - " & @ScriptDir & "\PackData\Modpacks\" & $modPackID & "\Data\" & $modPackID & ".xml" & @CRLF)
+		MsgBox(48, "Error creating xml document", "Unable to create xml document:" & @CRLF & @ScriptDir & "\PackData\Modpacks\" & $modPackID & "\Data\" & $modPackID & ".xml")
 		Exit
 	EndIf
 
@@ -257,7 +258,7 @@ EndFunc
 ; ===============================================================================================================================
 Func getRemovedSourceFiles($modID, $dataFolder, $aSourceFiles)
 	; <modID>.xml does not exist return an empty filled array to prevent null error
-	If Not FileExists($dataFolder & "\PackData\Modpacks\" & $modID & "\" & $modID & ".xml") Then
+	If Not FileExists($dataFolder & "\PackData\Modpacks\" & $modID & "\Data\" & $modID & ".xml") Then
 
 		Dim $aRemovedSourceFiles [1]
 		$aRemovedSourceFiles[0] = 0

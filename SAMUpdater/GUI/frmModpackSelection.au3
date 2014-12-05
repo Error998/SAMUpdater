@@ -40,9 +40,9 @@ Func addModpack($modpackNum, ByRef $ctrlIDs)
 
 	; Set Icon path
 	If $modpacks[$modpackNum][7] == "" Then
-		$iconPath = $dataFolder & "\Packdata\GUI\defaulticon.jpg"
+		$iconPath = $dataFolder & "\Packdata\Assets\GUI\Modpackselection\defaulticon.jpg"
 	Else
-		$iconPath = $dataFolder & "\Packdata\" & $modpacks[$modpackNum][0] & "\Data\icon.jpg"
+		$iconPath = $dataFolder & "\Packdata\Modpacks\" & $modpacks[$modpackNum][0] & "\Data\icon.jpg"
 	EndIf
 
 	; Set Heading text
@@ -118,14 +118,14 @@ Func showSplashAndDescription($modpackNum)
 	If $modpacks[$modpackNum][9] == "" Then
 		$splashPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\defaultsplash.jpg"
 	Else
-		$splashPath = $dataFolder & "\Packdata\" & $modpacks[$modpackNum][0] & "\Data\splash.jpg"
+		$splashPath = $dataFolder & "\Packdata\Modpacks\" & $modpacks[$modpackNum][0] & "\Data\splash.jpg"
 	EndIf
 
 	; Set description path
 	If $modpacks[$modpackNum][5] == "" Then
 		$descriptionPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\defaultdescription.rtf"
 	Else
-		$descriptionPath = $dataFolder & "\Packdata\" & $modpacks[$modpackNum][0] & "\Data\description.rtf"
+		$descriptionPath = $dataFolder & "\Packdata\Modpacks\" & $modpacks[$modpackNum][0] & "\Data\description.rtf"
 	EndIf
 
 

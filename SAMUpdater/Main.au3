@@ -18,11 +18,11 @@ Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.0.1.0"
-;Const $baseURL = "http://localhost/samupdater"
-Const $baseURL = "https://dl.dropboxusercontent.com/u/68260490/Games/Minecraft/SAM/samupdater"
+Const $version = "0.0.1.1"
+Const $baseURL = "http://localhost/samupdater"
+;Const $baseURL = "https://dl.dropboxusercontent.com/u/68260490/Games/Minecraft/SAM/samupdater"
 Const $updateURL = $baseURL & "/version.dat"
-Const $packsURL = $baseURL & "/packs.xml"
+Const $packsURL = $baseURL & "/packdata/packs.xml"
 
 Global $dataFolder = @AppDataDir & "\SAMUpdater"
 Local $modpacks

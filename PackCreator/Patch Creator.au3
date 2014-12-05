@@ -3,13 +3,20 @@
 #include <File.au3>
 #include "..\SAMUpdater\DataIO\Folders.au3"
 #include "DataIO\ModPack.au3"
-#include "DataIO\Cache.au3"
 
 
 Opt('MustDeclareVars', 1)
 
-Local $modID = "Test"
+Dim $aFilesServer
+Dim $sPathServer = @DesktopDir & "\TestServer\Update 3\.minecraft"
 
+Dim $aFilesClient
+Dim $sPathClient = @DesktopDir & "\TestServer\Update 2\.minecraft"
+
+Dim $aAddedFiles
+Dim $aRemovedFiles
+Dim $aUnchangedFiles[1]
+Dim $aChangedFiles[1]
 
 
 ; A file can be in 1 of 4 states:
@@ -20,17 +27,7 @@ Local $modID = "Test"
 
 
 
-func Test()
-	Dim $aFilesServer
-	Dim $sPathServer = @AppDataDir & "\.minecraft"
-
-	Dim $aFilesClient
-	Dim $sPathClient = @DesktopDir & "\Current MC\.minecraft"
-
-	Dim $aAddedFiles
-	Dim $aRemovedFiles
-	Dim $aUnchangedFiles[1]
-	Dim $aChangedFiles[1]
+func Patch()
 
 	$aUnchangedFiles[0] = 0
 	$aChangedFiles[0] = 0
@@ -85,28 +82,6 @@ func Test()
 	;~ $aUnchangedFiles
 EndFunc
 
-
-Func modpackStats()
-	Dim $removedXMLfiles  ; All files that were removed from modpack
-	Dim $currentXMLfiles  ; All files that exist in the current modpack
+Patch()
 
 
-	$removedXMLfiles =  getXMLfilesFromSection($modID, @ScriptDir, "Removed")
-	ConsoleWrite("[Info]: Files marked for removal: " & UBound($removedXMLfiles) & @CRLF)
-
-	$currentXMLfiles = getXMLfilesFromSection($modID, @ScriptDir, "Files")
-
-	ConsoleWrite("[Info]: Modpack consists out of " & UBound($currentXMLfiles) & " files" & @CRLF)
-	ConsoleWrite("[Info]: Modpack size: " & getHumanReadableFilesize( getTotalModpackFilesizeFromXML($modID, @ScriptDir) ) & @CRLF)
-
-EndFunc
-
-
-Dim $pathToSourceFiles = @DesktopDir & "\TestServer\Update 3\.minecraft"
-
-
-;saveModpack($modID, @ScriptDir, $pathToSourceFiles)
-
-;modpackStats()
-
-;updateCachefromXML($modID, @ScriptDir, $pathToSourceFiles)

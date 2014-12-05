@@ -28,9 +28,13 @@ Application Data Folder
 |	|
 |	|---| Modpacks
 |		|--- <modID>
-|			|--- cache files
+|			|--- Cache
+|			|	|---cache files
+|			|	|---cache files
+|			|	|---cache files
+|			|
 |			|---| Data
-|				|--- <ModpackID>.xml
+|				|--- <modID>.xml
 |				|--- description.rtf
 |				|--- icon.jpg
 |				|--- splash.jpg
@@ -47,33 +51,36 @@ Remote Repository File Structure
 |--- version.dat
 |--- update.dat
 |--- update_helper.exe
-|--- packs.xml
 |
-|--- assets
-|	|--- assets.xml
-|	|
-|	|--- sounds
-|	|	|--- background.mp3
-|	|
-|	|--- gui
-|		|--- defaulticon.jpg
-|		|--- defaultsplash.jpg
-|		|--- defaultdescription.rtf
+|---| PackData
+	|--- packs.xml
+	|
+	|---| Assets
+	|	|--- assets.xml
+	|	|
+	|	|---| Sounds
+	|	|	|--- background.mp3
+	|	|
+	|	|---| GUI
+	|		|---| ModpackSelection
+	|			|--- background.jpg
+	|			|--- defaultsplash.jpg
+	|			|--- defaulticon.jpg
+	|			|--- defaultdescription.rtf
+	|
+	|---| Modpacks
+		|--- <modID>
+			|--- Cache
+			|	|---cache files
+			|	|---cache files
+			|	|---cache files
+			|
+			|---| Data
+				|--- <modID>.xml
+				|--- description.rtf
+				|--- icon.jpg
+				|--- splash.jpg
 
-
-<Modpack Base url>
-|--- modpacks
-|	|---<modID>
-|		|---<modID>.xml
-|		|---<md5>
-|		|---<md5>
-|		|---<md5>
-|		|---<md5>
-|		|
-|		|--- data
-|			|--- description.rtf
-|			|--- icon.jpg
-|			|--- splash.jpg
 
 
 
