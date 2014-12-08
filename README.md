@@ -1,4 +1,4 @@
-SAMUpdater v0.1.0 alpha
+SAMUpdater v0.1.2 alpha
 ========================
 
 A Minecraft Auto Updater that will update mods and config files.
@@ -17,13 +17,14 @@ Todo sanity check :)
 ---------------------
 Done -> Update Updater
 
-Download pack.xml
+Done -> Download pack.xml
 
-Get pack details
+Done -> Get pack details
 
 Parse modules
 
-Parse files
+
+Done -> Parse files
  - path
  - filename
  - url

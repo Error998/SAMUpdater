@@ -8,6 +8,19 @@ Pack Creator Folder Structure
 |--- PackData
 |	|--- packs.xml
 |	|
+|	|---| Assets
+|	|	|--- assets.xml
+|	|	|
+|	|	|---| Sounds
+|	|	|	|--- background.mp3
+|	|	|
+|	|	|---| GUI
+|	|		|---| ModpackSelection
+|	|			|--- background.jpg
+|	|			|--- defaultsplash.jpg
+|	|			|--- defaulticon.jpg
+|	|			|--- defaultdescription.rtf
+|	|			
 |	|--- Modpacks
 |		|--- <modID>
 |			|--- Cache

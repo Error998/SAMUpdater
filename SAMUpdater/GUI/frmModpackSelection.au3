@@ -67,12 +67,23 @@ Func addModpack($modpackNum, ByRef $ctrlIDs)
 	GUICtrlSetState(-1, $GUI_DISABLE)
 
 	; Info Button
-	$ctrlIDs[$modpackNum][0] =  GUICtrlCreateButton("Info", 328, 24+ $offset, 75, 25)
+	$ctrlIDs[$modpackNum][0] =  GUICtrlCreateButton("Info", 328, 24 + $offset, 75, 25)
 	GUICtrlSetOnEvent(-1, "btnInfo")
 
 	; Download button
-	$ctrlIDs[$modpackNum][1]  = GUICtrlCreateButton("Download", 328, 56+ $offset, 75, 25)
-	GUICtrlSetOnEvent(-1, "btnDownload")
+
+	If $modpacks[$modpackNum][12] = "False" Then
+		; Downloads are disabled redirect to Info event if Modpack is not active
+		$ctrlIDs[$modpackNum][0]  = GUICtrlCreateButton("Offline", 328, 56 + $offset, 75, 25)
+		GUICtrlSetOnEvent(-1, "btnInfo")
+
+
+	Else
+		; Download button
+		$ctrlIDs[$modpackNum][1]  = GUICtrlCreateButton("Download", 328, 56 + $offset, 75, 25)
+		GUICtrlSetOnEvent(-1, "btnDownload")
+	EndIf
+
 
 	; Icon
 	GUICtrlCreatePic($iconPath, 21, 21 + $offset, 64, 64)
@@ -192,7 +203,9 @@ Func btnDownload()
 	$downloadModpackNum = findModpackNumFromCtrlID(@GUI_CtrlId, 1, $ctrlIDs)
 
 	ConsoleWrite("[Info]: Modpack #: " & $downloadModpackNum & " selected for download" & @CRLF)
-	$closeGUI = True
+
+	; Close GUI and free resources
+	CLOSEButton()
 EndFunc
 
 

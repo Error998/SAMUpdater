@@ -18,7 +18,7 @@ Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.0.1.1"
+Const $version = "0.0.1.2"
 Const $baseURL = "http://localhost/samupdater"
 ;Const $baseURL = "https://dl.dropboxusercontent.com/u/68260490/Games/Minecraft/SAM/samupdater"
 Const $updateURL = $baseURL & "/version.dat"
@@ -41,7 +41,7 @@ autoUpdate($version, $updateURL, $dataFolder)
 
 
 ; Play background music
-playBackgroundMusic($dataFolder, 227)
+;playBackgroundMusic($dataFolder, 227)
 
 ; Load and parse Packs.xml, returns 2d array [modpackNum][elements]
 $modpacks = parsePacks($packsURL, $dataFolder)
@@ -62,6 +62,9 @@ If $modpackNum = -1 Then
 EndIf
 
 
+ConsoleWrite("[Info]: Modpack ID            - " & $modpacks[$modpackNum][0] & @CRLF)
+ConsoleWrite("[Info]: Remote Repository URL - " & $modpacks[$modpackNum][11] & @CRLF)
+ConsoleWrite("[Info]: Modpack Active        - " & $modpacks[$modpackNum][12] & @CRLF)
 
 MsgBox(64,"SAMUpdater version " & $version,"Development Mode" &@CRLF & "More stuff comming soon...")
 

@@ -72,8 +72,11 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 	Local $url
 	Local $hash
 
+	ConsoleWrite("[Info]: Initializing GUI assests" & @CRLF)
+
+
 	; Get list of MD5 hashes from assets.xml
-	$MD5ListXML = loadAssetMD5List($baseURL & "/packdata/assets/assets.xml", $dataFolder, "ModPackSelection", True)
+	$MD5ListXML = loadAssetMD5List($baseURL & "/packdata/assets/assets.xml", $dataFolder, "ModPackSelection")
 
 
 	; Download background.jpg
@@ -107,7 +110,7 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 
 	verifyAndDownload($url, $path, $dataFolder, $hash)
 
-	ConsoleWrite("[Info]: Initialized" & @CRLF & @CRLF)
+	ConsoleWrite("[Info]: GUI assets initialized" & @CRLF & @CRLF)
 
 EndFunc
 
