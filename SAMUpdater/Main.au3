@@ -4,21 +4,22 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_Fileversion=0.0.1.0
+#AutoIt3Wrapper_Res_Fileversion=0.0.1.3
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
 #include "AutoUpdate\AutoUpdate.au3"
 #include "DataIO\Folders.au3"
 #include "DataIO\Packs.au3"
-#include "Sound\Sounds.au3"
 #include "DataIO\Assets.au3"
+#include "DataIO\Cache.au3"
+#include "Sound\Sounds.au3"
 #include "GUI\frmModpackSelection.au3"
 
 Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.0.1.2"
+Const $version = "0.0.1.3"
 Const $baseURL = "http://localhost/samupdater"
 ;Const $baseURL = "https://dl.dropboxusercontent.com/u/68260490/Games/Minecraft/SAM/samupdater"
 Const $updateURL = $baseURL & "/version.dat"
@@ -64,7 +65,11 @@ EndIf
 
 ConsoleWrite("[Info]: Modpack ID            - " & $modpacks[$modpackNum][0] & @CRLF)
 ConsoleWrite("[Info]: Remote Repository URL - " & $modpacks[$modpackNum][11] & @CRLF)
-ConsoleWrite("[Info]: Modpack Active        - " & $modpacks[$modpackNum][12] & @CRLF)
+ConsoleWrite("[Info]: Modpack Active        - " & $modpacks[$modpackNum][12] & @CRLF & @CRLF)
+
+; Cache modpack
+cacheModpack($modpacks[$modpackNum][11], $modpacks[$modpackNum][0], $dataFolder)
+
 
 MsgBox(64,"SAMUpdater version " & $version,"Development Mode" &@CRLF & "More stuff comming soon...")
 

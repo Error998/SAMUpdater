@@ -4,6 +4,8 @@
 #include <File.au3>
 #include "..\DataIO\XML.au3"
 #include "..\DataIO\Download.au3"
+#include "..\DataIO\ModPack.au3"
+#include "..\DataIO\Folders.au3"
 
 Opt('MustDeclareVars', 1)
 
@@ -59,3 +61,64 @@ Func updateCacheFromXML($modID, $dataFolder, $pathToSourceFiles)
 EndFunc
 
 
+Func cacheModpack($baseModURL, $modID, $dataFolder)
+	Local $uncachedFiles
+
+	; Download <modID>.xml
+	ConsoleWrite("[Info]: Downloading modpack file list - " & "\PackData\Modpacks\" & $modID & "\Data\" & $modID & ".xml" & @CRLF)
+	downloadFile($baseModURL & "/packdata/modpacks/" & $modID & "/data/" & $modID & ".xml", $dataFolder & "\PackData\Modpacks\" & $modID & "\Data\" & $modID & ".xml")
+
+
+	; Get a list of files that are not yet cached
+	$uncachedFiles = getUncachedFileList($modID, $dataFolder)
+
+	; Download and cache files
+	cacheFiles($uncachedFiles, $dataFolder)
+EndFunc
+
+
+Func getUncachedFileList($modID, $dataFolder)
+	Dim $currentXMLfiles  ; All files that exist in the current modpack
+	Dim $uncachedFiles[1]
+	Local $filesize = 0
+	Local $index
+
+
+	; Load <modID>.xml
+	ConsoleWrite("[Info]: Parsing modpack file list from " & $modID & ".xml" & @CRLF & @CRLF)
+	$currentXMLfiles = getXMLfilesFromSection($modID, $dataFolder, "Files")
+
+
+	ConsoleWrite("[Info]: Caculating uncached files list" & @CRLF)
+
+	For $i = 0 To UBound($currentXMLfiles) - 1
+
+		; Skip file if if already exists
+		If FileExists($dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $currentXMLfiles[$i][3]) Then ContinueLoop
+
+
+		; Only add cache file if it wasnt added already
+		If _ArraySearch($uncachedFiles, $currentXMLfiles[$i][3]) > -1 Then ContinueLoop
+
+
+		; Unique cache file found
+		_ArrayAdd($uncachedFiles, $currentXMLfiles[$i][3])
+
+		; Total download filesize
+		$filesize = $filesize + $currentXMLfiles[$i][4]
+
+	Next
+
+	$uncachedFiles[0] = UBound($uncachedFiles) - 1
+	ConsoleWrite("[Info]: " & $uncachedFiles[0] & " uncached files (" & getHumanReadableFilesize($filesize) & ") marked for download " & @CRLF & @CRLF)
+
+
+	Return $uncachedFiles
+EndFunc
+
+
+
+Func cacheFiles($uncachedFiles, $dataFolder)
+
+
+EndFunc

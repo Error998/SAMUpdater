@@ -1,4 +1,4 @@
-SAMUpdater v0.1.2 alpha
+SAMUpdater v0.1.3 alpha
 ========================
 
 A Minecraft Auto Updater that will update mods and config files.
@@ -15,41 +15,17 @@ http://www.wtfpl.net/ for more details.
 
 Todo sanity check :)
 ---------------------
-Done -> Update Updater
-
-Done -> Download pack.xml
-
-Done -> Get pack details
-
-Parse modules
-
-
-Done -> Parse files
- - path
- - filename
- - url
- - hash
- - overwrite
- - remove
- - extract
- - file size
-
-Done -> Remove file
-
-Planned -> Extract archive files
-
-Done -> Download file
-
-Done -> Check cache
-
-Done -> Check hash
+Download cache
 
 Move download from cache to installation destination
- 
+
+Remove files
+
 Auto configure Magic Launcher Profile
 
 Create log file with very verbose output on what the Updater is doing
 
 Make Pack Creator more user friendly
 
-Create GUI
+Planned features - support file archives in remote repository
+				 - extracting of archive to local cache
