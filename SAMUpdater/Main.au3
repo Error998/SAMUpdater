@@ -73,13 +73,8 @@ cacheModpack($modpacks[$modpackNum][11], $modpacks[$modpackNum][0], $dataFolder)
 
 MsgBox(64,"SAMUpdater version " & $version,"Development Mode" &@CRLF & "More stuff comming soon...")
 
-;~ displayGUI()
-	; Populate Modpacks
-	; Select Modpack
-
-		;Cache Modpack
-		;Install Modpack
-		;Configure Magic Launcher
-		;Create Shortcuts
+;Install Modpack
+;Configure Magic Launcher
+;Create Shortcuts
 
 

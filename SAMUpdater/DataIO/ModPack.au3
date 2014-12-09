@@ -83,6 +83,11 @@ EndFunc
 
 
 
+
+
+
+
+
 ;~ ; #FUNCTION# ====================================================================================================================
 ;~ ; Name ..........: _GetFileInfos
 ;~ ; Description ...: Internal function to convert a 1d file array to a 2d section modpack.xml file format

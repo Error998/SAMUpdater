@@ -92,6 +92,22 @@ Func parsePacks($packsURL, $dataFolder)
 
 EndFunc
 
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: initModpackFolders
+; Description ...: Create modpack data and cache folder
+; Syntax ........: initModpackFolders($modpacks, $dataFolder)
+; Parameters ....: $modpacks            - 2D Array containing Packs.xml
+;                  $dataFolder          - Applacations data folder.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
 Func initModpackFolders($modpacks, $dataFolder)
 	ConsoleWrite("[Info]: Initializing Modpack folders" & @CRLF)
 
@@ -106,6 +122,22 @@ EndFunc
 
 
 
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: initModpackFiles
+; Description ...: Download all modpack GUI assets
+; Syntax ........: initModpackFiles($modpacks, $dataFolder)
+; Parameters ....: $modpacks            - The modID.
+;                  $dataFolder          - Application data folder.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
 Func initModpackFiles($modpacks, $dataFolder)
 	; Download Modpack description, icon and splash files for each modpack
 	Local $url
@@ -151,6 +183,22 @@ EndFunc
 
 
 
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: initModpacks
+; Description ...: Create modpack folders and download modpack GUI assets
+; Syntax ........: initModpacks($modpacks, $dataFolder)
+; Parameters ....: $modpacks            - The modID.
+;                  $dataFolder          - Application data folder.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
 Func initModpacks($modpacks, $dataFolder)
 	;Create all needed Modpack folders
 	initModpackFolders($modpacks, $dataFolder)

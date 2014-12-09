@@ -9,58 +9,75 @@
 
 Opt('MustDeclareVars', 1)
 
-Func updateCacheFromXML($modID, $dataFolder, $pathToSourceFiles)
-	Dim $currentXMLfiles  ; All files that exist in the current modpack
-	Local $file
-	Local $hash
+;~ Func updateCacheFromXML($modID, $dataFolder, $pathToSourceFiles)
+;~ 	Dim $currentXMLfiles  ; All files that exist in the current modpack
+;~ 	Local $file
+;~ 	Local $hash
 
-	ConsoleWrite("[Info]: Reading files from " & $modID & ".xml" & @CRLF)
-	$currentXMLfiles = getXMLfilesFromSection($modID, @ScriptDir, "Files")
-
-
-	; Startup crypt libary to speedup hash generation
-	_Crypt_Startup()
-
-	ConsoleWrite("[Info]: Creating cache..." & @CRLF)
-	For $i = 0 to UBound($currentXMLfiles) - 1
-		; Path + Filename
-		$file = $pathToSourceFiles & "\" & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0]
+;~ 	ConsoleWrite("[Info]: Reading files from " & $modID & ".xml" & @CRLF)
+;~ 	$currentXMLfiles = getXMLfilesFromSection($modID, @ScriptDir, "Files")
 
 
-		; Check if source file exists
-		If Not FileExists($file) Then
-			ConsoleWrite("[ERROR]: Missing source file - " & $file & @CRLF)
-			MsgBox(48, "Missing source file", "Unable to locate source file:" & @CRLF & $file & @CRLF & "Please check the path")
-			Exit
-		EndIf
+;~ 	; Startup crypt libary to speedup hash generation
+;~ 	_Crypt_Startup()
+
+;~ 	ConsoleWrite("[Info]: Creating cache..." & @CRLF)
+;~ 	For $i = 0 to UBound($currentXMLfiles) - 1
+;~ 		; Path + Filename
+;~ 		$file = $pathToSourceFiles & "\" & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0]
 
 
-		; Calculate source file hash
-		$hash = _Crypt_HashFile($file, $CALG_MD5)
+;~ 		; Check if source file exists
+;~ 		If Not FileExists($file) Then
+;~ 			ConsoleWrite("[ERROR]: Missing source file - " & $file & @CRLF)
+;~ 			MsgBox(48, "Missing source file", "Unable to locate source file:" & @CRLF & $file & @CRLF & "Please check the path")
+;~ 			Exit
+;~ 		EndIf
 
 
-		; Check if cache file already exists
-		If FileExists($dataFolder & "\PackData\Modpacks\" & $modID & "\Cache\" & $hash) Then
-				; Skip existing file
-				ContinueLoop
-		EndIf
+;~ 		; Calculate source file hash
+;~ 		$hash = _Crypt_HashFile($file, $CALG_MD5)
 
 
-		; Create path and copy to cache folder
-		if Not FileCopy($file, $dataFolder & "\PackData\Modpacks\" & $modID & "\Cache\" & $hash, 8) Then
-			ConsoleWrite("[ERROR]: Unable to copy file to cache - " & $file & @CRLF)
-			MsgBox(48, "Error copying file to cache", "Unable to copy " & @CRLF & $file & @CRLF & "to" & @CRLF & $dataFolder & "\PackData\Modpacks\" & $modID & "\Cache")
-			Exit
-		EndIf
+;~ 		; Check if cache file already exists
+;~ 		If FileExists($dataFolder & "\PackData\Modpacks\" & $modID & "\Cache\" & $hash) Then
+;~ 				; Skip existing file
+;~ 				ContinueLoop
+;~ 		EndIf
 
 
-	Next
+;~ 		; Create path and copy to cache folder
+;~ 		if Not FileCopy($file, $dataFolder & "\PackData\Modpacks\" & $modID & "\Cache\" & $hash, 8) Then
+;~ 			ConsoleWrite("[ERROR]: Unable to copy file to cache - " & $file & @CRLF)
+;~ 			MsgBox(48, "Error copying file to cache", "Unable to copy " & @CRLF & $file & @CRLF & "to" & @CRLF & $dataFolder & "\PackData\Modpacks\" & $modID & "\Cache")
+;~ 			Exit
+;~ 		EndIf
 
-	ConsoleWrite("[Info]: Cache updated successfully" & @CRLF)
 
-EndFunc
+;~ 	Next
+
+;~ 	ConsoleWrite("[Info]: Cache updated successfully" & @CRLF)
+
+;~ EndFunc
 
 
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: cacheModpack
+; Description ...: Download all modpack files into cache folder
+; Syntax ........: cacheModpack($baseModURL, $modID, $dataFolder)
+; Parameters ....: $baseModURL          - Base URL location containing the modpack files.
+;                  $modID               - The modID.
+;                  $dataFolder          - Application data folder.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......: <$basemodURL>/packdata/modpacks...
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
 Func cacheModpack($baseModURL, $modID, $dataFolder)
 	Local $uncachedFiles
 
@@ -73,16 +90,32 @@ Func cacheModpack($baseModURL, $modID, $dataFolder)
 	$uncachedFiles = getUncachedFileList($modID, $dataFolder)
 
 	; Download and cache files
-	cacheFiles($uncachedFiles, $dataFolder)
+	cacheFiles($baseModURL, $uncachedFiles, $modID, $dataFolder)
 EndFunc
 
 
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: getUncachedFileList
+; Description ...: Return a 1d array containing a list of uncached filenames
+; Syntax ........: getUncachedFileList($modID, $dataFolder)
+; Parameters ....: $modID               - The modID.
+;                  $dataFolder          - Application data folder.
+; Return values .: Array of uncached filenames
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......: Index 0 = file count
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
 Func getUncachedFileList($modID, $dataFolder)
 	Dim $currentXMLfiles  ; All files that exist in the current modpack
 	Dim $uncachedFiles[1]
 	Local $filesize = 0
 	Local $index
-
+	Local $hash
 
 	; Load <modID>.xml
 	ConsoleWrite("[Info]: Parsing modpack file list from " & $modID & ".xml" & @CRLF & @CRLF)
@@ -91,11 +124,18 @@ Func getUncachedFileList($modID, $dataFolder)
 
 	ConsoleWrite("[Info]: Caculating uncached files list" & @CRLF)
 
+	; Startup crypt libary to speedup hash generation
+	_Crypt_Startup()
+
 	For $i = 0 To UBound($currentXMLfiles) - 1
 
-		; Skip file if if already exists
-		If FileExists($dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $currentXMLfiles[$i][3]) Then ContinueLoop
+		; Verify file if it already exists
+		If FileExists($dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $currentXMLfiles[$i][3]) Then
+			; File verified, skipping file
+			$hash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $currentXMLfiles[$i][3], $CALG_MD5)
+			If $hash = $currentXMLfiles[$i][3] then	ContinueLoop
 
+		EndIf
 
 		; Only add cache file if it wasnt added already
 		If _ArraySearch($uncachedFiles, $currentXMLfiles[$i][3]) > -1 Then ContinueLoop
@@ -118,7 +158,37 @@ EndFunc
 
 
 
-Func cacheFiles($uncachedFiles, $dataFolder)
+; #FUNCTION# ====================================================================================================================
+; Name ..........: cacheFiles
+; Description ...: Download remote cache files
+; Syntax ........: cacheFiles($baseModURL, $uncachedFiles, $modID, $dataFolder)
+; Parameters ....: $baseModURL          - Base URL location containing the modpack files.
+;                  $uncachedFiles       - 1D array with all the uncached filenames.
+;                  $modID               - The modID.
+;                  $dataFolder          - Application data folder.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func cacheFiles($baseModURL, $uncachedFiles, $modID, $dataFolder)
+	Local $fileURL
 
+	ConsoleWrite("[Info]: Downloading cache..." & @CRLF)
+
+	; Download all uncached files
+	For $i = 1 to $uncachedFiles[0]
+
+		$fileURL = $baseModURL & "/packdata/modpacks/" & $modID & "/cache/" & $uncachedFiles[$i]
+
+		ConsoleWrite("[Info]: Downloading - " & $modID & "/cache/" & $uncachedFiles[$i] & @CRLF)
+		downloadAndVerify($fileURL, $uncachedFiles[$i], $dataFolder & "\PackData\Modpacks\" & $modID & "\cache", $uncachedFiles[$i])
+
+	Next
+
+	ConsoleWrite("[Info]: Modpack cache download complete" & @CRLF & @CRLF)
 
 EndFunc
