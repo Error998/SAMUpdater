@@ -45,6 +45,20 @@ EndFunc
 
 
 
+; #FUNCTION# ====================================================================================================================
+; Name ..........: initSoundAssets
+; Description ...: Check if local sound assets match remote assets if not download remote assets
+; Syntax ........: initSoundAssets($baseURL, $dataFolder)
+; Parameters ....: $baseURL             - Base URL location for the assets
+;                  $dataFolder          - Application data folder
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
 Func initSoundAssets($baseURL, $dataFolder)
 	local $MD5ListXML
 	Local $path
@@ -66,6 +80,20 @@ EndFunc
 
 
 
+; #FUNCTION# ====================================================================================================================
+; Name ..........: initGUImodSelectionAssets
+; Description ...: Check if local GUImodSelection assets match remote assets if not download remote assets
+; Syntax ........: initGUImodSelectionAssets($baseURL, $dataFolder)
+; Parameters ....: $baseURL             - Base URLlocation for the assets.
+;                  $dataFolder          - Application data folder.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
 Func initGUImodSelectionAssets($baseURL, $dataFolder)
 	local $MD5ListXML
 	Local $path

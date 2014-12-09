@@ -149,6 +149,9 @@ Func getUncachedFileList($modID, $dataFolder)
 
 	Next
 
+	; Shutdown the crypt library.
+	_Crypt_Shutdown()
+
 	$uncachedFiles[0] = UBound($uncachedFiles) - 1
 	ConsoleWrite("[Info]: " & $uncachedFiles[0] & " uncached files (" & getHumanReadableFilesize($filesize) & ") marked for download " & @CRLF & @CRLF)
 

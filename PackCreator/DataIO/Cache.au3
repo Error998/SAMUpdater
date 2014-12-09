@@ -55,6 +55,9 @@ Func updateCacheFromXML($modID, $dataFolder, $pathToSourceFiles)
 
 	Next
 
+	; Shutdown the crypt library.
+	_Crypt_Shutdown()
+
 	ConsoleWrite("[Info]: Cache updated successfully" & @CRLF)
 
 EndFunc
