@@ -65,7 +65,8 @@ EndIf
 
 ConsoleWrite("[Info]: Modpack ID            - " & $modpacks[$modpackNum][0] & @CRLF)
 ConsoleWrite("[Info]: Remote Repository URL - " & $modpacks[$modpackNum][11] & @CRLF)
-ConsoleWrite("[Info]: Modpack Active        - " & $modpacks[$modpackNum][12] & @CRLF & @CRLF)
+ConsoleWrite("[Info]: Modpack Active        - " & $modpacks[$modpackNum][12] & @CRLF)
+ConsoleWrite("[Info]: Install Folder        - " & $modpacks[$modpackNum][13] & @CRLF & @CRLF)
 
 ; Cache modpack
 cacheModpack($modpacks[$modpackNum][11], $modpacks[$modpackNum][0], $dataFolder)
@@ -74,6 +75,7 @@ cacheModpack($modpacks[$modpackNum][11], $modpacks[$modpackNum][0], $dataFolder)
 MsgBox(64,"SAMUpdater version " & $version,"Development Mode" &@CRLF & "More stuff comming soon...")
 
 ;Install Modpack
+;Remove files
 ;Configure Magic Launcher
 ;Create Shortcuts
 

@@ -1,5 +1,6 @@
 #include-once
 #include <Crypt.au3>
+#include <StringConstants.au3>
 #include "RecFileListToArray.au3"
 
 Opt('MustDeclareVars', 1)
@@ -267,4 +268,31 @@ Func getHumanReadableFilesize($byte)
 	Return $byte
 
 
+EndFunc
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: parsePath
+; Description ...: Replace special folder shortcuts with real paths
+; Syntax ........: parsePath($path)
+; Parameters ....: $path                - Path string to check for conversion.
+; Return values .: Converted path
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......: Supports %appdata%, %desktop%, %temp%, %programfiles%, %mydocuments% - Case sensitive!
+; Related .......:
+; Link ..........:
+; Example .......: "%appdata%\.minecraft" -> "C:\Users\User\AppData\Roaming\.minecraft"
+; ===============================================================================================================================
+Func parsePath($path)
+
+	$path = StringReplace($path, "%appdata%", @AppDataDir, 0, $STR_CASESENSE)
+	$path = StringReplace($path, "%desktop%", @DesktopDir, 0, $STR_CASESENSE)
+	$path = StringReplace($path, "%temp%", @TempDir, 0, $STR_CASESENSE)
+	$path = StringReplace($path, "%programfiles%", @ProgramFilesDir, 0, $STR_CASESENSE)
+	$path = StringReplace($path, "%mydocuments%", @MyDocumentsDir, 0, $STR_CASESENSE)
+
+	Return $path
 EndFunc

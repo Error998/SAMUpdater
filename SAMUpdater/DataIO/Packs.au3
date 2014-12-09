@@ -67,7 +67,7 @@ Func parsePacks($packsURL, $dataFolder)
 
 
 	; Zero based 2d array holding mod modpacks, modpack elements
-	Global $modpacks[ $modpacksXML[0] ][13]
+	Global $modpacks[ $modpacksXML[0] ][14]
 	ConsoleWrite("[Info]: Modpacks available: " & UBound($modpacks) & @CRLF & @CRLF)
 
 
@@ -86,6 +86,7 @@ Func parsePacks($packsURL, $dataFolder)
 		$modpacks[$i][10] = getElement($modpacksXML[$i + 1], "ForgeID")
 		$modpacks[$i][11] = getElement($modpacksXML[$i + 1], "URL")
 		$modpacks[$i][12] = getElement($modpacksXML[$i + 1], "Active")
+		$modpacks[$i][13] = parsePath(getElement($modpacksXML[$i + 1], "DefaultInstallFolder"))
 	Next
 
 	Return $modpacks

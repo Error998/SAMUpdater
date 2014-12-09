@@ -89,8 +89,11 @@ Func cacheModpack($baseModURL, $modID, $dataFolder)
 	; Get a list of files that are not yet cached
 	$uncachedFiles = getUncachedFileList($modID, $dataFolder)
 
-	; Download and cache files
-	cacheFiles($baseModURL, $uncachedFiles, $modID, $dataFolder)
+	; Download and cache files if needed
+	If $uncachedFiles[0] > 0 Then
+		cacheFiles($baseModURL, $uncachedFiles, $modID, $dataFolder)
+	EndIf
+
 EndFunc
 
 
@@ -122,7 +125,7 @@ Func getUncachedFileList($modID, $dataFolder)
 	$currentXMLfiles = getXMLfilesFromSection($modID, $dataFolder, "Files")
 
 
-	ConsoleWrite("[Info]: Caculating uncached files list" & @CRLF)
+	ConsoleWrite("[Info]: Caculating uncached files list..." & @CRLF)
 
 	; Startup crypt libary to speedup hash generation
 	_Crypt_Startup()
@@ -153,8 +156,12 @@ Func getUncachedFileList($modID, $dataFolder)
 	_Crypt_Shutdown()
 
 	$uncachedFiles[0] = UBound($uncachedFiles) - 1
-	ConsoleWrite("[Info]: " & $uncachedFiles[0] & " uncached files (" & getHumanReadableFilesize($filesize) & ") marked for download " & @CRLF & @CRLF)
 
+	If $uncachedFiles[0] = 0 Then
+		ConsoleWrite("[Info]: Cache is up to date" & @CRLF & @CRLF)
+	Else
+		ConsoleWrite("[Info]: " & $uncachedFiles[0] & " uncached files (" & getHumanReadableFilesize($filesize) & ") marked for download " & @CRLF & @CRLF)
+	EndIf
 
 	Return $uncachedFiles
 EndFunc
