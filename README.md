@@ -21,8 +21,6 @@ User Options - sound on/off
 Custom pre-install instructions per modpack - Backups
                                             - Verify exsiting installtion version / valid installation
 
-Remove files
-
 Auto configure Magic Launcher Profile
 
 Create log file with very verbose output on what the Updater is doing
