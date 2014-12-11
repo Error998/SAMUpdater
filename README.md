@@ -1,4 +1,4 @@
-SAMUpdater v0.1.3 alpha
+SAMUpdater v0.1.5 alpha
 ========================
 
 A Minecraft Auto Updater that will update mods and config files.
@@ -15,9 +15,11 @@ http://www.wtfpl.net/ for more details.
 
 Todo sanity check :)
 ---------------------
-Download cache
+User Options - sound on/off
+             - installation folders
 
-Move download from cache to installation destination
+Custom pre-install instructions per modpack - Backups
+                                            - Verify exsiting installtion version / valid installation
 
 Remove files
 
