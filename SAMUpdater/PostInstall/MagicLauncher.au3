@@ -1,19 +1,26 @@
 #include <File.au3>
 #include <Array.au3>
+
 Opt('MustDeclareVars', 1)
 
 
-Func ConfigureMagicLauncher($sModID, $sForgeID)
+Func configureMagicLauncher($modpacks[$modpackNum][0], $dataFolder, $forgeVersion)
 	Local $sMagicLauncher
 	Local $sAppData
 	Local $bConfigChanged = False
 	Local $bProfileFound = False
 
-	; Check that the magic launcher config exists - Sanity check
+	; Check that the magic launcher config exists if not create it
 	If Not FileExists(@AppDataDir & "\.minecraft\magic\magiclauncher.cfg") Then
-		ConsoleWrite("[Warning]: Magic Launcher config not found - Unable to auto configure Magic Launcher" & @CRLF)
+		ConsoleWrite("[Info]: Creating new Magic Launcher config" & @CRLF)
+		createMagicLauncherConfig($modID, $forgeVersion)
+
+		; All ready created a correctly configured config
 		Return
 	EndIf
+
+
+
 
 	_FileReadToArray(@AppDataDir & "\.minecraft\magic\magiclauncher.cfg", $sMagicLauncher)
 
@@ -31,13 +38,13 @@ Func ConfigureMagicLauncher($sModID, $sForgeID)
 			Else
 
 				; Enviroment found, let check if its set correctly
-				If $sMagicLauncher[$i + 1] = '  <Environment="1.6.4-Forge9.11.1.952">' Then
+				If $sMagicLauncher[$i + 1] = '  <Environment="' & $forgeVersion & '">' Then
 					ConsoleWrite("[Info]: Correct enviroment selected" & @CRLF)
 				Else
 					; Set the enviroment to the correct setting
-					$sMagicLauncher[$i + 1] = '  <Environment="' & $sForgeID & '">'
+					$sMagicLauncher[$i + 1] = '  <Environment="' & $forgeVersion & '">'
 					$bConfigChanged = True
-					ConsoleWrite("[Info]: Fixed profile enviroment" & @CRLF)
+					ConsoleWrite("[Info]: Set profile enviroment to - " & $forgeVersion & @CRLF)
 				EndIf
 
 				; Convert %appdata% path to "\\" instead of "\"
@@ -63,10 +70,7 @@ Func ConfigureMagicLauncher($sModID, $sForgeID)
 	If Not $bProfileFound  Then
 		ConsoleWrite("[Info]: No existing mod pack profile was found - Adding new profile '" & $sModID & "'" & @CRLF)
 
-		; Convert %appdata% path to "\\" instead of "\"
-		$sAppData = @AppDataDir
-		$sAppData = StringReplace($sAppData, "\", "*")
-		$sAppData = StringReplace($sAppData, "*", "\\")
+		$sAppData = convertPath(@AppDataDir)
 
 		_ArrayInsert($sMagicLauncher, 1, '<Profile')
 		_ArrayInsert($sMagicLauncher, 2, '  <Name="' & $sModID & '">')
@@ -117,4 +121,83 @@ Func ConfigureMagicLauncher($sModID, $sForgeID)
 EndFunc
 
 
-;ConfigureMagicLauncher("TESTSERVER", "1.6.4-Forge9.11.1.952")
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: convertPath
+; Description ...: Convert a path string to a compatible MagicLauncher path string
+; Syntax ........: convertPath($path)
+; Parameters ....: $path                - Path to be converted
+; Return values .: Converted path
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......: Replaces all '\' with '\\'
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func convertPath($path)
+	; Convert %appdata% path to "\\" instead of "\"
+	$path = StringReplace($sAppData, "\", "*")
+	$path = StringReplace($sAppData, "*", "\\")
+
+	Return $path
+
+EndFunc
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: createMagicLauncherConfig
+; Description ...: Create a valid MagicLauncher.cfg file from scratch
+; Syntax ........: createMagicLauncherConfig($modID, $forgeVersion)
+; Parameters ....: $modID               - The modID.
+;                  $forgeVersion        - The forge version the mod pack is using.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func createMagicLauncherConfig($modID, $forgeVersion)
+	Local $hFile
+	Local $appfolder
+
+	; Create folder
+	createFolder(@AppDataDir & "\.minecraft\magic")
+
+
+	; Open a new xml document for writing
+	$hFile = FileOpen(@AppDataDir & "\.minecraft\magic\MagicLauncher.cfg", 10) ; erase + create dir
+		If $hFile = -1 Then
+			ConsoleWrite("[ERROR]: Unable to create - " & @AppDataDir & "\.minecraft\magic\MagicLauncher.cfg" & @CRLF)
+			MsgBox(48, "Error creating file", "Unable to create MagicLauncher config file - " & @AppDataDir & "\.minecraft\magic\MagicLauncher.cfg")
+			Exit
+		EndIf
+
+		$appfolder = convertPath(@AppDataDir)
+
+		FileWriteLine($hFile, '<Profile')
+		FileWriteLine($hFile, '  <Name="' & $modID & '">')
+		FileWriteLine($hFile, '  <Environment="' & $forgeVersion & '">')
+		FileWriteLine($hFile, '  <MinecraftJar="' & $appfolder & '\\.minecraft\\versions\\' & $forgeVersion & '\\' & $forgeVersion & '.jar">')
+		FileWriteLine($hFile, '  <ShowLog="true">')
+		FileWriteLine($hFile, '  <JavaParameters="-XX:MaxPermSize=192m -Dforge.forceNoStencil=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSIncrementalPacing -XX:ParallelGCThreads=2 -XX:+AggressiveOpts">')
+		FileWriteLine($hFile, '  <MaxMemory="1536">')
+		FileWriteLine($hFile, '  <BaseDir="' & $appfolder & '\\.minecraft\\Modpacks\\' & $modID & '\\.minecraft">')
+		FileWriteLine($hFile, '>')
+		FileWriteLine($hFile, '<ActiveProfileIndex="0">')
+		FileWriteLine($hFile, '<LastModDir=>')
+		FileWriteLine($hFile, '<LoadNews="false">')
+		FileWriteLine($hFile, '<CloseAfterLogin="true">')
+		FileWriteLine($hFile, '<RememberPassword="true">')
+
+
+	FileClose($hFile)
+
+EndFunc
