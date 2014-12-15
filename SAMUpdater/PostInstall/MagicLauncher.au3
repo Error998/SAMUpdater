@@ -4,60 +4,58 @@
 Opt('MustDeclareVars', 1)
 
 
-Func configureMagicLauncher($modpacks[$modpackNum][0], $dataFolder, $forgeVersion)
-	Local $sMagicLauncher
+Func configureMagicLauncher($modID, $forgeVersion)
+	Local $aMagicLauncher
+
 	Local $sAppData
 	Local $bConfigChanged = False
 	Local $bProfileFound = False
 
-	; Check that the magic launcher config exists if not create it
-	If Not FileExists(@AppDataDir & "\.minecraft\magic\magiclauncher.cfg") Then
-		ConsoleWrite("[Info]: Creating new Magic Launcher config" & @CRLF)
-		createMagicLauncherConfig($modID, $forgeVersion)
 
-		; All ready created a correctly configured config
-		Return
-	EndIf
+	ConsoleWrite("[Info]: Auto configuration of MagicLauncher started..." & @CRLF)
+
+	; If a config was made from scratch exit function
+	If createNewMagicLauncherConfig($modID, $forgeVersion) Then Return
 
 
+	; Read MagicLauncher.cfg
+	_FileReadToArray(@AppDataDir & "\.minecraft\magic\MagicLauncher.cfg", $aMagicLauncher)
 
 
-	_FileReadToArray(@AppDataDir & "\.minecraft\magic\magiclauncher.cfg", $sMagicLauncher)
+
 
 	; Check if a profile exists for this mod pack.
-	For $i = 1 To $sMagicLauncher[0]
+	For $i = 1 To $aMagicLauncher[0]
 		; Search for the Mod Pack Profile
-		If $sMagicLauncher[$i] = '  <Name="' & $sModID & '">' Then
+		If $aMagicLauncher[$i] = '  <Name="' & $modID & '">' Then
 			$bProfileFound = True
 			ConsoleWrite("[Info]: Found mod pack profile information on line " & $i & @CRLF)
 
 			; Sanity check for Profile enviroment
-			If StringInStr($sMagicLauncher[$i + 1], "  <Environment=", 1) = 0 Then
+			If StringInStr($aMagicLauncher[$i + 1], "  <Environment=", 1) = 0 Then
 				ConsoleWrite("[Error]: Could not find profile enviroment setting, manual profile setup required!" & @CRLF)
 				Return
 			Else
 
 				; Enviroment found, let check if its set correctly
-				If $sMagicLauncher[$i + 1] = '  <Environment="' & $forgeVersion & '">' Then
+				If $aMagicLauncher[$i + 1] = '  <Environment="' & $forgeVersion & '">' Then
 					ConsoleWrite("[Info]: Correct enviroment selected" & @CRLF)
 				Else
 					; Set the enviroment to the correct setting
-					$sMagicLauncher[$i + 1] = '  <Environment="' & $forgeVersion & '">'
+					$aMagicLauncher[$i + 1] = '  <Environment="' & $forgeVersion & '">'
 					$bConfigChanged = True
 					ConsoleWrite("[Info]: Set profile enviroment to - " & $forgeVersion & @CRLF)
 				EndIf
 
 				; Convert %appdata% path to "\\" instead of "\"
-				$sAppData = @AppDataDir
-				$sAppData = StringReplace($sAppData, "\", "*")
-				$sAppData = StringReplace($sAppData, "*", "\\")
+				$sAppData = convertPath(@AppDataDir)
 
 				; Lets also check if minecraft jar is set correctly
-				If $sMagicLauncher[$i + 2] = '  <MinecraftJar="' & $sAppData & '\\.minecraft\\versions\\' & $sForgeID & '\\' & $sForgeID & '.jar">' Then
+				If $aMagicLauncher[$i + 2] = '  <MinecraftJar="' & $aAppData & '\\.minecraft\\versions\\' & $forgeVersion & '\\' & $forgeVersion & '.jar">' Then
 					ConsoleWrite("[Info]: Profile is pointing to the correct minecraft jar file" & @CRLF)
 				Else
 					; Set the enviroment to the correct setting
-					$sMagicLauncher[$i + 2] = '  <MinecraftJar="' & $sAppData & '\\.minecraft\\versions\\' & $sForgeID & '\\' & $sForgeID & '.jar">'
+					$aMagicLauncher[$i + 2] = '  <MinecraftJar="' & $sAppData & '\\.minecraft\\versions\\' & $forgeVersion & '\\' & $forgeVersion & '.jar">'
 					ConsoleWrite("[Info]: Fixed the profile to point to the correct minecraft jar location" & @CRLF)
 					$bConfigChanged = True
 				EndIf
@@ -72,15 +70,15 @@ Func configureMagicLauncher($modpacks[$modpackNum][0], $dataFolder, $forgeVersio
 
 		$sAppData = convertPath(@AppDataDir)
 
-		_ArrayInsert($sMagicLauncher, 1, '<Profile')
-		_ArrayInsert($sMagicLauncher, 2, '  <Name="' & $sModID & '">')
-		_ArrayInsert($sMagicLauncher, 3, '  <Environment="' & $sForgeID & '">')
-		_ArrayInsert($sMagicLauncher, 4, '  <MinecraftJar="' & $sAppData & '\\.minecraft\\versions\\' & $sForgeID & '\\' & $sForgeID & '.jar">')
-		_ArrayInsert($sMagicLauncher, 5, '  <ShowLog="true">')
-		_ArrayInsert($sMagicLauncher, 6, '  <MaxMemory="512">')
-		_ArrayInsert($sMagicLauncher, 7, '>')
+		_ArrayInsert($aMagicLauncher, 1, '<Profile')
+		_ArrayInsert($aMagicLauncher, 2, '  <Name="' & $sModID & '">')
+		_ArrayInsert($aMagicLauncher, 3, '  <Environment="' & $sForgeID & '">')
+		_ArrayInsert($aMagicLauncher, 4, '  <MinecraftJar="' & $sAppData & '\\.minecraft\\versions\\' & $sForgeID & '\\' & $sForgeID & '.jar">')
+		_ArrayInsert($aMagicLauncher, 5, '  <ShowLog="true">')
+		_ArrayInsert($aMagicLauncher, 6, '  <MaxMemory="512">')
+		_ArrayInsert($aMagicLauncher, 7, '>')
 		;Update array total items
-		$sMagicLauncher[0] = $sMagicLauncher[0] + 7
+		$aMagicLauncher[0] = $aMagicLauncher[0] + 7
 
 		$bConfigChanged = True
 	EndIf
@@ -89,10 +87,10 @@ Func configureMagicLauncher($modpacks[$modpackNum][0], $dataFolder, $forgeVersio
 		Local $iProfileCount = -1
 
 		; Find the profile number for our modpack
-		For $i = 1 to $sMagicLauncher[0]
-			If StringInStr($sMagicLauncher[$i], "<Profile") <> 0 Then
+		For $i = 1 to $aMagicLauncher[0]
+			If StringInStr($aMagicLauncher[$i], "<Profile") <> 0 Then
 				$iProfileCount = $iProfileCount + 1
-				If $sMagicLauncher[$i + 1] = '  <Name="' & $sModID & '">' Then
+				If $aMagicLauncher[$i + 1] = '  <Name="' & $modID & '">' Then
 					; We found our mod pack profile num, exit loop
 					ExitLoop
 				EndIf
@@ -100,7 +98,7 @@ Func configureMagicLauncher($modpacks[$modpackNum][0], $dataFolder, $forgeVersio
 		Next
 
 		; Set the active profile to our mod pack profile
-		For $i = 1 to $sMagicLauncher[0]
+		For $i = 1 to $aMagicLauncher[0]
 			If StringInStr($sMagicLauncher[$i], "<ActiveProfileIndex=") <> 0 Then
 				$sMagicLauncher[$i] = '<ActiveProfileIndex="' & $iProfileCount & '">'
 				ConsoleWrite("[Info]: Setting active profile to " & $iProfileCount & " - " & $sModID & @CRLF)
@@ -138,9 +136,9 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func convertPath($path)
-	; Convert %appdata% path to "\\" instead of "\"
-	$path = StringReplace($sAppData, "\", "*")
-	$path = StringReplace($sAppData, "*", "\\")
+
+	$path = StringReplace($path, "\", "*")
+	$path = StringReplace($path, "*", "\\")
 
 	Return $path
 
@@ -164,12 +162,12 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func createMagicLauncherConfig($modID, $forgeVersion)
+Func createNewMagicLauncherConfig($modID, $forgeVersion)
 	Local $hFile
 	Local $appfolder
 
-	; Create folder
-	createFolder(@AppDataDir & "\.minecraft\magic")
+	; Config already exists, exit function
+	If FileExists(@AppDataDir & "\.minecraft\magic\MagicLauncher.cfg") Then Return False
 
 
 	; Open a new xml document for writing
@@ -200,4 +198,10 @@ Func createMagicLauncherConfig($modID, $forgeVersion)
 
 	FileClose($hFile)
 
+
+	ConsoleWrite("[Info]: Auto configuration complete - New MagicLauncher.cfg created" & @CRLF & @CRLF)
+
+
+	; New config was created
+	Return True
 EndFunc

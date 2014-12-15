@@ -141,7 +141,12 @@ Func removeOldFiles($defaultInstallFolder, $modID, $dataFolder)
 		$destinationFile = $defaultInstallFolder & "\" & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0]
 
 		; Skip if file was already removed
-		If Not FileExists($destinationFile) Then ContinueLoop
+		If Not FileExists($destinationFile) Then
+			ConsoleWrite("[Info]: File already removed - " & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0] & @CRLF)
+
+			ContinueLoop
+		EndIf
+
 
 		; Send file to recyclebin
 		If Not FileRecycle($destinationFile) Then
@@ -156,6 +161,5 @@ Func removeOldFiles($defaultInstallFolder, $modID, $dataFolder)
 
 	Next
 
-	ConsoleWrite(@CRLF)
-	ConsoleWrite("[Info]: Modpack updated" & @CRLF & @CRLF)
+	ConsoleWrite("[Info]: Modpack file update complete" & @CRLF & @CRLF)
 EndFunc

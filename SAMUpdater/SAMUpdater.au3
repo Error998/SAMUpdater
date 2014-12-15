@@ -83,7 +83,7 @@ installModPack($modpacks[$modpackNum][13], $modpacks[$modpackNum][0], $dataFolde
 
 
 ; Custom Post install stuff
-configureMagicLauncher($modpacks[$modpackNum][0], $dataFolder, $modpacks[$modpackNum][10])
+configureMagicLauncher($modpacks[$modpackNum][0], $modpacks[$modpackNum][10])
 
 
 
