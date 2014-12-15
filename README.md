@@ -1,4 +1,4 @@
-SAMUpdater v0.1.7 alpha
+SAMUpdater v0.1.8 alpha
 ========================
 
 A Minecraft Auto Updater that will update mods and config files.
@@ -18,10 +18,14 @@ Todo sanity check :)
 User Options - sound on/off
              - installation folders
 
+
 Custom pre-install instructions per modpack - Backups
                                             - Verify exsiting installtion version / valid installation
 
-Auto configure Magic Launcher Profile
+Custom install settings
+
+											
+Custom post install instructions
 
 Create log file with very verbose output on what the Updater is doing
 

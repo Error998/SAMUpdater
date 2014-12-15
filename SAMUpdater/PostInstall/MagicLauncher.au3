@@ -4,13 +4,23 @@
 Opt('MustDeclareVars', 1)
 
 
+; #FUNCTION# ====================================================================================================================
+; Name ..........: configureMagicLauncher
+; Description ...: Auto configures MagicLauncher to add or update a profile with name $modID
+; Syntax ........: configureMagicLauncher($modID, $forgeVersion)
+; Parameters ....: $modID               - The modID.
+;                  $forgeVersion        - The version of forge that the modpack uses.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
 Func configureMagicLauncher($modID, $forgeVersion)
 	Local $aConfig
 	Local $profileStartIndex
-
-	Local $sAppData
-	Local $bConfigChanged = False
-	Local $bProfileFound = False
 
 
 	ConsoleWrite("[Info]: Auto configuration of MagicLauncher started..." & @CRLF)
@@ -24,7 +34,7 @@ Func configureMagicLauncher($modID, $forgeVersion)
 
 
 	; Get the profile start index
-	$profileStartIndex = findProfileIndex($modID, $aConfig)
+	$profileStartIndex = findProfileStartIndex($modID, $aConfig)
 
 
 	; Profile not found, create it
@@ -36,7 +46,8 @@ Func configureMagicLauncher($modID, $forgeVersion)
 	EndIf
 
 
-	ConsoleWrite("[Info]: Profile found..." & @CRLF)
+	; Profile found - update it
+	updateProfile($modID, $forgeVersion, $aConfig, $profileStartIndex)
 
 
 EndFunc
@@ -150,7 +161,7 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func findProfileIndex($modID, $aConfig)
+Func findProfileStartIndex($modID, $aConfig)
 
 	For $i = 1 To $aConfig[0]
 
@@ -298,3 +309,168 @@ Func saveMagicLauncherConfig($aConfig)
 EndFunc
 
 
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: updateProfile
+; Description ...: Update an existing profile that is named $modID
+; Syntax ........: updateProfile($modID, $forgeVersion, $aConfig, $profileStartIndex)
+; Parameters ....: $modID               - The modID.
+;                  $forgeVersion        - The version of forge used by the modpack.
+;                  $aConfig             - An array containing the MagicLauncher config.
+;                  $profileStartIndex   - Profile start index.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func updateProfile($modID, $forgeVersion, $aConfig, $profileStartIndex)
+	Local $profileEndIndex
+	Local $path
+
+
+	$profileEndIndex = findProfileEndIndex($profileStartIndex, $aConfig)
+
+	; Update Environment
+	updateProfileTag($profileStartIndex, $profileEndIndex, "Environment", $forgeVersion, $aConfig)
+
+
+	; Convert path
+	$path = convertPath(@AppDataDir)
+
+	; Update MinecraftJar
+	updateProfileTag($profileStartIndex, $profileEndIndex, "MinecraftJar", $path & "\\.minecraft\\versions\\" & $forgeVersion & "\\" & $forgeVersion & ".jar", $aConfig)
+
+
+	; Update ShowLog
+	updateProfileTag($profileStartIndex, $profileEndIndex, "ShowLog", "true", $aConfig)
+
+
+	; Update JavaParameters
+	updateProfileTag($profileStartIndex, $profileEndIndex, "JavaParameters", "-XX:MaxPermSize=192m -Dforge.forceNoStencil=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSIncrementalPacing -XX:ParallelGCThreads=2 -XX:+AggressiveOpts", $aConfig)
+
+
+	; Update MaxMemory
+	updateProfileTag($profileStartIndex, $profileEndIndex, "MaxMemory", 1536, $aConfig)
+
+
+	; Update BaseDir
+	updateProfileTag($profileStartIndex, $profileEndIndex, "BaseDir", $path & "\\.minecraft\\Modpacks\\" & $modID & "\\.minecraft", $aConfig)
+
+
+	; Update InactiveExternalMods
+	updateProfileTag($profileStartIndex, $profileEndIndex, "InactiveExternalMods", "", $aConfig)
+
+
+	; Update InactiveCoreMods
+	updateProfileTag($profileStartIndex, $profileEndIndex, "InactiveCoreMods", "", $aConfig)
+
+
+	; Save config
+	saveMagicLauncherConfig($aConfig)
+
+
+EndFunc
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: findProfileEndIndex
+; Description ...: Finds the end of profile index
+; Syntax ........: findProfileEndIndex($profileStartIndex, $aConfig)
+; Parameters ....: $profileStartIndex   - The start index of the profile.
+;                  $aConfig             - An array containing the MagicLauncher config.
+; Return values .: The index of the end of profile section
+;				   Returns 0 if the end of the profile can not be determined - corrupt config
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func findProfileEndIndex($profileStartIndex, $aConfig)
+
+	For $i = $profileStartIndex To $aConfig[0]
+
+		If $aConfig[$i] = ">" Then Return $i
+
+	Next
+
+	; Could not determine the end of the current profile, config is corrupt
+	ConsoleWrite(@CRLF & "[Warning]: This is odd, unable to determine the end of the profile section in MagicLauncher.cfg!" & @CRLF)
+	ConsoleWrite("[Warning]: Recommend to delete .\minecraft\magic\MagicLauncher.cfg and run the updater again" & @CRLF & @CRLF)
+	Return 0
+
+EndFunc
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: updateProfileTag
+; Description ...: Update profile tag, if tag does not exist it will be added to the profile
+; Syntax ........: updateProfileTag($profileStartIndex, $profileEndIndex, $tag, $value, Byref $aConfig)
+; Parameters ....: $profileStartIndex   - The start index of the profile.
+;                  $profileEndIndex     - The end index of the profile.
+;                  $tag                 - Tag to update.
+;                  $value               - Value of the tag to update.
+;                  $aConfig             - [in/out] An array containing the MagicLauncher config.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......: Supported tags: Environment, MinecraftJar, ShowLog, JavaParameters, MaxMemory, BaseDir, InactiveCoreMods and
+;				   InactiveExternalMods
+;				   If $value is empty the output tag will not include ""
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func updateProfileTag($profileStartIndex, $profileEndIndex, $tag, $value, ByRef $aConfig)
+
+	For $i = $profileStartIndex To $profileEndIndex
+		; Tag found, update it
+		If StringInStr($aConfig[$i], $tag) <> 0 Then
+			; Check if $value is blank then write without quotes
+			If $value = "" Then
+				$aConfig[$i] = '  <' & $tag & '=>'
+
+			Else
+				; Set $value
+				$aConfig[$i] = '  <' & $tag & '="' & $value & '">'
+			EndIf
+
+
+			; Tag updated
+			Return
+
+		EndIf
+
+	Next
+
+	; Tag not found add it to the profile
+	; Check if $value is blank then write without quotes
+	If $value = "" Then
+		_ArrayInsert($aConfig, $profileEndIndex , '  <' & $tag & '=>')
+
+	Else
+
+		_ArrayInsert($aConfig, $profileEndIndex , '  <' & $tag & '="' & $value & '">')
+
+	EndIf
+
+
+	; Update array item count
+	$aConfig[0] = $aConfig[0] + 1
+
+	Return
+
+
+EndFunc
