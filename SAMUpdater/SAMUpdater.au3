@@ -72,13 +72,13 @@ ConsoleWrite("[Info]: Modpack Active        - " & $modpacks[$modpackNum][12] & @
 ConsoleWrite("[Info]: Install Folder        - " & $modpacks[$modpackNum][13] & @CRLF & @CRLF)
 
 ; Cache modpack
-cacheModpack($modpacks[$modpackNum][11], $modpacks[$modpackNum][0], $dataFolder)
+;cacheModpack($modpacks[$modpackNum][11], $modpacks[$modpackNum][0], $dataFolder)
 
 ; Custom Pre-install stuff
 
 
 ;Install Modpack
-installModPack($modpacks[$modpackNum][13], $modpacks[$modpackNum][0], $dataFolder)
+;installModPack($modpacks[$modpackNum][13], $modpacks[$modpackNum][0], $dataFolder)
 
 
 

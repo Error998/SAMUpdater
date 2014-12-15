@@ -5,7 +5,8 @@ Opt('MustDeclareVars', 1)
 
 
 Func configureMagicLauncher($modID, $forgeVersion)
-	Local $aMagicLauncher
+	Local $aConfig
+	Local $profileStartIndex
 
 	Local $sAppData
 	Local $bConfigChanged = False
@@ -19,103 +20,25 @@ Func configureMagicLauncher($modID, $forgeVersion)
 
 
 	; Read MagicLauncher.cfg
-	_FileReadToArray(@AppDataDir & "\.minecraft\magic\MagicLauncher.cfg", $aMagicLauncher)
+	_FileReadToArray(@AppDataDir & "\.minecraft\magic\MagicLauncher.cfg", $aConfig)
 
 
+	; Get the profile start index
+	$profileStartIndex = findProfileIndex($modID, $aConfig)
 
 
-	; Check if a profile exists for this mod pack.
-	For $i = 1 To $aMagicLauncher[0]
-		; Search for the Mod Pack Profile
-		If $aMagicLauncher[$i] = '  <Name="' & $modID & '">' Then
-			$bProfileFound = True
-			ConsoleWrite("[Info]: Found mod pack profile information on line " & $i & @CRLF)
+	; Profile not found, create it
+	If $profileStartIndex = 0 Then
+		insertProfile($modID, $forgeVersion, $aConfig)
 
-			; Sanity check for Profile enviroment
-			If StringInStr($aMagicLauncher[$i + 1], "  <Environment=", 1) = 0 Then
-				ConsoleWrite("[Error]: Could not find profile enviroment setting, manual profile setup required!" & @CRLF)
-				Return
-			Else
-
-				; Enviroment found, let check if its set correctly
-				If $aMagicLauncher[$i + 1] = '  <Environment="' & $forgeVersion & '">' Then
-					ConsoleWrite("[Info]: Correct enviroment selected" & @CRLF)
-				Else
-					; Set the enviroment to the correct setting
-					$aMagicLauncher[$i + 1] = '  <Environment="' & $forgeVersion & '">'
-					$bConfigChanged = True
-					ConsoleWrite("[Info]: Set profile enviroment to - " & $forgeVersion & @CRLF)
-				EndIf
-
-				; Convert %appdata% path to "\\" instead of "\"
-				$sAppData = convertPath(@AppDataDir)
-
-				; Lets also check if minecraft jar is set correctly
-				If $aMagicLauncher[$i + 2] = '  <MinecraftJar="' & $aAppData & '\\.minecraft\\versions\\' & $forgeVersion & '\\' & $forgeVersion & '.jar">' Then
-					ConsoleWrite("[Info]: Profile is pointing to the correct minecraft jar file" & @CRLF)
-				Else
-					; Set the enviroment to the correct setting
-					$aMagicLauncher[$i + 2] = '  <MinecraftJar="' & $sAppData & '\\.minecraft\\versions\\' & $forgeVersion & '\\' & $forgeVersion & '.jar">'
-					ConsoleWrite("[Info]: Fixed the profile to point to the correct minecraft jar location" & @CRLF)
-					$bConfigChanged = True
-				EndIf
-			EndIf
-			ExitLoop
-		EndIf
-	Next
-
-	; If no profile was found add a new one to the top of the config
-	If Not $bProfileFound  Then
-		ConsoleWrite("[Info]: No existing mod pack profile was found - Adding new profile '" & $sModID & "'" & @CRLF)
-
-		$sAppData = convertPath(@AppDataDir)
-
-		_ArrayInsert($aMagicLauncher, 1, '<Profile')
-		_ArrayInsert($aMagicLauncher, 2, '  <Name="' & $sModID & '">')
-		_ArrayInsert($aMagicLauncher, 3, '  <Environment="' & $sForgeID & '">')
-		_ArrayInsert($aMagicLauncher, 4, '  <MinecraftJar="' & $sAppData & '\\.minecraft\\versions\\' & $sForgeID & '\\' & $sForgeID & '.jar">')
-		_ArrayInsert($aMagicLauncher, 5, '  <ShowLog="true">')
-		_ArrayInsert($aMagicLauncher, 6, '  <MaxMemory="512">')
-		_ArrayInsert($aMagicLauncher, 7, '>')
-		;Update array total items
-		$aMagicLauncher[0] = $aMagicLauncher[0] + 7
-
-		$bConfigChanged = True
+		; New configured profile was inserted and saved
+		Return
 	EndIf
 
-	If $bConfigChanged Then
-		Local $iProfileCount = -1
 
-		; Find the profile number for our modpack
-		For $i = 1 to $aMagicLauncher[0]
-			If StringInStr($aMagicLauncher[$i], "<Profile") <> 0 Then
-				$iProfileCount = $iProfileCount + 1
-				If $aMagicLauncher[$i + 1] = '  <Name="' & $modID & '">' Then
-					; We found our mod pack profile num, exit loop
-					ExitLoop
-				EndIf
-			EndIf
-		Next
+	ConsoleWrite("[Info]: Profile found..." & @CRLF)
 
-		; Set the active profile to our mod pack profile
-		For $i = 1 to $aMagicLauncher[0]
-			If StringInStr($sMagicLauncher[$i], "<ActiveProfileIndex=") <> 0 Then
-				$sMagicLauncher[$i] = '<ActiveProfileIndex="' & $iProfileCount & '">'
-				ConsoleWrite("[Info]: Setting active profile to " & $iProfileCount & " - " & $sModID & @CRLF)
-				ExitLoop
-			EndIf
-		Next
 
-		; Save new config
-		If _FileWriteFromArray(@AppDataDir & "\.minecraft\magic\magiclauncher.cfg", $sMagicLauncher, 1) Then
-			ConsoleWrite("[Info]: Magic Launcher auto configuration complete" & @CRLF)
-		Else
-			ConsoleWrite("[Error]: Could not save auto generated profile, manual profile setup required!" & @CRLF)
-		EndIf
-
-	Else
-		ConsoleWrite("[Info]: Magic Launcher already configured - Skipping auto config" & @CRLF)
-	EndIf
 EndFunc
 
 
@@ -188,6 +111,8 @@ Func createNewMagicLauncherConfig($modID, $forgeVersion)
 		FileWriteLine($hFile, '  <JavaParameters="-XX:MaxPermSize=192m -Dforge.forceNoStencil=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSIncrementalPacing -XX:ParallelGCThreads=2 -XX:+AggressiveOpts">')
 		FileWriteLine($hFile, '  <MaxMemory="1536">')
 		FileWriteLine($hFile, '  <BaseDir="' & $appfolder & '\\.minecraft\\Modpacks\\' & $modID & '\\.minecraft">')
+		FileWriteLine($hFile, '  <InactiveExternalMods=>'
+		FileWriteLine($hFile, '  <InactiveCoreMods=>')
 		FileWriteLine($hFile, '>')
 		FileWriteLine($hFile, '<ActiveProfileIndex="0">')
 		FileWriteLine($hFile, '<LastModDir=>')
@@ -205,3 +130,171 @@ Func createNewMagicLauncherConfig($modID, $forgeVersion)
 	; New config was created
 	Return True
 EndFunc
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: findProfileIndex
+; Description ...: Find the index of the profile with name $modID
+; Syntax ........: findProfileIndex($modID, $aConfig)
+; Parameters ....: $modID               - The modID.
+;                  $aConfig             - An array containing the MagicLauncher config.
+; Return values .: 0					- Profile index not found
+;				 : > 0					- Index of the <Name="$modID"> entry
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func findProfileIndex($modID, $aConfig)
+
+	For $i = 1 To $aConfig[0]
+
+		If $aConfig[$i] = '  <Name="' & $modID & '">' Then Return $i
+
+	Next
+
+	Return 0
+EndFunc
+
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: insertProfile
+; Description ...: Insert a new configured profile into MagicLauncher.cfg and save it.
+; Syntax ........: insertProfile($modID, $forgeVersion, $aConfig)
+; Parameters ....: $modID               - The modID.
+;                  $forgeVersion        - The forge version for this modpack.
+;                  $aConfig             - An array containing the MagicLauncher config.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func insertProfile($modID, $forgeVersion, $aConfig)
+	Local $path
+
+	ConsoleWrite("[Info]: No existing modpack profile was found - Adding new profile '" & $modID & "'" & @CRLF)
+
+	$path = convertPath(@AppDataDir)
+
+	_ArrayInsert($aConfig, 1, '<Profile')
+	_ArrayInsert($aConfig, 2, '  <Name="' & $modID & '">')
+	_ArrayInsert($aConfig, 3, '  <Environment="' & $forgeVersion & '">')
+	_ArrayInsert($aConfig, 4, '  <MinecraftJar="' & $path & '\\.minecraft\\versions\\' & $forgeVersion & '\\' & $forgeVersion & '.jar">')
+	_ArrayInsert($aConfig, 5, '  <ShowLog="true">')
+	_ArrayInsert($aConfig, 6, '  <JavaParameters="-XX:MaxPermSize=192m -Dforge.forceNoStencil=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSIncrementalPacing -XX:ParallelGCThreads=2 -XX:+AggressiveOpts">')
+	_ArrayInsert($aConfig, 7, '  <MaxMemory="1536">')
+	_ArrayInsert($aConfig, 8, '  <BaseDir="' & $path & '\\.minecraft\\Modpacks\\' & $modID & '\\.minecraft">')
+	_ArrayInsert($aConfig, 9, '  <InactiveExternalMods=>')
+	_ArrayInsert($aConfig, 10, '  <InactiveCoreMods=>')
+	_ArrayInsert($aConfig, 11, '>')
+
+
+	;Update total items in array
+	$aConfig[0] = $aConfig[0] + 11
+
+	; Set active profile
+	setConfigTag($aConfig, "ActiveProfileIndex", 0)
+
+
+	; Disable the News
+	setConfigTag($aConfig, "LoadNews", "false")
+
+
+	; Remember login password
+	setConfigTag($aConfig, "RememberPassword", "true")
+
+
+	; Close MagicLauncher after login
+	setConfigTag($aConfig, "CloseAfterLogin", "true")
+
+
+	; Save the config
+	saveMagicLauncherConfig($aConfig)
+
+EndFunc
+
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: setConfigTag
+; Description ...: Sets the tag's value, if not found adds the tag at the end of the config
+; Syntax ........: setActiveProfile(Byref $aConfig, $tag, $value)
+; Parameters ....: $aConfig             - [in/out] An array containing the MagicLauncher config.
+;                  $tag                 - The tag to set (Just the tag name, no '<'
+;				   $value				- The value that should be set
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......: Supported tags are ActiveProfileIndex, LastModDir, LoadNews, CloseAfterLogin and RememberPassword
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func setConfigTag(ByRef $aConfig, $tag, $value)
+
+	; Search tag
+	For $i = 1 To $aConfig[0]
+		; If the tag is found set it
+		If StringInStr($aConfig[$i], $tag) <> 0 Then
+			$aConfig[$i] = '<' & $tag & '="' & $value & '">'
+
+			; Index was set
+			Return
+
+		EndIf
+
+	Next
+
+
+	; Tag was not found, adding it to the end of the config
+	_ArrayAdd($aConfig, '<' & $tag & '="' & $value & '">')
+
+
+EndFunc
+
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: saveMagicLauncherConfig
+; Description ...: Save the MagicLauncher config from an array
+; Syntax ........: saveMagicLauncherConfig($aConfig)
+; Parameters ....: $aConfig             - An array containing the MagicLauncher config.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func saveMagicLauncherConfig($aConfig)
+
+	; Save config
+	If _FileWriteFromArray(@AppDataDir & "\.minecraft\magic\MagicLauncher.cfg", $aConfig, 1) Then
+		ConsoleWrite("[Info]: MagicLauncher auto configuration complete" & @CRLF & @CRLF)
+	Else
+		ConsoleWrite("[Error]: Could not save auto generated profile, manual profile setup required!" & @CRLF)
+	EndIf
+
+
+EndFunc
+
+
