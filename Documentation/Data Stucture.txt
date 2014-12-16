@@ -43,7 +43,7 @@ packs.xml
 		<DefaultInstallFolder>%appdata%\.minecraft</DefaultInstallFolder>
 		<DesktopShortcutTarget>%appdata%\.minecraft\MagicLauncher_1.2.5.exe</DesktopShortcutTarget>
 		<ShortcutFilename></ShortcutFilename>
-		<LaunchApplicationAfterUpdate>%appdata%\.minecraft\MagicLauncher_1.2.5.exe</LaunchApplicationAfterUpdate>
+		<LaunchApplicationAfterUpdate>True</LaunchApplicationAfterUpdate>
 	</ModPack>
 	<ModPack>
 		..
