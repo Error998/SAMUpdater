@@ -27,7 +27,7 @@ Func initLogs($dataFolder)
 	Local $hLog ; Log file handle
 
 
-	$filename = $dataFolder & "\Logs\" & @YEAR & "-" & @MON & "-" & @MDAY & "-" & @HOUR & "-" & @MIN & "-" & @SEC & ".log"
+	$filename = $dataFolder & "\Logs\" & @YEAR & @MON & @MDAY & "-" & @HOUR & "-" & @MIN & "-" & @SEC & ".log"
 
 	; Open Log file
 	$hLog = FileOpen($filename, $FO_CREATEPATH + $FO_APPEND)
@@ -68,6 +68,9 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func closeLog()
+
+	writeLog("[Info]: Closing kernel32.dll")
+	DllClose($hdllKernel32)
 
 	writeLog("[Info]: Closing application")
 
@@ -124,6 +127,38 @@ Func writeLogEchoToConsole($text)
 
 	; Write the log entry
 	writeLog($text)
+
+	; Check if a warning was used
+	If StringInStr($text, "[Warning]") <> 0 Then
+		; Set console color to yellow
+		setConsoleColor($FOREGROUND_Light_Yellow)
+
+		; Echo to console
+		ConsoleWrite($text)
+
+		; Set console color back to green
+		setConsoleColor($FOREGROUND_Light_green)
+
+		Return
+
+	EndIf
+
+
+	; Check if an error was used
+	If StringInStr($text, "[Error]") <> 0 Then
+		; Set console color to red
+		setConsoleColor($FOREGROUND_Light_Red)
+
+		; Echo to console
+		ConsoleWrite($text)
+
+		; Set console color back to green
+		setConsoleColor($FOREGROUND_Light_green)
+
+		Return
+	EndIf
+
+
 
 	; Echo to console
 	ConsoleWrite($text)
