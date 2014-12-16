@@ -178,7 +178,7 @@ Func ModpackClicked()
 	$modpackNum = findModpackNumFromCtrlID(@GUI_CtrlId, 2, $ctrlIDs)
 
 	; Display Splash and description
-	ConsoleWrite("[Info]: Displaying info for modpack: " & $modpackNum & @CRLF)
+	writeLogEchoToConsole("[Info]: Displaying info for modpack: " & $modpackNum & @CRLF)
 	showSplashAndDescription($modpackNum)
 
 EndFunc
@@ -202,7 +202,7 @@ Func btnDownload()
 
 	$downloadModpackNum = findModpackNumFromCtrlID(@GUI_CtrlId, 1, $ctrlIDs)
 
-	ConsoleWrite("[Info]: Modpack #: " & $downloadModpackNum & " selected for download" & @CRLF)
+	writeLogEchoToConsole("[Info]: Modpack #: " & $downloadModpackNum & " selected for download" & @CRLF)
 
 	; Close GUI and free resources
 	CLOSEButton()
@@ -229,7 +229,7 @@ Func btnInfo()
 	$modpackNum = findModpackNumFromCtrlID(@GUI_CtrlId, 0, $ctrlIDs)
 
 	; Display Splash and description
-	ConsoleWrite("[Info]: Displaying info for modpack: " & $modpackNum & @CRLF)
+	writeLogEchoToConsole("[Info]: Displaying info for modpack: " & $modpackNum & @CRLF)
 	showSplashAndDescription($modpackNum)
 
 EndFunc
@@ -257,7 +257,7 @@ Func CLOSEButton()
 
 	; Set Exit GUI loop condition
 	$closeGUI = True
-	ConsoleWrite("[Info]: Closing ModpackSelection GUI" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Closing ModpackSelection GUI" & @CRLF & @CRLF)
 EndFunc
 
 
@@ -336,7 +336,7 @@ Func createModpackSelectionGUI()
 	GUISetOnEvent($GUI_EVENT_CLOSE, "CLOSEButton")
 
 
-	ConsoleWrite("[Info]: Displaying ModpackSelection GUI" & @CRLF)
+	writeLogEchoToConsole("[Info]: Displaying ModpackSelection GUI" & @CRLF)
 	GUISetState(@SW_SHOW)
 
 

@@ -26,18 +26,18 @@ Func downloadFile($URL, $path, $retryCount = 5)
 		if @error <>  0 Then
 			; All retries failed
 			If $i = $retryCount Then
-				ConsoleWrite("[ERROR]: Failed to download file retry " & $retryCount & " of " & $retryCount & @CRLF)
+				writeLogEchoToConsole("[ERROR]: Failed to download file retry " & $retryCount & " of " & $retryCount & @CRLF)
 				; Download failed
 				Return False
 			Else
 				; Wait 10 seconds then retry
-				ConsoleWrite("[WARNING]: Failed to download file retry " & $i & " of " & $retryCount & @CRLF)
-				ConsoleWrite("[Info]: Retrying download in 10 seconds")
+				writeLogEchoToConsole("[WARNING]: Failed to download file retry " & $i & " of " & $retryCount & @CRLF)
+				writeLogEchoToConsole("[Info]: Retrying download in 10 seconds")
 				For $x = 1 To 10
 					Sleep(1000)
-					ConsoleWrite(".")
+					writeLogEchoToConsole(".")
 				Next
-				ConsoleWrite(@CRLF & @CRLF)
+				writeLogEchoToConsole(@CRLF & @CRLF)
 			EndIf
 		Else
 			; Download was successful
@@ -72,9 +72,9 @@ Func downloadAndVerify($fileURL, $filename, $dataFolder, $hash = "", $retryCount
 	For $i = 1 to $retryCount
 		; Download File
 		if Not downloadFile($fileURL, $dataFolder & "\" & $filename) Then
-			ConsoleWrite("[ERROR]: Download failed - " & $filename & @CRLF)
-			ConsoleWrite("[ERROR]: Please check your internet connection!" & @CRLF)
-			ConsoleWrite("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
+			writeLogEchoToConsole("[ERROR]: Download failed - " & $filename & @CRLF)
+			writeLogEchoToConsole("[ERROR]: Please check your internet connection!" & @CRLF)
+			writeLogEchoToConsole("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
 			MsgBox(48, "Download failed", "Please check your internet connection" & @CRLF & "Then run SAMUpdater again")
 			Exit
 		EndIf
@@ -88,17 +88,17 @@ Func downloadAndVerify($fileURL, $filename, $dataFolder, $hash = "", $retryCount
 
 		; Verify hash with downloaded file
 		If compareHash($dataFolder & "\" & $filename, $hash) Then
-			ConsoleWrite("[Info]: File integrity passed - " & $filename & @CRLF)
+			writeLogEchoToConsole("[Info]: File integrity passed - " & $filename & @CRLF)
 			Return True
 
 		ElseIf $i = $retryCount Then
-			ConsoleWrite("[ERROR]: File integrity failed " & $retryCount & " out of " & $retryCount & " times - " & $filename & @CRLF)
-			ConsoleWrite("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
+			writeLogEchoToConsole("[ERROR]: File integrity failed " & $retryCount & " out of " & $retryCount & " times - " & $filename & @CRLF)
+			writeLogEchoToConsole("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
 			MsgBox(48, "Downloaded file integerity Failed", "Please contact your mod pack creator")
 			Exit
 
 		Else
-			ConsoleWrite("[ERROR]: File integrity failed " & $i & " of " & $retryCount & " times, restarting download" & @CRLF)
+			writeLogEchoToConsole("[ERROR]: File integrity failed " & $i & " of " & $retryCount & " times, restarting download" & @CRLF)
 		EndIf
 	Next
 
@@ -127,7 +127,7 @@ Func verifyAndDownload($fileURL, $filename, $dataFolder, $hash, $retryCount = 3)
 	; Verify hash with downloaded file
 	If FileExists($dataFolder & "\" & $filename) Then
 		If compareHash($dataFolder & "\" & $filename, $hash) Then
-			ConsoleWrite("[Info]: File integrity passed - " & $filename & @CRLF)
+			writeLogEchoToConsole("[Info]: File integrity passed - " & $filename & @CRLF)
 			Return True
 		EndIf
 	EndIf
@@ -135,11 +135,11 @@ Func verifyAndDownload($fileURL, $filename, $dataFolder, $hash, $retryCount = 3)
 
 	For $i = 1 to $retryCount
 		; Download File
-		ConsoleWrite("[Info]: Downloading - " & $filename & @CRLF)
+		writeLogEchoToConsole("[Info]: Downloading - " & $filename & @CRLF)
 		if Not downloadFile($fileURL, $dataFolder & "\" & $filename) Then
-			ConsoleWrite("[ERROR]: Download failed - " & $filename & @CRLF)
-			ConsoleWrite("[ERROR]: Please check your internet connection!" & @CRLF)
-			ConsoleWrite("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
+			writeLogEchoToConsole("[ERROR]: Download failed - " & $filename & @CRLF)
+			writeLogEchoToConsole("[ERROR]: Please check your internet connection!" & @CRLF)
+			writeLogEchoToConsole("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
 			MsgBox(48, "Download failed", "Please check your internet connection" & @CRLF & "Then run SAMUpdater again")
 			Exit
 		EndIf
@@ -147,17 +147,17 @@ Func verifyAndDownload($fileURL, $filename, $dataFolder, $hash, $retryCount = 3)
 
 		; Verify hash with downloaded file
 		If compareHash($dataFolder & "\" & $filename, $hash) Then
-			ConsoleWrite("[Info]: File integrity passed - " & $filename & @CRLF)
+			writeLogEchoToConsole("[Info]: File integrity passed - " & $filename & @CRLF)
 			Return True
 
 		ElseIf $i = $retryCount Then
-			ConsoleWrite("[ERROR]: File integrity failed " & $retryCount & " out of " & $retryCount & " times - " & $filename & @CRLF)
-			ConsoleWrite("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
+			writeLogEchoToConsole("[ERROR]: File integrity failed " & $retryCount & " out of " & $retryCount & " times - " & $filename & @CRLF)
+			writeLogEchoToConsole("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
 			MsgBox(48, "Downloaded file integerity Failed", "Please contact your mod pack creator")
 			Exit
 
 		Else
-			ConsoleWrite("[ERROR]: File integrity failed " & $i & " of " & $retryCount & " times, restarting download" & @CRLF)
+			writeLogEchoToConsole("[ERROR]: File integrity failed " & $i & " of " & $retryCount & " times, restarting download" & @CRLF)
 		EndIf
 	Next
 

@@ -31,7 +31,7 @@ Func lauchShortcut($bRun, $linkFilename)
 
 	; Launch application
 	If $bRun = "True" Then
-		ConsoleWrite("[Info]: Launching application - " & $linkFilename & @CRLF & @CRLF)
+		writeLogEchoToConsole("[Info]: Launching application - " & $linkFilename & @CRLF & @CRLF)
 
 		ShellExecute('"' & @DesktopDir & '\' & $linkFilename & '.lnk"', "", "", "open")
 

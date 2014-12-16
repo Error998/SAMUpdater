@@ -32,18 +32,18 @@ Opt('MustDeclareVars', 1)
 Func isNewUpdateAvailable($version, $updateURL, $dataFolder)
 	Local $versionInfo
 
-	ConsoleWrite("[Info]: Checking if an update is available..." & @CRLF)
+	writeLogEchoToConsole("[Info]: Checking if an update is available..." & @CRLF)
 	downloadAndVerify($updateURL, "version.dat", $dataFolder)
 
 	; Read version.dat
 	_FileReadToArray($dataFolder & "\version.dat", $versionInfo)
 
 	If $versionInfo[1] > $version Then
-		ConsoleWrite("[Info]: New version available!" & @CRLF)
-		ConsoleWrite("[Info]: Current Version: " & $version & " - New Version " & $versionInfo[1] & @CRLF & @CRLF)
+		writeLogEchoToConsole("[Info]: New version available!" & @CRLF)
+		writeLogEchoToConsole("[Info]: Current Version: " & $version & " - New Version " & $versionInfo[1] & @CRLF & @CRLF)
 		Return True
 	Else
-		ConsoleWrite("[Info]: Current Version: " & $version & " - No new update available" & @CRLF & @CRLF)
+		writeLogEchoToConsole("[Info]: Current Version: " & $version & " - No new update available" & @CRLF & @CRLF)
 		Return False
 	EndIf
 EndFunc
@@ -70,7 +70,7 @@ Func updateApp($dataFolder)
 	_FileReadToArray($dataFolder & "\version.dat", $versionInfo)
 
 	; Download new SAMUpdater.exe and save it as Update.dat
-	ConsoleWrite("[Info]: Downloading new updates..." & @CRLF)
+	writeLogEchoToConsole("[Info]: Downloading new updates..." & @CRLF)
 	downloadAndVerify($versionInfo[2], "update.dat", $dataFolder, $versionInfo[3])
 
 
@@ -84,8 +84,8 @@ Func updateApp($dataFolder)
 	EndIf
 
 	; Launch Update_Helper.exe that will remove SAMUpdater.exe and renaming Update.dat to SAMUpdater.exe
-	ConsoleWrite("[Info]: New updates downloaded." & @CRLF & @CRLF)
-	ConsoleWrite("[Info]: Starting update procedure, launching Update_Helper..." & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: New updates downloaded." & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Starting update procedure, launching Update_Helper..." & @CRLF & @CRLF)
 
 	Run($dataFolder & "\Update_Helper.exe", $dataFolder)
 	; Close SAMUpdater.exe to enable the update
@@ -115,7 +115,7 @@ Func saveAppLaunchLocation($dataFolder)
 
 	; Check if file opened for writing OK
 	If $file = -1 Then
-		ConsoleWrite("[ERROR]: Unable to open version.dat for writing" & @CRLF & @CRLF)
+		writeLogEchoToConsole("[ERROR]: Unable to open version.dat for writing" & @CRLF & @CRLF)
 		Exit
 	EndIf
 

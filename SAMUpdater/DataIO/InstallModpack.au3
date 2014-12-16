@@ -61,7 +61,7 @@ Func installFromCache($defaultInstallFolder, $modID, $dataFolder)
 	Local $sourceFile
 	Local $hash
 
-	ConsoleWrite("[Info]: Reading files from " & $modID & ".xml" & @CRLF)
+	writeLogEchoToConsole("[Info]: Reading files from " & $modID & ".xml" & @CRLF)
 	$currentXMLfiles = getXMLfilesFromSection($modID, $dataFolder, "Files")
 
 
@@ -80,7 +80,7 @@ Func installFromCache($defaultInstallFolder, $modID, $dataFolder)
 
 			; File is the same as remote
 			If $hash = $currentXMLfiles[$i][3] Then
-				ConsoleWrite("[Info]: File already installed, integrity check passed - " & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0] & @CRLF)
+				writeLogEchoToConsole("[Info]: File already installed, integrity check passed - " & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0] & @CRLF)
 
 				; Skip file
 				ContinueLoop
@@ -93,16 +93,16 @@ Func installFromCache($defaultInstallFolder, $modID, $dataFolder)
 
 		; Create path and copy to installation folder
 		if Not FileCopy($sourceFile, $destinationFile, 9) Then
-			ConsoleWrite("[ERROR]: Unable to copy file to installation folder - " & $destinationFile & @CRLF)
+			writeLogEchoToConsole("[ERROR]: Unable to copy file to installation folder - " & $destinationFile & @CRLF)
 			MsgBox($MB_ICONWARNING, "Error copying file to installation folder", "Unable to copy " & @CRLF & $sourceFile & @CRLF & "to" & @CRLF & $destinationFile)
 			Exit
 		EndIf
 
-		ConsoleWrite("[Info}: File installed - " & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0] & @CRLF)
+		writeLogEchoToConsole("[Info}: File installed - " & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0] & @CRLF)
 
 	Next
 
-	ConsoleWrite(@CRLF)
+	writeLogEchoToConsole(@CRLF)
 
 	; Close the crypt libary to free resources
 	_Crypt_Shutdown()
@@ -132,7 +132,7 @@ Func removeOldFiles($defaultInstallFolder, $modID, $dataFolder)
 	Local $sourceFile
 
 
-	ConsoleWrite("[Info]: Reading removed files from " & $modID & ".xml" & @CRLF)
+	writeLogEchoToConsole("[Info]: Reading removed files from " & $modID & ".xml" & @CRLF)
 	$currentXMLfiles = getXMLfilesFromSection($modID, $dataFolder, "Removed")
 
 
@@ -142,7 +142,7 @@ Func removeOldFiles($defaultInstallFolder, $modID, $dataFolder)
 
 		; Skip if file was already removed
 		If Not FileExists($destinationFile) Then
-			ConsoleWrite("[Info]: File already removed - " & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0] & @CRLF)
+			writeLogEchoToConsole("[Info]: File already removed - " & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0] & @CRLF)
 
 			ContinueLoop
 		EndIf
@@ -151,15 +151,15 @@ Func removeOldFiles($defaultInstallFolder, $modID, $dataFolder)
 		; Send file to recyclebin
 		If Not FileRecycle($destinationFile) Then
 			; Could not delete file
-			ConsoleWrite("[ERROR]: Unable to delete file - " & $destinationFile & @CRLF)
+			writeLogEchoToConsole("[ERROR]: Unable to delete file - " & $destinationFile & @CRLF)
 				MsgBox($MB_ICONWARNING , "Unable to delete file", "Unable to delete file: " & @CRLF & $destinationFile & @CRLF & @CRLF & "Please make sure that the file is not open or in use." & @CRLF & @CRLF& "The installation will continue but it is HIGHLY recommemded to restart the modpack installation afterwards!")
 
 		Else
 			; File deleted
-			ConsoleWrite("[Info]: Successfully removed - " & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0] & @CRLF)
+			writeLogEchoToConsole("[Info]: Successfully removed - " & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0] & @CRLF)
 		EndIf
 
 	Next
 
-	ConsoleWrite("[Info]: Modpack file update complete" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Modpack file update complete" & @CRLF & @CRLF)
 EndFunc

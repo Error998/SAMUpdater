@@ -38,9 +38,12 @@ Application Data Folder
 |				|--- description.rtf
 |				|--- icon.jpg
 |				|--- splash.jpg
+|	
+|---| Logs
+|	|---<timestamp>.log
 |
 |---| Backup
-	|---| <Day><Month><Year><Hour><Min><Sec>
+	|---| <timestamp>
 		|---| .minecraft
 
 

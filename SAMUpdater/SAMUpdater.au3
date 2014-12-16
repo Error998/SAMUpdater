@@ -4,7 +4,7 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_Fileversion=0.0.3.0
+#AutoIt3Wrapper_Res_Fileversion=0.0.4.0
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
 #include "AutoUpdate\AutoUpdate.au3"
@@ -13,6 +13,7 @@
 #include "DataIO\Assets.au3"
 #include "DataIO\Cache.au3"
 #include "DataIO\InstallModpack.au3"
+#include "DataIO\Logs.au3"
 #include "Sound\Sounds.au3"
 #include "GUI\frmModpackSelection.au3"
 #include "PostInstall\MagicLauncher.au3"
@@ -23,21 +24,27 @@ Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.0.3.0"
-Const $baseURL = "http://localhost/samupdater"
-;Const $baseURL = "https://dl.dropboxusercontent.com/u/68260490/Games/Minecraft/SAM/samupdater"
+Const $version = "0.0.4.0"
+;Const $baseURL = "http://localhost/samupdater"
+Const $baseURL = "http://imghost.co.za/files/sam/samupdater"
 Const $updateURL = $baseURL & "/version.dat"
 Const $packsURL = $baseURL & "/packdata/packs.xml"
 
 Global $dataFolder = @AppDataDir & "\SAMUpdater"
+Global $hLog = initLogs($dataFolder)
 Local $modpacks
 Local $modpackNum
 
+
+; Close the log file on application exit
+OnAutoItExitRegister("closeLog")
+
+
 ; ### Init Data Folders ###
-ConsoleWrite("[Info]: Initializing folders..." & @CRLF)
+writeLogEchoToConsole("[Info]: Initializing folders..." & @CRLF)
 createFolder($dataFolder & "\PackData\Assets\GUI\ModpackSelection")
 createFolder($dataFolder & "\PackData\Assets\Sounds")
-ConsoleWrite("[Info]: Folders initialized" & @CRLF & @CRLF)
+writeLogEchoToConsole("[Info]: Folders initialized" & @CRLF & @CRLF)
 ; #########################
 
 
@@ -46,7 +53,7 @@ autoUpdate($version, $updateURL, $dataFolder)
 
 
 ; Play background music
-;playBackgroundMusic($dataFolder, 227)
+playBackgroundMusic($dataFolder, 227)
 
 ; Load and parse Packs.xml, returns 2d array [modpackNum][elements]
 $modpacks = parsePacks($packsURL, $dataFolder)
@@ -62,36 +69,37 @@ $modpackNum = DisplayModpackSelection()
 
 ; Exit application - no modpack was selected to download
 If $modpackNum = -1 Then
-	ConsoleWrite("[Info]: Exiting application" & @CRLF)
+
 	Exit
+
 EndIf
 
 
-ConsoleWrite("[Info]: Modpack ID            - " & $modpacks[$modpackNum][0] & @CRLF)
-ConsoleWrite("[Info]: Remote Repository URL - " & $modpacks[$modpackNum][11] & @CRLF)
-ConsoleWrite("[Info]: Modpack Active        - " & $modpacks[$modpackNum][12] & @CRLF)
-ConsoleWrite("[Info]: Install Folder        - " & $modpacks[$modpackNum][13] & @CRLF & @CRLF)
+writeLogEchoToConsole("[Info]: Modpack ID            - " & $modpacks[$modpackNum][0] & @CRLF)
+writeLogEchoToConsole("[Info]: Remote Repository URL - " & $modpacks[$modpackNum][11] & @CRLF)
+writeLogEchoToConsole("[Info]: Modpack Active        - " & $modpacks[$modpackNum][12] & @CRLF)
+writeLogEchoToConsole("[Info]: Install Folder        - " & $modpacks[$modpackNum][13] & @CRLF & @CRLF)
 
 ; Cache modpack
-;cacheModpack($modpacks[$modpackNum][11], $modpacks[$modpackNum][0], $dataFolder)
+cacheModpack($modpacks[$modpackNum][11], $modpacks[$modpackNum][0], $dataFolder)
 
 ; Custom Pre-install stuff
 
 
 ;Install Modpack
-;installModPack($modpacks[$modpackNum][13], $modpacks[$modpackNum][0], $dataFolder)
+installModPack($modpacks[$modpackNum][13], $modpacks[$modpackNum][0], $dataFolder)
 
 
 
 ; Custom Post install stuff
-;configureMagicLauncher($modpacks[$modpackNum][0], $modpacks[$modpackNum][10])
+configureMagicLauncher($modpacks[$modpackNum][0], $modpacks[$modpackNum][10])
 
 
 ; Create desktop shortcut
 createDesktopShortcut($modpacks[$modpackNum][14], $modpacks[$modpackNum][15])
 
 
-ConsoleWrite("[Info]: Update is complete" & @CRLF & @CRLF)
+writeLogEchoToConsole("[Info]: Update is complete" & @CRLF & @CRLF)
 
 
 ; Launch installed application

@@ -21,14 +21,14 @@ Func loadXML($_XMLFilename)
 
 	; Check if file opened for reading OK
 	If $hfile = -1 Then
-		ConsoleWrite("[Error] Unable to open xml document" & @CRLF)
+		writeLogEchoToConsole("[Error] Unable to open xml document" & @CRLF)
 		SetError(1)
 		Return False
 	EndIf
 
 	$xml = FileRead($hfile)
 	If @error = 1 Then
-		ConsoleWrite("[Error] Unable to read xml document" & @CRLF)
+		writeLogEchoToConsole("[Error] Unable to read xml document" & @CRLF)
 		SetError(2)
 		Return False
 	EndIf

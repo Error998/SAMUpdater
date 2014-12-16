@@ -29,7 +29,7 @@ Func cacheModpack($baseModURL, $modID, $dataFolder)
 	Local $uncachedFiles
 
 	; Download <modID>.xml
-	ConsoleWrite("[Info]: Downloading modpack file list - " & "\PackData\Modpacks\" & $modID & "\Data\" & $modID & ".xml" & @CRLF)
+	writeLogEchoToConsole("[Info]: Downloading modpack file list - " & "\PackData\Modpacks\" & $modID & "\Data\" & $modID & ".xml" & @CRLF)
 	downloadFile($baseModURL & "/packdata/modpacks/" & $modID & "/data/" & $modID & ".xml", $dataFolder & "\PackData\Modpacks\" & $modID & "\Data\" & $modID & ".xml")
 
 
@@ -68,11 +68,11 @@ Func getUncachedFileList($modID, $dataFolder)
 	Local $hash
 
 	; Load <modID>.xml
-	ConsoleWrite("[Info]: Parsing modpack file list from " & $modID & ".xml" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Parsing modpack file list from " & $modID & ".xml" & @CRLF & @CRLF)
 	$currentXMLfiles = getXMLfilesFromSection($modID, $dataFolder, "Files")
 
 
-	ConsoleWrite("[Info]: Caculating uncached files list..." & @CRLF)
+	writeLogEchoToConsole("[Info]: Caculating uncached files list..." & @CRLF)
 
 	; Startup crypt libary to speedup hash generation
 	_Crypt_Startup()
@@ -107,9 +107,9 @@ Func getUncachedFileList($modID, $dataFolder)
 	$uncachedFiles[0] = UBound($uncachedFiles) - 1
 
 	If $uncachedFiles[0] = 0 Then
-		ConsoleWrite("[Info]: Cache is up to date" & @CRLF & @CRLF)
+		writeLogEchoToConsole("[Info]: Cache is up to date" & @CRLF & @CRLF)
 	Else
-		ConsoleWrite("[Info]: " & $uncachedFiles[0] & " uncached files (" & getHumanReadableFilesize($filesize) & ") marked for download " & @CRLF & @CRLF)
+		writeLogEchoToConsole("[Info]: " & $uncachedFiles[0] & " uncached files (" & getHumanReadableFilesize($filesize) & ") marked for download " & @CRLF & @CRLF)
 	EndIf
 
 	Return $uncachedFiles
@@ -136,18 +136,18 @@ EndFunc
 Func cacheFiles($baseModURL, $uncachedFiles, $modID, $dataFolder)
 	Local $fileURL
 
-	ConsoleWrite("[Info]: Downloading cache..." & @CRLF)
+	writeLogEchoToConsole("[Info]: Downloading cache..." & @CRLF)
 
 	; Download all uncached files
 	For $i = 1 to $uncachedFiles[0]
 
 		$fileURL = $baseModURL & "/packdata/modpacks/" & $modID & "/cache/" & $uncachedFiles[$i]
 
-		ConsoleWrite("[Info]: Downloading - " & $modID & "/cache/" & $uncachedFiles[$i] & @CRLF)
+		writeLogEchoToConsole("[Info]: Downloading - " & $modID & "/cache/" & $uncachedFiles[$i] & @CRLF)
 		downloadAndVerify($fileURL, $uncachedFiles[$i], $dataFolder & "\PackData\Modpacks\" & $modID & "\cache", $uncachedFiles[$i])
 
 	Next
 
-	ConsoleWrite("[Info]: Modpack cache download complete" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Modpack cache download complete" & @CRLF & @CRLF)
 
 EndFunc

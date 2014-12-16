@@ -37,14 +37,14 @@ EndFunc
 ; Remarks .......: All parent folders will be created if they dont exsist
 Func createFolder($sPath)
 	If (doesFolderExist($sPath)) Then
-		ConsoleWrite("[Info]: Using folder - " & $sPath & @CRLF)
+		writeLogEchoToConsole("[Info]: Using folder - " & $sPath & @CRLF)
 	Else
 		DirCreate($sPath)
 		If @error = -1 Then
-			ConsoleWrite("[ERROR]: Failed to create folder - " & $sPath & @CRLF)
+			writeLogEchoToConsole("[ERROR]: Failed to create folder - " & $sPath & @CRLF)
 			Exit
 		EndIf
-		ConsoleWrite("[Info]: Folder created - " & $sPath & @CRLF)
+		writeLogEchoToConsole("[Info]: Folder created - " & $sPath & @CRLF)
 	EndIf
 EndFunc
 
@@ -63,14 +63,14 @@ EndFunc
 ; Remarks .......: Remove the leading \ from the path to delete the folder
 Func removeFile($sPath)
 	If (FileRecycle($sPath) = True) Then
-		ConsoleWrite("[Info]: Deleted - " & $sPath & @CRLF)
+		writeLogEchoToConsole("[Info]: Deleted - " & $sPath & @CRLF)
 	ElseIf FileExists($sPath) Then
-		ConsoleWrite("[ERROR]: Unable to delete - " & $sPath & @CRLF)
+		writeLogEchoToConsole("[ERROR]: Unable to delete - " & $sPath & @CRLF)
 		MsgBox(48,"Unable to delete file!", "Please make sure the file or folder is not currently in use or open." & @CRLF & _
 				  "Close the offending application then restart SAMUpater" & @CRLF & "Click OK to close SAMUpdater")
 		Exit
     Else
-        ConsoleWrite("[Info]: Does not exist, consider it removed - " & $sPath & @CRLF)
+        writeLogEchoToConsole("[Info]: Does not exist, consider it removed - " & $sPath & @CRLF)
 	EndIf
 
 EndFunc
@@ -92,7 +92,7 @@ EndFunc
 Func getFileSize($sPath)
 	Local $fSize = FileGetSize($sPath)
 	if @error = -1 Then
-		ConsoleWrite("[Error]: Unable to get file size - " & $sPath & @CRLF)
+		writeLogEchoToConsole("[Error]: Unable to get file size - " & $sPath & @CRLF)
 		Return 0
 	Else
 		Return $fSize
@@ -216,7 +216,7 @@ Func recurseFolders($sPath, $sExcludeFile = "", $sExcludeEntireFolder = "")
 			Dim $aFiles[1]
 			$aFiles[0] = 0
 		Else
-			ConsoleWrite("[ERROR]: Unable to recurse folders - Error code:" & " Extended: " &  @extended & @CRLF)
+			writeLogEchoToConsole("[ERROR]: Unable to recurse folders - Error code:" & " Extended: " &  @extended & @CRLF)
 			MsgBox(48, "Error recursing folders", "Unable to recurse folders: " & @CRLF & $sPath & @CRLF & @CRLF & "Error code: " & @extended)
 
 			; Continue app and prevent crashing when doing opperations on an array with no items
@@ -355,7 +355,7 @@ Func createDesktopShortcut($targetPath, $linkFilename)
 
 		; Update shortcut
 		If FileCreateShortcut($targetPath, $fullLinkPath, $workingDir) Then
-			ConsoleWrite("[Info]: Desktop shortcut updated - " & $linkFilename & @CRLF & @CRLF)
+			writeLogEchoToConsole("[Info]: Desktop shortcut updated - " & $linkFilename & @CRLF & @CRLF)
 
 			; Shortcut updated
 			Return
@@ -368,7 +368,7 @@ Func createDesktopShortcut($targetPath, $linkFilename)
 
 	; Shortcut does not exsit, create it
 	If FileCreateShortcut($targetPath, $fullLinkPath, $workingDir) Then
-		ConsoleWrite("[Info]: Desktop shortcut created - " & $linkFilename & @CRLF & @CRLF)
+		writeLogEchoToConsole("[Info]: Desktop shortcut created - " & $linkFilename & @CRLF & @CRLF)
 	EndIf
 
 

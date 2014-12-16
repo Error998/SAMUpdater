@@ -30,7 +30,7 @@ Func callbackPlayBackgroundMusic($hWnd, $Msg, $iIDTimer, $dwTime)
 		SoundPlay("")
 
 		; Start music
-		ConsoleWrite("[Info]: Playing background music..." & @CRLF)
+		writeLogEchoToConsole("[Info]: Playing background music..." & @CRLF)
 		SoundPlay($dataFolder & "\PackData\Assets\Sounds\Background.mp3")
 	EndIf
 EndFunc
@@ -57,9 +57,9 @@ Func playBackgroundMusic($dataFolder, $playLenght)
 	Local $hWndTimer
 
 	; Download background music if it does not exist in data folder
-	ConsoleWrite("[Info]: Initializing Sound data" & @CRLF)
+	writeLogEchoToConsole("[Info]: Initializing Sound data" & @CRLF)
 	initSoundAssets($baseURL, $dataFolder)
-	ConsoleWrite("[Info]: Initialized" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Initialized" & @CRLF & @CRLF)
 
 	; Start playing background music
 	callbackPlayBackgroundMusic("","","","")

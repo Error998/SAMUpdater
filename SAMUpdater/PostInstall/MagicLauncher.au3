@@ -23,7 +23,7 @@ Func configureMagicLauncher($modID, $forgeVersion)
 	Local $profileStartIndex
 
 
-	ConsoleWrite("[Info]: Auto configuration of MagicLauncher started..." & @CRLF)
+	writeLogEchoToConsole("[Info]: Auto configuration of MagicLauncher started..." & @CRLF)
 
 	; If a config was made from scratch exit function
 	If createNewMagicLauncherConfig($modID, $forgeVersion) Then Return
@@ -107,7 +107,7 @@ Func createNewMagicLauncherConfig($modID, $forgeVersion)
 	; Open a new xml document for writing
 	$hFile = FileOpen(@AppDataDir & "\.minecraft\magic\MagicLauncher.cfg", 10) ; erase + create dir
 		If $hFile = -1 Then
-			ConsoleWrite("[ERROR]: Unable to create - " & @AppDataDir & "\.minecraft\magic\MagicLauncher.cfg" & @CRLF)
+			writeLogEchoToConsole("[ERROR]: Unable to create - " & @AppDataDir & "\.minecraft\magic\MagicLauncher.cfg" & @CRLF)
 			MsgBox(48, "Error creating file", "Unable to create MagicLauncher config file - " & @AppDataDir & "\.minecraft\magic\MagicLauncher.cfg")
 			Exit
 		EndIf
@@ -135,7 +135,7 @@ Func createNewMagicLauncherConfig($modID, $forgeVersion)
 	FileClose($hFile)
 
 
-	ConsoleWrite("[Info]: Auto configuration complete - New MagicLauncher.cfg created" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Auto configuration complete - New MagicLauncher.cfg created" & @CRLF & @CRLF)
 
 
 	; New config was created
@@ -195,7 +195,7 @@ EndFunc
 Func insertProfile($modID, $forgeVersion, $aConfig)
 	Local $path
 
-	ConsoleWrite("[Info]: No existing modpack profile was found - Adding new profile '" & $modID & "'" & @CRLF)
+	writeLogEchoToConsole("[Info]: No existing modpack profile was found - Adding new profile '" & $modID & "'" & @CRLF)
 
 	$path = convertPath(@AppDataDir)
 
@@ -300,9 +300,9 @@ Func saveMagicLauncherConfig($aConfig)
 
 	; Save config
 	If _FileWriteFromArray(@AppDataDir & "\.minecraft\magic\MagicLauncher.cfg", $aConfig, 1) Then
-		ConsoleWrite("[Info]: MagicLauncher auto configuration complete" & @CRLF & @CRLF)
+		writeLogEchoToConsole("[Info]: MagicLauncher auto configuration complete" & @CRLF & @CRLF)
 	Else
-		ConsoleWrite("[Error]: Could not save auto generated profile, manual profile setup required!" & @CRLF)
+		writeLogEchoToConsole("[Error]: Could not save auto generated profile, manual profile setup required!" & @CRLF)
 	EndIf
 
 
@@ -404,8 +404,8 @@ Func findProfileEndIndex($profileStartIndex, $aConfig)
 	Next
 
 	; Could not determine the end of the current profile, config is corrupt
-	ConsoleWrite(@CRLF & "[Warning]: This is odd, unable to determine the end of the profile section in MagicLauncher.cfg!" & @CRLF)
-	ConsoleWrite("[Warning]: Recommend to delete .\minecraft\magic\MagicLauncher.cfg and run the updater again" & @CRLF & @CRLF)
+	writeLogEchoToConsole(@CRLF & "[Warning]: This is odd, unable to determine the end of the profile section in MagicLauncher.cfg!" & @CRLF)
+	writeLogEchoToConsole("[Warning]: Recommend to delete .\minecraft\magic\MagicLauncher.cfg and run the updater again" & @CRLF & @CRLF)
 	Return 0
 
 EndFunc

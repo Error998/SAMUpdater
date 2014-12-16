@@ -27,7 +27,7 @@ Func loadPackList($packsURL, $dataFolder)
 	Local $modpacksXML
 
 	; Download Packs.xml
-	ConsoleWrite("[Info]: Downloading mod pack list" & @CRLF)
+	writeLogEchoToConsole("[Info]: Downloading mod pack list" & @CRLF)
 	downloadFile($packsURL, $dataFolder & "\PackData\Packs.xml")
 
 	; Load and parse Packs.xml
@@ -68,7 +68,7 @@ Func parsePacks($packsURL, $dataFolder)
 
 	; Zero based 2d array holding mod modpacks, modpack elements
 	Global $modpacks[ $modpacksXML[0] ][17]
-	ConsoleWrite("[Info]: Modpacks available: " & UBound($modpacks) & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Modpacks available: " & UBound($modpacks) & @CRLF & @CRLF)
 
 
 	; Store all elemetns
@@ -113,7 +113,7 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func initModpackFolders($modpacks, $dataFolder)
-	ConsoleWrite("[Info]: Initializing Modpack folders" & @CRLF)
+	writeLogEchoToConsole("[Info]: Initializing Modpack folders" & @CRLF)
 
 	; Create all modpack folders
 	For $i = 0 To (UBound($modpacks) - 1)
@@ -121,7 +121,7 @@ Func initModpackFolders($modpacks, $dataFolder)
 		createFolder($dataFolder & "\PackData\ModPacks\" & $modpacks[$i][0] & "\Cache")
 	Next
 
-	ConsoleWrite("[Info]: Modpack folders initialized" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Modpack folders initialized" & @CRLF & @CRLF)
 EndFunc
 
 
@@ -148,7 +148,7 @@ Func initModpackFiles($modpacks, $dataFolder)
 	Local $path
 	Local $hash
 
-	ConsoleWrite("[Info]: Initializing Modpack assets" & @CRLF)
+	writeLogEchoToConsole("[Info]: Initializing Modpack assets" & @CRLF)
 
 	For $i = 0 To (UBound($modpacks) - 1)
 
@@ -181,7 +181,7 @@ Func initModpackFiles($modpacks, $dataFolder)
 		EndIf
 	Next
 
-	ConsoleWrite("[Info]: Modpack assets initialized" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Modpack assets initialized" & @CRLF & @CRLF)
 
 EndFunc
 

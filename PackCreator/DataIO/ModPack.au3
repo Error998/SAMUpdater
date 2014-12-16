@@ -143,14 +143,14 @@ Func WriteModpack($modPackID, $path, ByRef $aFiles, ByRef $aRemovedFiles)
 	; Open a new xml document for writing
 	$hFile = FileOpen(@ScriptDir & "\PackData\Modpacks\" & $modPackID & "\Data\" & $modPackID & ".xml", 10) ; erase + create dir
 	If $hFile = -1 Then
-		ConsoleWrite("[ERROR]: Unable to create - " & @ScriptDir & "\PackData\Modpacks\" & $modPackID & "\Data\" & $modPackID & ".xml" & @CRLF)
+		writeLogEchoToConsole("[ERROR]: Unable to create - " & @ScriptDir & "\PackData\Modpacks\" & $modPackID & "\Data\" & $modPackID & ".xml" & @CRLF)
 		MsgBox(48, "Error creating xml document", "Unable to create xml document:" & @CRLF & @ScriptDir & "\PackData\Modpacks\" & $modPackID & "\Data\" & $modPackID & ".xml")
 		Exit
 	EndIf
 
 
 		; XML Header
-		ConsoleWrite("[Info]: Creating " & $modPackID & ".xml document" & @CRLF)
+		writeLogEchoToConsole("[Info]: Creating " & $modPackID & ".xml document" & @CRLF)
 		FileWriteLine($hFile,'<ModPack version="1.0">')
 
 
@@ -158,7 +158,7 @@ Func WriteModpack($modPackID, $path, ByRef $aFiles, ByRef $aRemovedFiles)
 		$aFilesWithFileInfo = _GetFileInfos($path, $aRemovedFiles)
 
 		; Write Removed section
-		ConsoleWrite("[Info]: Writing removed section" & @CRLF)
+		writeLogEchoToConsole("[Info]: Writing removed section" & @CRLF)
 		WriteSection($hFile, "Removed", $aFilesWithFileInfo)
 
 
@@ -166,7 +166,7 @@ Func WriteModpack($modPackID, $path, ByRef $aFiles, ByRef $aRemovedFiles)
 		$aFilesWithFileInfo = _GetFileInfos($path, $aFiles)
 
 		; Write Files section
-		ConsoleWrite("[Info]: Writing Files section" & @CRLF)
+		writeLogEchoToConsole("[Info]: Writing Files section" & @CRLF)
 		WriteSection($hFile, "Files", $aFilesWithFileInfo)
 
 
@@ -177,7 +177,7 @@ Func WriteModpack($modPackID, $path, ByRef $aFiles, ByRef $aRemovedFiles)
 	; Close xml document
 	FileClose($hFile)
 
-	ConsoleWrite("[Info]: Finnished writing " & $modPackID & ".xml" & @CRLF)
+	writeLogEchoToConsole("[Info]: Finnished writing " & $modPackID & ".xml" & @CRLF)
 
 
 EndFunc
@@ -263,7 +263,7 @@ Func getRemovedSourceFiles($modID, $dataFolder, $aSourceFiles)
 		Dim $aRemovedSourceFiles [1]
 		$aRemovedSourceFiles[0] = 0
 
-		ConsoleWrite("[Info]: 0 Files are marked for removal in " & $modID & ".xml" & @CRLF)
+		writeLogEchoToConsole("[Info]: 0 Files are marked for removal in " & $modID & ".xml" & @CRLF)
 		Return $aRemovedSourceFiles
 	EndIf
 
@@ -280,17 +280,17 @@ Func getRemovedSourceFiles($modID, $dataFolder, $aSourceFiles)
 
 	; Convert the XML files to aFiles array
 	$aRemovedXMLfiles = convertXMLfilesToaFiles($removedXMLfiles)
-	ConsoleWrite("[Info]: " & $aRemovedXMLfiles[0] & " Files are marked for removal in " & $modID & ".xml" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: " & $aRemovedXMLfiles[0] & " Files are marked for removal in " & $modID & ".xml" & @CRLF & @CRLF)
 
 
-	ConsoleWrite("[Info]: Calculate removed files between " & $modID & ".xml" & " and current files" & @CRLF)
+	writeLogEchoToConsole("[Info]: Calculate removed files between " & $modID & ".xml" & " and current files" & @CRLF)
 	; Get current files from <modID>.xml
 	$aCurrentXMLFiles = convertXMLfilesToaFiles( getXMLfilesFromSection($modID, $dataFolder, "Files"))
 
 
 	; Calculate removed files bewteen current modpack state and <modID>.xml
 	$aRemovedSourceFiles = GetDiff($aSourceFiles, $aCurrentXMLFiles, $aUnchangedFiles)
-	ConsoleWrite("[Info]: " & $aRemovedSourceFiles[0] & " New files are marked for removal" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: " & $aRemovedSourceFiles[0] & " New files are marked for removal" & @CRLF & @CRLF)
 
 
 	; Merge the exsisting and newly removed files
@@ -407,15 +407,15 @@ Func saveModpack($modID, $dataFolder, $pathToSourceFiles)
 	Dim $aRemovedSourceFiles
 
 	; Get current modpack files
-	ConsoleWrite("[Info]: Calculating current source files..." & @CRLF)
+	writeLogEchoToConsole("[Info]: Calculating current source files..." & @CRLF)
 	$aSourceFiles = recurseFolders($pathToSourceFiles)
-	ConsoleWrite("[Info]: " & UBound($aSourceFiles) - 1 & " Source files found" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: " & UBound($aSourceFiles) - 1 & " Source files found" & @CRLF & @CRLF)
 
 
 	; ****** Get Removed Files **********
-	ConsoleWrite("[Info]: Calculating removed files..." & @CRLF)
+	writeLogEchoToConsole("[Info]: Calculating removed files..." & @CRLF)
 	$aRemovedSourceFiles = getRemovedSourceFiles($modID, $dataFolder, $aSourceFiles)
-	ConsoleWrite("[Info]: " & (UBound($aRemovedSourceFiles) - 1) & " Total files in removal section"  & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: " & (UBound($aRemovedSourceFiles) - 1) & " Total files in removal section"  & @CRLF & @CRLF)
 
 	; Write <modID>.xml
 	WriteModpack($modID, $pathToSourceFiles, $aSourceFiles, $aRemovedSourceFiles)

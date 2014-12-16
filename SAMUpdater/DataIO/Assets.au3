@@ -100,7 +100,7 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 	Local $url
 	Local $hash
 
-	ConsoleWrite("[Info]: Initializing GUI assests" & @CRLF)
+	writeLogEchoToConsole("[Info]: Initializing GUI assests" & @CRLF)
 
 
 	; Get list of MD5 hashes from assets.xml
@@ -138,7 +138,7 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 
 	verifyAndDownload($url, $path, $dataFolder, $hash)
 
-	ConsoleWrite("[Info]: GUI assets initialized" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: GUI assets initialized" & @CRLF & @CRLF)
 
 EndFunc
 
