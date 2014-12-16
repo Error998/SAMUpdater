@@ -122,7 +122,7 @@ Func createNewMagicLauncherConfig($modID, $forgeVersion)
 		FileWriteLine($hFile, '  <JavaParameters="-XX:MaxPermSize=192m -Dforge.forceNoStencil=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSIncrementalPacing -XX:ParallelGCThreads=2 -XX:+AggressiveOpts">')
 		FileWriteLine($hFile, '  <MaxMemory="1536">')
 		FileWriteLine($hFile, '  <BaseDir="' & $appfolder & '\\.minecraft\\Modpacks\\' & $modID & '\\.minecraft">')
-		FileWriteLine($hFile, '  <InactiveExternalMods=>'
+		FileWriteLine($hFile, '  <InactiveExternalMods=>')
 		FileWriteLine($hFile, '  <InactiveCoreMods=>')
 		FileWriteLine($hFile, '>')
 		FileWriteLine($hFile, '<ActiveProfileIndex="0">')

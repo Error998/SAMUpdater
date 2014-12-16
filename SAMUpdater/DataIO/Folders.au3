@@ -114,12 +114,16 @@ EndFunc
 ; Author ........: Error_998
 ; Modified ......:
 ; Remarks .......: File must exist
+;				 : If the filesize is 0 the hash will always compare - this is a crypt derp
 ; Related .......: Consider using _Crypt_Startup() to optimize performance of the crypt library when calling compareHash in
 ;				   quick succession.
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func compareHash($sPath, $bCacheHash)
+	; If the file size is 0 return True by default - This is a _Crypt_HashFile derp
+	If FileGetSize($sPath) = 0 Then Return True
+
 	; Create a md5 hash of the file.
 	Local $bHash = _Crypt_HashFile($sPath, $CALG_MD5)
 

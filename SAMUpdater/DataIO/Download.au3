@@ -21,9 +21,14 @@ Opt('MustDeclareVars', 1)
 ; Example .......: No
 ; ===============================================================================================================================
 Func downloadFile($URL, $path, $retryCount = 5)
+	Local $errorNumber
 	For $i = 1 To $retryCount
-		InetGet($URL, $path, 9)
-		if @error <>  0 Then
+		InetGet($URL, $path, 25)
+		$errorNumber = @error
+		if $errorNumber <>  0 Then
+			writeLog("[ERROR]: Download error code - " & $errorNumber)
+			writeLog("[ERROR]: URL                 - " & $URL)
+			writeLog("[ERROR]: Path                - " & $path)
 			; All retries failed
 			If $i = $retryCount Then
 				writeLogEchoToConsole("[ERROR]: Failed to download file retry " & $retryCount & " of " & $retryCount & @CRLF)
@@ -35,7 +40,7 @@ Func downloadFile($URL, $path, $retryCount = 5)
 				writeLogEchoToConsole("[Info]: Retrying download in 10 seconds")
 				For $x = 1 To 10
 					Sleep(1000)
-					writeLogEchoToConsole(".")
+					ConsoleWrite(".")
 				Next
 				writeLogEchoToConsole(@CRLF & @CRLF)
 			EndIf
