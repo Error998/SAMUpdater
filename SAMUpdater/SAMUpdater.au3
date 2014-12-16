@@ -4,7 +4,7 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_Fileversion=0.0.1.8
+#AutoIt3Wrapper_Res_Fileversion=0.0.2.0
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
 #include "AutoUpdate\AutoUpdate.au3"
@@ -22,7 +22,7 @@ Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.0.1.8"
+Const $version = "0.0.2.0"
 Const $baseURL = "http://localhost/samupdater"
 ;Const $baseURL = "https://dl.dropboxusercontent.com/u/68260490/Games/Minecraft/SAM/samupdater"
 Const $updateURL = $baseURL & "/version.dat"
@@ -83,9 +83,11 @@ ConsoleWrite("[Info]: Install Folder        - " & $modpacks[$modpackNum][13] & @
 
 
 ; Custom Post install stuff
-configureMagicLauncher($modpacks[$modpackNum][0], $modpacks[$modpackNum][10])
+;configureMagicLauncher($modpacks[$modpackNum][0], $modpacks[$modpackNum][10])
 
 
+; Create desktop shortcut
+createDesktopShortcut($modpacks[$modpackNum][14], $modpacks[$modpackNum][15])
 
 MsgBox(64,"SAMUpdater version " & $version,"Development Mode" &@CRLF & "More stuff comming soon...")
 

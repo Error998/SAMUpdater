@@ -41,6 +41,9 @@ packs.xml
 		<URL>http://dl.domain.co.za/SAMUpdater</URL>
 		<Active>True</Active>
 		<DefaultInstallFolder>%appdata%\.minecraft</DefaultInstallFolder>
+		<DesktopShortcutTarget>%appdata%\.minecraft\MagicLauncher_1.2.5.exe</DesktopShortcutTarget>
+		<ShortcutFilename></ShortcutFilename>
+		<LaunchApplicationAfterUpdate>%appdata%\.minecraft\MagicLauncher_1.2.5.exe</LaunchApplicationAfterUpdate>
 	</ModPack>
 	<ModPack>
 		..

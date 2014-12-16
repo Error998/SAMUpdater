@@ -67,7 +67,7 @@ Func parsePacks($packsURL, $dataFolder)
 
 
 	; Zero based 2d array holding mod modpacks, modpack elements
-	Global $modpacks[ $modpacksXML[0] ][14]
+	Global $modpacks[ $modpacksXML[0] ][17]
 	ConsoleWrite("[Info]: Modpacks available: " & UBound($modpacks) & @CRLF & @CRLF)
 
 
@@ -87,6 +87,9 @@ Func parsePacks($packsURL, $dataFolder)
 		$modpacks[$i][11] = getElement($modpacksXML[$i + 1], "URL")
 		$modpacks[$i][12] = getElement($modpacksXML[$i + 1], "Active")
 		$modpacks[$i][13] = parsePath(getElement($modpacksXML[$i + 1], "DefaultInstallFolder"))
+		$modpacks[$i][14] = parsePath(getElement($modpacksXML[$i + 1], "DesktopShortcutTarget"))
+		$modpacks[$i][15] = parsePath(getElement($modpacksXML[$i + 1], "ShortcutFilename"))
+		$modpacks[$i][16] = parsePath(getElement($modpacksXML[$i + 1], "LaunchApplicationAfterUpdate"))
 	Next
 
 	Return $modpacks

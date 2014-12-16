@@ -123,7 +123,7 @@ EndFunc
 ; Parameters ....: XML document, tag
 ; Return values .: Success - Returns a single node
 ;						   - Sets @error to 0
-;                  Failure - Returns NULL and sets @error:
+;                  Failure - Returns "" and sets @error:
 ;                  |1 - No tag found
 ; Author ........: Error_998
 ; Modified ......:
@@ -131,11 +131,16 @@ EndFunc
 ;				   |Should only be called if node has no child nodes, will only
 ;				   |return first node
 Func getElement($_doc, $_tag)
-	Local $element[4096]
+	Dim $element
 
 	$element = getElements($_doc, $_tag)
 	;If no elements found set @error 1
-	If @error = 1 Then SetError(1)
+	If @error = 1 Then
+		SetError(1)
 
+		Return ""
+	EndIf
+
+	; Return a single node
 	Return $element[1]
 EndFunc

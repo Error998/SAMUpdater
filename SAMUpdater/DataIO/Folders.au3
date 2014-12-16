@@ -50,6 +50,8 @@ EndFunc
 
 
 
+
+
 ; #FUNCTION# ===================================================================
 ; Name...........: removeFile($sPath)
 ; Description ...: Send a file or entire folder to the recycle bin
@@ -75,6 +77,8 @@ EndFunc
 
 
 
+
+
 ; #FUNCTION# ===================================================================
 ; Name...........: fileSize($sPath)
 ; Description ...: Returns the filesize in bytes
@@ -94,6 +98,8 @@ Func getFileSize($sPath)
 		Return $fSize
 	EndIf
 EndFunc
+
+
 
 
 
@@ -128,6 +134,8 @@ EndFunc
 
 
 
+
+
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: getFilename
 ; Description ...: Get just the filename from a string containing a path + filename
@@ -156,6 +164,7 @@ EndFunc
 
 
 
+
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: getPath
 ; Description ...: Get just the path from a string containing a path + filename
@@ -177,6 +186,7 @@ Func getPath($sPath)
 
 	Return StringLeft($sPath, $i - 1)
 EndFunc
+
 
 
 
@@ -223,6 +233,9 @@ Func recurseFolders($sPath, $sExcludeFile = "", $sExcludeEntireFolder = "")
 
 	Return $aFiles
 EndFunc
+
+
+
 
 
 ; #FUNCTION# ====================================================================================================================
@@ -273,6 +286,7 @@ EndFunc
 
 
 
+
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: parsePath
 ; Description ...: Replace special folder shortcuts with real paths
@@ -295,4 +309,67 @@ Func parsePath($path)
 	$path = StringReplace($path, "%mydocuments%", @MyDocumentsDir, 0, $STR_CASESENSE)
 
 	Return $path
+EndFunc
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: createDesktopShortcut
+; Description ...: Creates a desktop shortcut if none exsit or shortcut differs
+; Syntax ........: createDesktopShortcut($targetPath, $linkFilename)
+; Parameters ....: $targetPath          - Full path + filename to target the shortcut must link to.
+;                  $linkFilename        - Shortcut filename.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......: $linkFilename must be without the .lnk extention or path (desktop will be used for path)
+;				   No shortcut will be created if $targetPath or $linkFilename is empty
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func createDesktopShortcut($targetPath, $linkFilename)
+	Local $fullLinkPath ;  Path + filename
+	Local $workingDir
+
+	; Skip if target or link filename is blank
+	If $targetPath = "" Or $linkFilename = "" Then Return
+
+
+	$fullLinkPath = @DesktopDir & "\" & $linkFilename & ".lnk"
+	$workingDir = getPath($targetPath)
+
+
+	; Check if shortcut already exist
+	If FileExists($fullLinkPath) Then
+
+		; Get shortcut details
+		 Local $aDetails = FileGetShortcut($fullLinkPath)
+
+
+		; Check if the shortcut actually needs updating
+		If $aDetails[0] = $targetPath And $aDetails[1] = $workingDir Then Return
+
+
+		; Update shortcut
+		If FileCreateShortcut($targetPath, $fullLinkPath, $workingDir) Then
+			ConsoleWrite("[Info]: Desktop shortcut updated - " & $linkFilename & @CRLF & @CRLF)
+
+			; Shortcut updated
+			Return
+
+		EndIf
+
+	EndIf
+
+
+
+	; Shortcut does not exsit, create it
+	If FileCreateShortcut($targetPath, $fullLinkPath, $workingDir) Then
+		ConsoleWrite("[Info]: Desktop shortcut created - " & $linkFilename & @CRLF & @CRLF)
+	EndIf
+
+
 EndFunc
