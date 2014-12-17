@@ -104,6 +104,8 @@ Func downloadAndVerify($fileURL, $filename, $dataFolder, $hash = "", $retryCount
 
 		Else
 			writeLogEchoToConsole("[ERROR]: File integrity failed " & $i & " of " & $retryCount & " times, restarting download" & @CRLF)
+			writeLog("[ERROR]: Deleting corrupt file - " & $dataFolder & "\" & $filename)
+			FileRecycle($dataFolder & "\" & $filename)
 		EndIf
 	Next
 

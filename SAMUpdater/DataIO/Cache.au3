@@ -64,8 +64,9 @@ Func getUncachedFileList($modID, $dataFolder)
 	Dim $currentXMLfiles  ; All files that exist in the current modpack
 	Dim $uncachedFiles[1]
 	Local $filesize = 0
-	Local $index
+	Local $hFile
 	Local $hash
+
 
 	; Load <modID>.xml
 	writeLogEchoToConsole("[Info]: Parsing modpack file list from " & $modID & ".xml" & @CRLF & @CRLF)
@@ -78,6 +79,17 @@ Func getUncachedFileList($modID, $dataFolder)
 	_Crypt_Startup()
 
 	For $i = 0 To UBound($currentXMLfiles) - 1
+		; If remote file size is 0, create a blank cache file
+		If $currentXMLfiles[$i][4] = 0 Then
+
+			; Create a empty cache file
+			$hFile = FileOpen($dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $currentXMLfiles[$i][3], 2)
+			FileClose($hFile)
+
+			ContinueLoop
+		EndIf
+
+
 
 		; Verify file if it already exists
 		If FileExists($dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $currentXMLfiles[$i][3]) Then
@@ -88,6 +100,7 @@ Func getUncachedFileList($modID, $dataFolder)
 			If $hash = $currentXMLfiles[$i][3] then	ContinueLoop
 
 		EndIf
+
 
 		; Only add cache file if it wasnt added already
 		If _ArraySearch($uncachedFiles, $currentXMLfiles[$i][3]) > -1 Then ContinueLoop

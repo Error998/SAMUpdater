@@ -4,7 +4,7 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_Fileversion=0.0.5.1
+#AutoIt3Wrapper_Res_Fileversion=0.0.5.2
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
 #include <MsgBoxConstants.au3>
@@ -26,7 +26,7 @@ Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.0.5.1"
+Const $version = "0.0.5.2"
 ;Const $baseURL = "http://localhost/samupdater"
 Const $baseURL = "http://local.saminecraft.co.za/sam/samupdater"
 Const $updateURL = $baseURL & "/version.dat"
@@ -64,7 +64,7 @@ autoUpdate($version, $updateURL, $dataFolder)
 
 
 ; Play background music
-playBackgroundMusic($dataFolder, 227)
+;playBackgroundMusic($dataFolder, 227)
 
 
 

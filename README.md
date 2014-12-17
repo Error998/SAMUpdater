@@ -1,4 +1,4 @@
-SAMUpdater v0.0.5.0 alpha
+SAMUpdater v0.0.5.3 alpha
 ========================
 
 A Minecraft Auto Updater that will update mods and config files.
@@ -26,8 +26,6 @@ Custom install settings
 
 											
 Custom post install instructions
-
-Create log file with very verbose output on what the Updater is doing
 
 Make Pack Creator more user friendly
 
