@@ -79,6 +79,8 @@ Func getUncachedFileList($modID, $dataFolder)
 	_Crypt_Startup()
 
 	For $i = 0 To UBound($currentXMLfiles) - 1
+
+
 		; If remote file size is 0, create a blank cache file
 		If $currentXMLfiles[$i][4] = 0 Then
 

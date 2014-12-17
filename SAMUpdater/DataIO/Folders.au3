@@ -131,8 +131,8 @@ Func compareHash($sPath, $bCacheHash)
 	If $bHash = $bCacheHash Then
 		Return True
 	Else
-		writeLog("[ERROR]: Hash does not match - " & $bCacheHash)
-		writeLog("[ERROR]: File                - " & $sPath)
+		writeLog("[ERROR]: File - " & $sPath)
+		writeLog("[ERROR]: Hash does not match - " & $bHash & " != " & $bCacheHash& @CRLF & @CRLF)
 
 		Return False
 	EndIf
