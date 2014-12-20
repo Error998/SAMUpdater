@@ -108,7 +108,8 @@ EndFunc
 ; Description ...: Verifies a MD5 hash with a file
 ; Syntax ........: compareHash($sPath, $bCacheHash)
 ; Parameters ....: $sPath               - Path including filename of the file to be verified
-;                  $bCacheHash          - MD5 hash
+;                  $bCacheHash          - hash to check against
+;				   $HashType			- Default = $CALG_SHA1 ($CALG_MD5 valid for backward compatibility)
 ; Return values .: Success				- True
 ;				   Failure				- False
 ; Author ........: Error_998
@@ -120,12 +121,12 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func compareHash($sPath, $bCacheHash)
+Func compareHash($sPath, $bCacheHash, $HashType = $CALG_SHA1)
 	; If the file size is 0 return True by default - This is a _Crypt_HashFile derp
 	If FileGetSize($sPath) = 0 Then Return True
 
 	; Create a md5 hash of the file.
-	Local $bHash = _Crypt_HashFile($sPath, $CALG_MD5)
+	Local $bHash = _Crypt_HashFile($sPath, $HashType)
 
 	; Compare hash
 	If $bHash = $bCacheHash Then

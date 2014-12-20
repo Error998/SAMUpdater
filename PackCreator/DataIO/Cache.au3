@@ -35,18 +35,18 @@ Func updateCacheFromXML($modID, $dataFolder, $pathToSourceFiles)
 
 
 		; Calculate source file hash
-		$hash = _Crypt_HashFile($file, $CALG_MD5)
+		$hash = _Crypt_HashFile($file, $CALG_SHA1)
 
 
 		; Check if cache file already exists
-		If FileExists($dataFolder & "\PackData\Modpacks\" & $modID & "\Cache\" & $hash) Then
+		If FileExists($dataFolder & "\PackData\Modpacks\" & $modID & "\Cache\" & $hash & ".dat") Then
 				; Skip existing file
 				ContinueLoop
 		EndIf
 
 
 		; Create path and copy to cache folder
-		if Not FileCopy($file, $dataFolder & "\PackData\Modpacks\" & $modID & "\Cache\" & $hash, 8) Then
+		if Not FileCopy($file, $dataFolder & "\PackData\Modpacks\" & $modID & "\Cache\" & $hash & ".dat", 8) Then
 			ConsoleWrite("[ERROR]: Unable to copy file to cache - " & $file & @CRLF)
 			MsgBox(48, "Error copying file to cache", "Unable to copy " & @CRLF & $file & @CRLF & "to" & @CRLF & $dataFolder & "\PackData\Modpacks\" & $modID & "\Cache")
 			Exit

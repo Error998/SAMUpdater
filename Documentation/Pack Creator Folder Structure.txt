@@ -24,10 +24,10 @@ Pack Creator Folder Structure
 |	|--- Modpacks
 |		|--- <modID>
 |			|--- Cache
-|			|	|--- <md5>
-|			|	|--- <md5>
-|			|	|--- <md5>
-|			|	|--- <md5>
+|			|	|--- <SHA1>
+|			|	|--- <SHA1>
+|			|	|--- <SHA1>
+|			|	|--- <SHA1>
 |			|
 |			|--- Data
 |				|--- <modID>.xml

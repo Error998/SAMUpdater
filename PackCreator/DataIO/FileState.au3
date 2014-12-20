@@ -42,7 +42,7 @@ Func SplitChangedUnchangedFiles($sPath, $sPathNew, ByRef $aUnchangedFiles, ByRef
 
 	For $i = 1 To $aUnchangedFiles[0]
 		; Create a md5 hash of the file.
-		If _Crypt_HashFile($sPath & "\" & $aUnchangedFiles[$i], $CALG_MD5) = _Crypt_HashFile($sPathNew & "\" & $aUnchangedFiles[$i], $CALG_MD5) Then
+		If _Crypt_HashFile($sPath & "\" & $aUnchangedFiles[$i], $CALG_SHA1) = _Crypt_HashFile($sPathNew & "\" & $aUnchangedFiles[$i], $CALG_SHA1) Then
 			;ConsoleWrite("[OK] - " & $aFiles[$i] & @CRLF)
 			_ArrayAdd($aTempUnchangedFiles, $aUnchangedFiles[$i])
 			$aTempUnchangedFiles[0] = $aTempUnchangedFiles[0] + 1

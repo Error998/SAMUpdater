@@ -74,7 +74,7 @@ Func getXMLfilesFromSection($modID, $dataFolder, $section)
 		$aXMLFiles[$i][0] = getElement($fileXML[$i + 1], "Filename")
 		$aXMLFiles[$i][1] = getElement($fileXML[$i + 1], "Extract")
 		$aXMLFiles[$i][2] = getElement($fileXML[$i + 1], "Path")
-		$aXMLFiles[$i][3] = getElement($fileXML[$i + 1], "md5")
+		$aXMLFiles[$i][3] = getElement($fileXML[$i + 1], "SHA1")
 		$aXMLFiles[$i][4] = getElement($fileXML[$i + 1], "Size")
 	Next
 
@@ -108,7 +108,7 @@ Func WriteSection($hFile, $section, $aSectionFileInfo)
 		FileWriteLine($hFile, @TAB & @TAB & @TAB & '<Filename>' & $aSectionFileInfo[$i][0] & '</Filename>')
 		FileWriteLine($hFile, @TAB & @TAB & @TAB & '<Extract>' & $aSectionFileInfo[$i][1] & '</Extract>')
 		FileWriteLine($hFile, @TAB & @TAB & @TAB & '<Path>' & $aSectionFileInfo[$i][2] & '</Path>')
-		FileWriteLine($hFile, @TAB & @TAB & @TAB & '<md5>' & $aSectionFileInfo[$i][3] & '</md5>')
+		FileWriteLine($hFile, @TAB & @TAB & @TAB & '<SHA1>' & $aSectionFileInfo[$i][3] & '</SHA1>')
 		FileWriteLine($hFile, @TAB & @TAB & @TAB & '<Size>' & $aSectionFileInfo[$i][4] & '</Size>')
 		FileWriteLine($hFile, @TAB & @TAB & '</File>')
 	Next
@@ -220,7 +220,7 @@ Func _GetFileInfos($path, $aFiles)
 
 		; Only perform file operations if the file exist
 		If FileExists($path & "\" & $aFiles[$i]) Then
-			$aFileInfo[$i][3] = _Crypt_HashFile($path &  "\" & $aFiles[$i], $CALG_MD5)
+			$aFileInfo[$i][3] = _Crypt_HashFile($path &  "\" & $aFiles[$i], $CALG_SHA1)
 			$aFileInfo[$i][4] = getFileSize($path & "\" & $aFiles[$i])
 
 		Else
@@ -280,7 +280,7 @@ Func getRemovedSourceFiles($modID, $dataFolder, $aSourceFiles)
 
 	; Convert the XML files to aFiles array
 	$aRemovedXMLfiles = convertXMLfilesToaFiles($removedXMLfiles)
-	writeLogEchoToConsole("[Info]: " & $aRemovedXMLfiles[0] & " Files are marked for removal in " & $modID & ".xml" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Files are marked for removal in " & $modID & ".xml: " & $aRemovedXMLfiles[0] & @CRLF & @CRLF)
 
 
 	writeLogEchoToConsole("[Info]: Calculate removed files between " & $modID & ".xml" & " and current files" & @CRLF)
@@ -290,7 +290,7 @@ Func getRemovedSourceFiles($modID, $dataFolder, $aSourceFiles)
 
 	; Calculate removed files bewteen current modpack state and <modID>.xml
 	$aRemovedSourceFiles = GetDiff($aSourceFiles, $aCurrentXMLFiles, $aUnchangedFiles)
-	writeLogEchoToConsole("[Info]: " & $aRemovedSourceFiles[0] & " New files are marked for removal" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: New files are marked for removal: " & $aRemovedSourceFiles[0] & @CRLF & @CRLF)
 
 
 	; Merge the exsisting and newly removed files
@@ -409,13 +409,13 @@ Func saveModpack($modID, $dataFolder, $pathToSourceFiles)
 	; Get current modpack files
 	writeLogEchoToConsole("[Info]: Calculating current source files..." & @CRLF)
 	$aSourceFiles = recurseFolders($pathToSourceFiles)
-	writeLogEchoToConsole("[Info]: " & UBound($aSourceFiles) - 1 & " Source files found" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Source files found: " & UBound($aSourceFiles) - 1 & @CRLF & @CRLF)
 
 
 	; ****** Get Removed Files **********
 	writeLogEchoToConsole("[Info]: Calculating removed files..." & @CRLF)
 	$aRemovedSourceFiles = getRemovedSourceFiles($modID, $dataFolder, $aSourceFiles)
-	writeLogEchoToConsole("[Info]: " & (UBound($aRemovedSourceFiles) - 1) & " Total files in removal section"  & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Total files in removal section: " & (UBound($aRemovedSourceFiles) - 1) & @CRLF & @CRLF)
 
 	; Write <modID>.xml
 	WriteModpack($modID, $pathToSourceFiles, $aSourceFiles, $aRemovedSourceFiles)

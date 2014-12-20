@@ -1,22 +1,20 @@
+#include-once
 #include <Array.au3>
 #include <Crypt.au3>
 #include <File.au3>
+#include "..\SAMUpdater\GUI\Colors.au3"
 #include "..\SAMUpdater\DataIO\Folders.au3"
+#include "..\SAMUpdater\DataIO\Logs.au3"
 #include "DataIO\ModPack.au3"
 #include "DataIO\Cache.au3"
 
 
 Opt('MustDeclareVars', 1)
 
-Local $modID = "Test"
 
+Global $hdllKernel32 = initColors()
+Global $hLog = initLogs(@ScriptDir)
 
-
-; A file can be in 1 of 4 states:
-; 1) Added - dl
-; 2) Removed - File is not on the server list, client added custom file
-; 3) Unchanged - Skip
-; 4) Changed - dl
 
 
 
@@ -101,12 +99,20 @@ Func modpackStats()
 
 EndFunc
 
-
+Local $modID = "Mechanical"
 Dim $pathToSourceFiles = @DesktopDir & "\TestServer\Update 3\.minecraft"
+
+; InitFolders
+writeLogEchoToConsole("Initialize Folders" & @CRLF)
+createFolder(@ScriptDir & "\PackData\modpacks\" & $modID & "\data")
+createFolder(@ScriptDir & "\PackData\modpacks\" & $modID & "\cache")
+writeLogEchoToConsole("Folders initialized" & @CRLF & @CRLF)
+; Folders initialized
+
 
 
 ;saveModpack($modID, @ScriptDir, $pathToSourceFiles)
 
 ;modpackStats()
 
-;updateCachefromXML($modID, @ScriptDir, $pathToSourceFiles)
+updateCachefromXML($modID, @ScriptDir, $pathToSourceFiles)
