@@ -4,7 +4,6 @@
 #include <File.au3>
 #include "..\DataIO\XML.au3"
 #include "..\DataIO\Download.au3"
-;#include "FileState.au3"
 
 Opt('MustDeclareVars', 1)
 
@@ -74,7 +73,7 @@ Func getXMLfilesFromSection($modID, $dataFolder, $section)
 		$aXMLFiles[$i][0] = getElement($fileXML[$i + 1], "Filename")
 		$aXMLFiles[$i][1] = getElement($fileXML[$i + 1], "Extract")
 		$aXMLFiles[$i][2] = getElement($fileXML[$i + 1], "Path")
-		$aXMLFiles[$i][3] = getElement($fileXML[$i + 1], "md5")
+		$aXMLFiles[$i][3] = getElement($fileXML[$i + 1], "SHA1")
 		$aXMLFiles[$i][4] = getElement($fileXML[$i + 1], "Size")
 	Next
 

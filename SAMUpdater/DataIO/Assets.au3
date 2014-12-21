@@ -6,9 +6,9 @@
 Opt('MustDeclareVars', 1)
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: loadAssetMD5List
+; Name ..........: loadAssetHashList
 ; Description ...: Download assets.xml and return specified assetID's MD5 file list
-; Syntax ........: loadAssetMD5List($assetsURL, $dataFolder, [$dontDownload = false])
+; Syntax ........: loadAssetHashList($assetsURL, $dataFolder, [$dontDownload = false])
 ; Parameters ....: $assetsURL      	    - URL location to assets.xml
 ;                  $dataFolder          - Application data folder
 ;				   $assetID				- The xml node in assets.xml to return
@@ -21,9 +21,9 @@ Opt('MustDeclareVars', 1)
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func loadAssetMD5List($assetURL, $dataFolder, $assetID, $dontDownload = False)
+Func loadAssetHashList($assetURL, $dataFolder, $assetID, $dontDownload = False)
 	Local $xml
-	Local $MD5ListXML
+	Local $hashListXML
 
 	; Should we redownload assets.xml
 	If $dontDownload = False Then
@@ -36,9 +36,9 @@ Func loadAssetMD5List($assetURL, $dataFolder, $assetID, $dontDownload = False)
 	$xml = loadXML($dataFolder & "\PackData\Assets\assets.xml")
 
 	; Array for selected asset group
-	$MD5ListXML = getElements($xml, $assetID)
+	$hashListXML = getElements($xml, $assetID)
 
-	Return $MD5ListXML
+	Return $hashListXML
 
 EndFunc
 
@@ -60,19 +60,19 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func initSoundAssets($baseURL, $dataFolder)
-	local $MD5ListXML
+	local $hashListXML
 	Local $path
 	Local $url
 	Local $hash
 
 	; Get list of MD5 hashes from assets.xml
-	$MD5ListXML = loadAssetMD5List($baseURL & "/packdata/assets/assets.xml", $dataFolder, "Sounds")
+	$hashListXML = loadAssetHashList($baseURL & "/packdata/assets/assets.xml", $dataFolder, "Sounds")
 
 
 	; Download background.mp3
 	$url = $baseURL & "/packdata/assets/sounds/background.mp3"
 	$path = "\PackData\Assets\Sounds\background.mp3"
-	$hash = getElement($MD5ListXML[1], "BackgroundMusicMD5")
+	$hash = getElement($hashListXML[1], "BackgroundMusicSHA1")
 
 	verifyAndDownload($url, $path, $dataFolder, $hash)
 EndFunc
@@ -95,7 +95,7 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func initGUImodSelectionAssets($baseURL, $dataFolder)
-	local $MD5ListXML
+	local $hashListXML
 	Local $path
 	Local $url
 	Local $hash
@@ -104,13 +104,13 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 
 
 	; Get list of MD5 hashes from assets.xml
-	$MD5ListXML = loadAssetMD5List($baseURL & "/packdata/assets/assets.xml", $dataFolder, "ModPackSelection")
+	$hashListXML = loadAssetHashList($baseURL & "/packdata/assets/assets.xml", $dataFolder, "ModPackSelection")
 
 
 	; Download background.jpg
 	$url = $baseURL & "/packdata/assets/gui/modpackselection/background.jpg"
 	$path = "\PackData\Assets\GUI\ModpackSelection\background.jpg"
-	$hash = getElement($MD5ListXML[1], "BackgroundMD5")
+	$hash = getElement($hashListXML[1], "BackgroundSHA1")
 
 	verifyAndDownload($url, $path, $dataFolder, $hash)
 
@@ -118,7 +118,7 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 	; Download defaulticon.jpg
 	$url = $baseURL & "/packdata/assets/gui/modpackselection/defaulticon.jpg"
 	$path = "\PackData\Assets\GUI\ModpackSelection\defaulticon.jpg"
-	$hash = getElement($MD5ListXML[1], "DefaultIconMD5")
+	$hash = getElement($hashListXML[1], "DefaultIconSHA1")
 
 	verifyAndDownload($url, $path, $dataFolder, $hash)
 
@@ -126,7 +126,7 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 	; Download defaultsplash.jpg
 	$url = $baseURL & "/packdata/assets/gui/modpackselection/defaultsplash.jpg"
 	$path = "\PackData\Assets\GUI\ModpackSelection\defaultsplash.jpg"
-	$hash = getElement($MD5ListXML[1], "DefaultSplashMD5")
+	$hash = getElement($hashListXML[1], "DefaultSplashSHA1")
 
 	verifyAndDownload($url, $path, $dataFolder, $hash)
 
@@ -134,7 +134,7 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 	; Download defaultdescription.rtf
 	$url = $baseURL & "/packdata/assets/gui/modpackselection/defaultdescription.rtf"
 	$path = "\PackData\Assets\GUI\ModpackSelection\defaultdescription.rtf"
-	$hash = getElement($MD5ListXML[1], "DefaultDescriptionMD5")
+	$hash = getElement($hashListXML[1], "DefaultDescriptionSHA1")
 
 	verifyAndDownload($url, $path, $dataFolder, $hash)
 

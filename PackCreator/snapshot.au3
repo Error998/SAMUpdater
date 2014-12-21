@@ -15,7 +15,12 @@ Opt('MustDeclareVars', 1)
 Global $hdllKernel32 = initColors()
 Global $hLog = initLogs(@ScriptDir)
 
+; Close the log file on application exit
+OnAutoItExitRegister("closeLog")
 
+
+; Set console color
+setConsoleColor($FOREGROUND_Light_Green)
 
 
 func Test()

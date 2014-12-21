@@ -96,7 +96,7 @@ Func getUncachedFileList($modID, $dataFolder)
 		; Verify file if it already exists
 		If FileExists($dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $currentXMLfiles[$i][3]) Then
 
-			$hash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $currentXMLfiles[$i][3], $CALG_MD5)
+			$hash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $currentXMLfiles[$i][3], $CALG_SHA1)
 
 			; File verified, skipping file
 			If $hash = $currentXMLfiles[$i][3] then	ContinueLoop
@@ -156,10 +156,11 @@ Func cacheFiles($baseModURL, $uncachedFiles, $modID, $dataFolder)
 	; Download all uncached files
 	For $i = 1 to $uncachedFiles[0]
 
-		$fileURL = $baseModURL & "/packdata/modpacks/" & $modID & "/cache/" & $uncachedFiles[$i]
+		$fileURL = $baseModURL & "/packdata/modpacks/" & $modID & "/cache/" & $uncachedFiles[$i] & ".dat"
 
-		writeLogEchoToConsole("[Info]: Downloading - " & $modID & "/cache/" & $uncachedFiles[$i] & @CRLF)
+		writeLogEchoToConsole("[Info]: Downloading - " & $modID & "/cache/" & $uncachedFiles[$i] & ".dat" & @CRLF)
 		downloadAndVerify($fileURL, $uncachedFiles[$i], $dataFolder & "\PackData\Modpacks\" & $modID & "\cache", $uncachedFiles[$i])
+
 
 	Next
 

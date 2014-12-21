@@ -1,6 +1,7 @@
 #include-once
 #include <INet.au3>
 #include <InetConstants.au3>
+#include <FTPEx.au3>
 
 #include "Folders.au3"
 Opt('MustDeclareVars', 1)
@@ -69,7 +70,7 @@ EndFunc
 ; Parameters ....: $fileURL             - Remote file URL to download
 ;                  $filename            - Filename to use for the downloaded file
 ;                  $dataFolder          - Application data folder
-;                  $hash                - (Optional) MD5 hash to verify file integrity
+;                  $hash                - (Optional) hash to verify file integrity
 ;                  $retryCount          - (Optional) How many times file should be redownloaded if integrity fails
 ; Return values .: Success				- True
 ;				   Failure				- Exit Application
@@ -139,7 +140,7 @@ EndFunc
 ; Parameters ....: $fileURL             - Remote file URL to download
 ;                  $filename            - Filename to use for the downloaded file
 ;                  $dataFolder          - Application data folder
-;                  $hash                - MD5 hash to verify file integrity
+;                  $hash                - Hash to verify file integrity
 ;                  $retryCount          - (Optional) How many times file should be redownloaded if integrity fails
 ; Return values .: Success				- True
 ;				   Failure				- Exit Application

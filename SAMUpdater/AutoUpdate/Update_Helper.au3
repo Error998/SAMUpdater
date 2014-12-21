@@ -4,7 +4,7 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=Update helper for samupdater.exe
-#AutoIt3Wrapper_Res_Fileversion=0.0.0.5
+#AutoIt3Wrapper_Res_Fileversion=0.0.0.6
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -14,7 +14,7 @@
 Opt('MustDeclareVars', 1)
 
 ; ### Init Varibles ###
-Const $version = "0.0.0.5"
+Const $version = "0.0.0.6"
 Local $updatePath
 
 ; #FUNCTION# ====================================================================================================================

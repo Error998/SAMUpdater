@@ -105,11 +105,11 @@ EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: compareHash
-; Description ...: Verifies a MD5 hash with a file
+; Description ...: Verifies a SHA1 hash with a file
 ; Syntax ........: compareHash($sPath, $bCacheHash)
 ; Parameters ....: $sPath               - Path including filename of the file to be verified
 ;                  $bCacheHash          - hash to check against
-;				   $HashType			- Default = $CALG_SHA1 ($CALG_MD5 valid for backward compatibility)
+;				   $HashType			- Default = $CALG_SHA1
 ; Return values .: Success				- True
 ;				   Failure				- False
 ; Author ........: Error_998
