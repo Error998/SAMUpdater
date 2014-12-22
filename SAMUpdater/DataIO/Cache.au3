@@ -66,19 +66,29 @@ Func getUncachedFileList($modID, $dataFolder)
 	Local $filesize = 0
 	Local $hFile
 	Local $hash
-
+	Local $totalFiles
+	Local $percentage
 
 	; Load <modID>.xml
 	writeLogEchoToConsole("[Info]: Parsing modpack file list from " & $modID & ".xml" & @CRLF & @CRLF)
 	$currentXMLfiles = getXMLfilesFromSection($modID, $dataFolder, "Files")
 
+	; Total files in Files section
+	$totalFiles = UBound($currentXMLfiles) - 1
 
-	writeLogEchoToConsole("[Info]: Caculating uncached files list..." & @CRLF)
+
+	writeLog("[Info]: Caculating uncached files list..." & @CRLF)
 
 	; Startup crypt libary to speedup hash generation
 	_Crypt_Startup()
 
-	For $i = 0 To UBound($currentXMLfiles) - 1
+	For $i = 0 To $totalFiles
+
+		; Display progress percentage
+		$percentage = Round($i / $totalFiles * 100, 2)
+		$percentage = "(" & StringFormat("%.2f", $percentage)  & "%)"
+
+		ConsoleWrite(@CR & "[Info]: Caculating uncached files list " & $percentage)
 
 
 		; If remote file size is 0, create a blank cache file
@@ -121,6 +131,8 @@ Func getUncachedFileList($modID, $dataFolder)
 
 	$uncachedFiles[0] = UBound($uncachedFiles) - 1
 
+	ConsoleWrite(@CRLF)
+
 	If $uncachedFiles[0] = 0 Then
 		writeLogEchoToConsole("[Info]: Cache is up to date" & @CRLF & @CRLF)
 	Else
@@ -158,7 +170,12 @@ Func cacheFiles($baseModURL, $uncachedFiles, $modID, $dataFolder)
 
 		$fileURL = $baseModURL & "/packdata/modpacks/" & $modID & "/cache/" & $uncachedFiles[$i] & ".dat"
 
-		writeLogEchoToConsole("[Info]: Downloading - " & $modID & "/cache/" & $uncachedFiles[$i] & ".dat" & @CRLF)
+		; Shortend console entry
+		ConsoleWrite(@CR & "[Info]: (" & $i & "/" & $uncachedFiles[0] & ") Downloading - " & $uncachedFiles[$i])
+		; Detailed log entry
+		writeLog("[Info]: (" & $i & "/" & $uncachedFiles[0] & ") Downloading - " & $dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $uncachedFiles[$i] & ".dat")
+
+		; Download file then verify if it matches remote hash entry
 		downloadAndVerify($fileURL, $uncachedFiles[$i], $dataFolder & "\PackData\Modpacks\" & $modID & "\cache", $uncachedFiles[$i])
 
 

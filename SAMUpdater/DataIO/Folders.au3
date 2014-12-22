@@ -37,7 +37,8 @@ EndFunc
 ; Remarks .......: All parent folders will be created if they dont exsist
 Func createFolder($sPath)
 	If (doesFolderExist($sPath)) Then
-		writeLogEchoToConsole("[Info]: Using folder - " & $sPath & @CRLF)
+		;writeLogEchoToConsole("[Info]: Using folder - " & $sPath & @CRLF)
+		trimPathToFitConsole("[Info]: Using folder - ", $sPath)
 	Else
 		DirCreate($sPath)
 		If @error = -1 Then
@@ -381,3 +382,6 @@ Func createDesktopShortcut($targetPath, $linkFilename)
 
 
 EndFunc
+
+
+

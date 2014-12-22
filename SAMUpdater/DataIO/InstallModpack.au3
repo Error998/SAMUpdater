@@ -2,6 +2,7 @@
 #include <Array.au3>
 #include <Crypt.au3>
 #include <File.au3>
+#include <FileConstants.au3>
 #include <MsgBoxConstants.au3>
 #include "..\DataIO\XML.au3"
 #include "..\DataIO\Download.au3"
@@ -60,6 +61,8 @@ Func installFromCache($defaultInstallFolder, $modID, $dataFolder)
 	Local $destinationFile
 	Local $sourceFile
 	Local $hash
+	Local $totalFiles
+	Local $fileCopyStatus
 
 	writeLogEchoToConsole("[Info]: Reading files from " & $modID & ".xml" & @CRLF)
 	$currentXMLfiles = getXMLfilesFromSection($modID, $dataFolder, "Files")
@@ -68,19 +71,25 @@ Func installFromCache($defaultInstallFolder, $modID, $dataFolder)
 	; Startup crypt libary to speedup hash generation
 	_Crypt_Startup()
 
+	$totalFiles = UBound($currentXMLfiles) - 1
 
-	For $i = 0 to UBound($currentXMLfiles) - 1
+	For $i = 0 to $totalFiles
 
-		$destinationFile = $defaultInstallFolder & "\" & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0]
-
+		; Full filename and path to install location
+		If $currentXMLfiles[$i][2] = "" Then
+			$destinationFile = $defaultInstallFolder & "\" & $currentXMLfiles[$i][0]
+		Else
+			$destinationFile = $defaultInstallFolder & "\" & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0]
+		EndIf
 
 		; Check if file already exists and if its changed
 		If FileExists($destinationFile) Then
-			$hash = _Crypt_HashFile($destinationFile, $CALG_MD5)
+			$hash = _Crypt_HashFile($destinationFile, $CALG_SHA1)
 
 			; File is the same as remote
 			If $hash = $currentXMLfiles[$i][3] Then
-				writeLogEchoToConsole("[Info]: File already installed, integrity check passed - " & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0] & @CRLF)
+
+				trimPathToFitConsole("[Info]: (" & $i + 1 & "\" & $totalFiles + 1 & ") File already installed - ", $destinationFile)
 
 				; Skip file
 				ContinueLoop
@@ -92,13 +101,14 @@ Func installFromCache($defaultInstallFolder, $modID, $dataFolder)
 		$sourceFile = $dataFolder & "\PackData\Modpacks\" & $modID & "\Cache\" & $currentXMLfiles[$i][3]
 
 		; Create path and copy to installation folder
-		if Not FileCopy($sourceFile, $destinationFile, 9) Then
+		$fileCopyStatus = FileCopy($sourceFile, $destinationFile, BitOR($FC_OVERWRITE , $FC_CREATEPATH) )
+		if $fileCopyStatus = 0 Then
 			writeLogEchoToConsole("[ERROR]: Unable to copy file to installation folder - " & $destinationFile & @CRLF)
 			MsgBox($MB_ICONWARNING, "Error copying file to installation folder", "Unable to copy " & @CRLF & $sourceFile & @CRLF & "to" & @CRLF & $destinationFile)
 			Exit
 		EndIf
 
-		writeLogEchoToConsole("[Info}: File installed - " & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0] & @CRLF)
+		trimPathToFitConsole("[Info]: (" & $i + 1 & "\" & $totalFiles + 1 & ") File installed - ", $destinationFile)
 
 	Next
 
@@ -130,19 +140,30 @@ Func removeOldFiles($defaultInstallFolder, $modID, $dataFolder)
 	Dim $currentXMLfiles  ; All files that exist in the current modpack
 	Local $destinationFile
 	Local $sourceFile
+	Local $totalFiles
 
 
 	writeLogEchoToConsole("[Info]: Reading removed files from " & $modID & ".xml" & @CRLF)
 	$currentXMLfiles = getXMLfilesFromSection($modID, $dataFolder, "Removed")
 
 
-	For $i = 0 to UBound($currentXMLfiles) - 1
+	$totalFiles = UBound($currentXMLfiles) - 1
+
+
+	For $i = 0 to $totalFiles
+
 		; Full path and filename of file to remove
-		$destinationFile = $defaultInstallFolder & "\" & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0]
+		If $currentXMLfiles[$i][2] = "" Then
+			$destinationFile = $defaultInstallFolder & "\" & $currentXMLfiles[$i][0]
+		Else
+			$destinationFile = $defaultInstallFolder & "\" & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0]
+		EndIf
+
 
 		; Skip if file was already removed
 		If Not FileExists($destinationFile) Then
-			writeLogEchoToConsole("[Info]: File already removed - " & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0] & @CRLF)
+
+			trimPathToFitConsole("[Info]: (" & $i + 1 & "\" & $totalFiles + 1 & ") File already removed - ", $destinationFile)
 
 			ContinueLoop
 		EndIf
@@ -150,13 +171,16 @@ Func removeOldFiles($defaultInstallFolder, $modID, $dataFolder)
 
 		; Send file to recyclebin
 		If Not FileRecycle($destinationFile) Then
+
 			; Could not delete file
 			writeLogEchoToConsole("[ERROR]: Unable to delete file - " & $destinationFile & @CRLF)
 				MsgBox($MB_ICONWARNING , "Unable to delete file", "Unable to delete file: " & @CRLF & $destinationFile & @CRLF & @CRLF & "Please make sure that the file is not open or in use." & @CRLF & @CRLF& "The installation will continue but it is HIGHLY recommemded to restart the modpack installation afterwards!")
 
 		Else
+
 			; File deleted
-			writeLogEchoToConsole("[Info]: Successfully removed - " & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0] & @CRLF)
+			trimPathToFitConsole("[Info]: (" & $i + 1 & "\" & $totalFiles + 1& ") Successfully removed - ", $destinationFile)
+
 		EndIf
 
 	Next

@@ -102,7 +102,7 @@ Func downloadAndVerify($fileURL, $filename, $dataFolder, $hash = "", $retryCount
 
 		; Verify hash with downloaded file
 		If compareHash($dataFolder & "\" & $filename, $hash) Then
-			writeLogEchoToConsole("[Info]: File integrity passed - " & $filename & @CRLF)
+			writeLogEchoToConsole(@CR & "[Info]: File integrity passed - " & $filename & @CRLF)
 			Return True
 
 		ElseIf $i = $retryCount Then
@@ -156,7 +156,10 @@ Func verifyAndDownload($fileURL, $filename, $dataFolder, $hash, $retryCount = 3)
 	; Verify hash with downloaded file
 	If FileExists($dataFolder & "\" & $filename) Then
 		If compareHash($dataFolder & "\" & $filename, $hash) Then
-			writeLogEchoToConsole("[Info]: File integrity passed - " & $filename & @CRLF)
+
+			; Trimed path to display in console
+			trimPathToFitConsole(@CR & "[Info]: File integrity passed - ", $dataFolder & "\" & $filename)
+
 			Return True
 		EndIf
 	EndIf
@@ -176,7 +179,7 @@ Func verifyAndDownload($fileURL, $filename, $dataFolder, $hash, $retryCount = 3)
 
 		; Verify hash with downloaded file
 		If compareHash($dataFolder & "\" & $filename, $hash) Then
-			writeLogEchoToConsole("[Info]: File integrity passed - " & $filename & @CRLF)
+			writeLogEchoToConsole(@CR & "[Info]: File integrity passed - " & $filename & @CRLF)
 			Return True
 
 		ElseIf $i = $retryCount Then

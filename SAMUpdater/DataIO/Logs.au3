@@ -164,3 +164,49 @@ Func writeLogEchoToConsole($text)
 	ConsoleWrite($text)
 
 EndFunc
+
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: trimPathToFitConsole
+; Description ...: Displays $text to console and left trim $path to make it fit in a 80 wide console window - write detailed log
+; Syntax ........: trimPathToFitConsole($text, $path)
+; Parameters ....: $text                - Start text to display.
+;                  $path                - Path string to make fit in console with above text.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func trimPathToFitConsole($text, $path)
+	Local $textLen
+	Local $pathLen
+
+	; Write detailed log entry
+	writeLog(StringReplace($text, @CR, "") & $path & @CRLF)
+
+
+	$textLen = StringLen($text)
+
+	$pathLen = StringLen($path)
+
+	; Trim path from the left to make it fit in the default 80 char console width
+	If $pathLen > (76 - $textLen) Then
+		$path = StringTrimLeft($path, $pathLen - (76 - $textLen) )
+
+		$path = StringTrimLeft($path, StringInStr($path, "\") )
+
+		$path = "..\" & $path
+	EndIf
+
+	; Display console entry
+	ConsoleWrite($text & $path & @CRLF)
+
+
+EndFunc
