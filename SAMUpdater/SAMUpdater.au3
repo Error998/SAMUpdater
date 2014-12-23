@@ -1,10 +1,11 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=GUI\samupdater.ico
+#AutoIt3Wrapper_Outfile=samupdater.exe
 #AutoIt3Wrapper_Compression=4
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_Fileversion=0.0.7.0
+#AutoIt3Wrapper_Res_Fileversion=0.0.7.2
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -28,7 +29,7 @@ Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.0.7.0"
+Const $version = "0.0.7.2"
 ;Const $baseURL = "http://localhost/samupdater"
 Const $baseURL = "http://local.saminecraft.co.za/sam/samupdater"
 Const $updateURL = $baseURL & "/version.dat"
@@ -103,12 +104,16 @@ If $modpackNum = -1 Then
 EndIf
 
 
-
-writeLogEchoToConsole("[Info]: Modpack ID            - " & $modpacks[$modpackNum][0] & @CRLF)
-writeLogEchoToConsole("[Info]: Remote Repository URL - " & $modpacks[$modpackNum][11] & @CRLF)
-writeLogEchoToConsole("[Info]: Modpack Active        - " & $modpacks[$modpackNum][12] & @CRLF)
-writeLogEchoToConsole("[Info]: Install Folder        - " & $modpacks[$modpackNum][13] & @CRLF & @CRLF)
-
+; Log entries
+writeLog("[Info]: Modpack Information" & @CRLF)
+writeLog("[Info]: Modpack ID            - " & $modpacks[$modpackNum][0] & @CRLF)
+writeLog("[Info]: Modpack Name          - " & $modpacks[$modpackNum][1] & @CRLF)
+writeLog("[Info]: Modpack Description   - " & $modpacks[$modpackNum][2] & @CRLF)
+writeLog("[Info]: Remote Repository URL - " & $modpacks[$modpackNum][11] & @CRLF)
+writeLog("[Info]: Installation Folder   - " & $modpacks[$modpackNum][13] & @CRLF)
+writeLog("[Info]: Shortcut target       - " & $modpacks[$modpackNum][14] & @CRLF)
+writeLog("[Info]: Shortcut name         - " & $modpacks[$modpackNum][15] & @CRLF)
+writeLog("[Info]: Launch Application    - " & $modpacks[$modpackNum][16] & @CRLF & @CRLF)
 
 
 ; Cache modpack

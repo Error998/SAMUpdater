@@ -14,6 +14,7 @@ Opt('MustDeclareVars', 1)
 ; Parameters ....: $URL					- URL of what you want to download
 ;                  $path				- Full path including filename of where you want to save the downloaded file
 ;				   $retryCount			- Optional, how many times a failed download should be retried.  Default is 5 times
+;				   $showProgress		- Optional, should progress be shown for the download. Default is false
 ; Return values .: Success				- True
 ;				   Failure				- False
 ; Author ........: Error_998
@@ -23,16 +24,47 @@ Opt('MustDeclareVars', 1)
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func downloadFile($URL, $path, $retryCount = 5)
+Func downloadFile($URL, $path, $retryCount = 5, $showProgress = False)
 	Local $errorNumber
+	Local $hInetGet
+	Local $spin[4] = ["-", "\", "|", "/"]
+	Local $spinIndex = 0
+
+
 	For $i = 1 To $retryCount
-		InetGet($URL, $path, BitOR($INET_FORCERELOAD, $INET_BINARYTRANSFER, $INET_FORCEBYPASS))
-		$errorNumber = @error
+		; Download file in background
+		$hInetGet = InetGet($URL, $path, BitOR($INET_FORCERELOAD, $INET_BINARYTRANSFER, $INET_FORCEBYPASS), $INET_DOWNLOADBACKGROUND)
+
+		; Show download progress
+		Do
+			If $showProgress Then
+				ConsoleWrite(@CR & "[Info]" & $spin[$spinIndex])
+
+				$spinIndex += 1
+				If $spinIndex = 4 Then $spinIndex = 0
+			EndIf
+
+			; Pause
+			Sleep(150)
+
+		Until InetGetInfo($hInetGet, $INET_DOWNLOADCOMPLETE)
+
+		; Get InetGet error info
+		$errorNumber = InetGetInfo($hInetGet, $INET_DOWNLOADERROR)
+
+		; Close InetGet handle
+		InetClose($hInetGet)
+
+
 		if $errorNumber <>  0 Then
 
 			; All retries failed
 			If $i = $retryCount Then
-				writeLogEchoToConsole("[ERROR]: Failed to download file retry " & $retryCount & " of " & $retryCount & @CRLF)
+				If $showProgress Then
+					writeLogEchoToConsole(@CRLF & "[ERROR]: Failed to download file retry " & $retryCount & " of " & $retryCount & @CRLF)
+				Else
+					writeLogEchoToConsole("[ERROR]: Failed to download file retry " & $retryCount & " of " & $retryCount & @CRLF)
+				EndIf
 				writeLog("[ERROR]: Download error code - " & $errorNumber)
 				writeLog("[ERROR]: URL                 - " & $URL)
 				writeLog("[ERROR]: Path                - " & $path &  @CRLF)
@@ -41,7 +73,11 @@ Func downloadFile($URL, $path, $retryCount = 5)
 				Return False
 			Else
 				; Wait 10 seconds then retry
-				writeLogEchoToConsole("[WARNING]: Failed to download file retry " & $i & " of " & $retryCount & @CRLF)
+				If $showProgress Then
+					writeLogEchoToConsole(@CRLF & "[WARNING]: Failed to download file retry " & $i & " of " & $retryCount & @CRLF)
+				Else
+					writeLogEchoToConsole("[WARNING]: Failed to download file retry " & $i & " of " & $retryCount & @CRLF)
+				EndIf
 				writeLog("[ERROR]: Download error code - " & $errorNumber)
 				writeLog("[ERROR]: URL                 - " & $URL)
 				writeLog("[ERROR]: Path                - " & $path & @CRLF)
@@ -52,6 +88,9 @@ Func downloadFile($URL, $path, $retryCount = 5)
 					ConsoleWrite(".")
 				Next
 				writeLogEchoToConsole(@CRLF & @CRLF)
+
+				; Reset progress spin index
+				$spinIndex = 0
 			EndIf
 		Else
 			; Download was successful
@@ -72,6 +111,7 @@ EndFunc
 ;                  $dataFolder          - Application data folder
 ;                  $hash                - (Optional) hash to verify file integrity
 ;                  $retryCount          - (Optional) How many times file should be redownloaded if integrity fails
+;				   $showProgress		- (Optional) Show download progress, default is false
 ; Return values .: Success				- True
 ;				   Failure				- Exit Application
 ; Author ........: Error_998
@@ -81,11 +121,11 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func downloadAndVerify($fileURL, $filename, $dataFolder, $hash = "", $retryCount = 5)
+Func downloadAndVerify($fileURL, $filename, $dataFolder, $hash = "", $retryCount = 5, $showProgress = False)
 
 	For $i = 1 to $retryCount
 		; Download File
-		if Not downloadFile($fileURL, $dataFolder & "\" & $filename) Then
+		if Not downloadFile($fileURL, $dataFolder & "\" & $filename, $retryCount, $showProgress) Then
 			writeLogEchoToConsole("[ERROR]: Download failed - " & $filename & @CRLF)
 			writeLogEchoToConsole("[ERROR]: Please check your internet connection!" & @CRLF)
 			writeLogEchoToConsole("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)

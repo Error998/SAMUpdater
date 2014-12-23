@@ -29,7 +29,7 @@ Func cacheModpack($baseModURL, $modID, $dataFolder)
 	Local $uncachedFiles
 
 	; Download <modID>.xml
-	writeLogEchoToConsole("[Info]: Downloading modpack file list - " & "\PackData\Modpacks\" & $modID & "\Data\" & $modID & ".xml" & @CRLF)
+	writeLogEchoToConsole("[Info]: Downloading remote repository modpack file list" & @CRLF)
 	downloadFile($baseModURL & "/packdata/modpacks/" & $modID & "/data/" & $modID & ".xml", $dataFolder & "\PackData\Modpacks\" & $modID & "\Data\" & $modID & ".xml")
 
 
@@ -176,7 +176,7 @@ Func cacheFiles($baseModURL, $uncachedFiles, $modID, $dataFolder)
 		writeLog("[Info]: (" & $i & "/" & $uncachedFiles[0] & ") Downloading - " & $dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $uncachedFiles[$i] & ".dat")
 
 		; Download file then verify if it matches remote hash entry
-		downloadAndVerify($fileURL, $uncachedFiles[$i], $dataFolder & "\PackData\Modpacks\" & $modID & "\cache", $uncachedFiles[$i])
+		downloadAndVerify($fileURL, $uncachedFiles[$i], $dataFolder & "\PackData\Modpacks\" & $modID & "\cache", $uncachedFiles[$i], 5, True)
 
 
 	Next

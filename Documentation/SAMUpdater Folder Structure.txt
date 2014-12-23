@@ -56,33 +56,41 @@ Remote Repository File Structure
 |--- update_helper.exe
 |
 |---| PackData
-	|--- packs.xml
-	|
-	|---| Assets
-	|	|--- assets.xml
-	|	|
-	|	|---| Sounds
-	|	|	|--- background.mp3
-	|	|
-	|	|---| GUI
-	|		|---| ModpackSelection
-	|			|--- background.jpg
-	|			|--- defaultsplash.jpg
-	|			|--- defaulticon.jpg
-	|			|--- defaultdescription.rtf
-	|
-	|---| Modpacks
-		|--- <modID>
-			|--- Cache
-			|	|---cache files
-			|	|---cache files
-			|	|---cache files
-			|
-			|---| Data
-				|--- <modID>.xml
-				|--- description.rtf
-				|--- icon.jpg
-				|--- splash.jpg
+|	|--- packs.xml
+|	|
+|	|---| Assets
+|	|	|--- assets.xml
+|	|	|
+|	|	|---| Sounds
+|	|	|	|--- background.mp3
+|	|	|
+|	|	|---| GUI
+|	|		|---| ModpackSelection
+|	|			|--- background.jpg
+|	|			|--- defaultsplash.jpg
+|	|			|--- defaulticon.jpg
+|	|			|--- defaultdescription.rtf
+|	|
+|	|---| Modpacks
+|		|--- <modID>
+|			|--- Cache
+|			|	|---cache files
+|			|	|---cache files
+|			|	|---cache files
+|			|
+|			|---| Data
+|				|--- <modID>.xml
+|				|--- description.rtf
+|				|--- icon.jpg
+|				|--- splash.jpg
+|
+|---| Logs
+|	|--- log files
+|	|--- log files
+|	|--- log files
+|
+|---| Settings
+	|--- settings.ini
 
 
 
