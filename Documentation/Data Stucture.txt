@@ -90,6 +90,7 @@ assets.xml
 <assets version="1.0">
 	<Sounds>
 		<BackgroundMusicSHA1></BackgroundMusicSHA1>
+		<BackgroundMusicPlayLenght>227</BackgroundMusicPlayLenght>
 	<Sounds>
 	<ModPackSelection>
 		<BackgroundSHA1></BackgroundSHA1>

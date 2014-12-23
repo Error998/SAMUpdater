@@ -51,7 +51,7 @@ EndFunc
 ; Syntax ........: initSoundAssets($baseURL, $dataFolder)
 ; Parameters ....: $baseURL             - Base URL location for the assets
 ;                  $dataFolder          - Application data folder
-; Return values .: None
+; Return values .: Background sound play lenght in seconds
 ; Author ........: Error_998
 ; Modified ......:
 ; Remarks .......:
@@ -64,8 +64,12 @@ Func initSoundAssets($baseURL, $dataFolder)
 	Local $path
 	Local $url
 	Local $hash
+	Local $backgroundPlayLenght
 
-	; Get list of MD5 hashes from assets.xml
+	writeLogEchoToConsole("[Info]: Initializing Sound data" & @CRLF)
+
+
+	; Get list of hashes from assets.xml
 	$hashListXML = loadAssetHashList($baseURL & "/packdata/assets/assets.xml", $dataFolder, "Sounds")
 
 
@@ -75,6 +79,13 @@ Func initSoundAssets($baseURL, $dataFolder)
 	$hash = getElement($hashListXML[1], "BackgroundMusicSHA1")
 
 	verifyAndDownload($url, $path, $dataFolder, $hash)
+
+	$backgroundPlayLenght = getElement($hashListXML[1], "BackgroundMusicPlayLenght")
+
+	writeLogEchoToConsole("[Info]: Initialized" & @CRLF & @CRLF)
+
+
+	Return $backgroundPlayLenght
 EndFunc
 
 

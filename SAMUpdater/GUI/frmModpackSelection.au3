@@ -310,7 +310,7 @@ Func createModpackSelectionGUI()
 	Local $splashPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\defaultsplash.jpg"
 	Local $descriptionPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\defaultdescription.rtf"
 
-	Global $frmModpackSelection = GUICreate("SAMUpdater", 869, 486, 192, 124)
+	Global $frmModpackSelection = GUICreate("SAMUpdater v" & $version, 869, 486, 192, 124)
 
 	; GUI Background
 	GUICtrlCreatePic($backgroundPath, 0, 0, 869, 486)

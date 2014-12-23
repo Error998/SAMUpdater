@@ -4,7 +4,7 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_Fileversion=0.0.6.0
+#AutoIt3Wrapper_Res_Fileversion=0.0.7.0
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -16,6 +16,7 @@
 #include "DataIO\Cache.au3"
 #include "DataIO\InstallModpack.au3"
 #include "DataIO\Logs.au3"
+#include "DataIO\UserSettings.au3"
 #include "Sound\Sounds.au3"
 #include "GUI\Colors.au3"
 #include "GUI\frmModpackSelection.au3"
@@ -27,15 +28,16 @@ Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.0.6.0"
-Const $baseURL = "http://localhost/samupdater"
-;Const $baseURL = "http://local.saminecraft.co.za/sam/samupdater"
+Const $version = "0.0.7.0"
+;Const $baseURL = "http://localhost/samupdater"
+Const $baseURL = "http://local.saminecraft.co.za/sam/samupdater"
 Const $updateURL = $baseURL & "/version.dat"
 Const $packsURL = $baseURL & "/packdata/packs.xml"
 Global $dataFolder = @AppDataDir & "\SAMUpdater"
 
 Global $hdllKernel32 = initColors()
 Global $hLog = initLogs($dataFolder)
+Global $userSettingSoundOn
 
 Local $modpacks
 Local $modpackNum
@@ -53,6 +55,7 @@ setConsoleColor($FOREGROUND_Light_Green)
 writeLogEchoToConsole("[Info]: Initializing folders..." & @CRLF)
 createFolder($dataFolder & "\PackData\Assets\GUI\ModpackSelection")
 createFolder($dataFolder & "\PackData\Assets\Sounds")
+createFolder($dataFolder & "\Settings")
 writeLogEchoToConsole("[Info]: Folders initialized" & @CRLF & @CRLF)
 ; #########################
 
@@ -63,9 +66,13 @@ autoUpdate($version, $updateURL, $dataFolder)
 
 
 
+; Initialize settings.ini
+initUserSettings($dataFolder)
+
+
 
 ; Play background music
-;playBackgroundMusic($dataFolder, 227)
+playBackgroundMusic($dataFolder)
 
 
 ; Load and parse Packs.xml, returns 2d array [modpackNum][elements]

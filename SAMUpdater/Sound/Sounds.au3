@@ -8,9 +8,9 @@
 ; Description ...: Play background music callback function
 ; Syntax ........: playBackgroundMusic($hWnd, $Msg, $iIDTimer, $dwTime)
 ; Parameters ....: $hWnd                - Window handle to the Hidden AutoIt window
-;                  $Msg                 - An unknown value.
-;                  $iIDTimer            - An integer value.
-;                  $dwTime              - An unknown value.
+;                  $Msg                 - Special parameter used by the timer function.
+;                  $iIDTimer            - Special parameter used by the timer function.
+;                  $dwTime              - Special parameter used by the timer function.
 ; Return values .: None
 ; Author ........: Error_998
 ; Modified ......:
@@ -30,7 +30,6 @@ Func callbackPlayBackgroundMusic($hWnd, $Msg, $iIDTimer, $dwTime)
 		SoundPlay("")
 
 		; Start music
-		writeLogEchoToConsole("[Info]: Playing background music..." & @CRLF)
 		SoundPlay($dataFolder & "\PackData\Assets\Sounds\Background.mp3")
 	EndIf
 EndFunc
@@ -53,24 +52,201 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func playBackgroundMusic($dataFolder, $playLenght)
-	Local $hWndTimer
+Func playBackgroundMusic($dataFolder)
+	Local $playLenght
+
+	Global $hWndTimer
+	Global $backgroundSoundTimerID = 0
+
+
 
 	; Download background music if it does not exist in data folder
-	writeLogEchoToConsole("[Info]: Initializing Sound data" & @CRLF)
-	initSoundAssets($baseURL, $dataFolder)
-	writeLogEchoToConsole("[Info]: Initialized" & @CRLF & @CRLF)
+	$playLenght = initSoundAssets($baseURL, $dataFolder)
+
+
+
+	; Create a hidden AutoIt window to get a window handle for a timer
+	AutoItWinSetTitle("Timer")
+	$hWndTimer = WinGetHandle(AutoItWinGetTitle())
+
+
+	; Create F7 Hotkey to toggle background music
+	HotKeySet("{F7}", "toggleBackgroundMusic")
+
+
+	; Check user settings if sound should be enabled
+	If IniRead($dataFolder & "\Settings\settings.ini", "Sound","BackgroundMusicOn", "True") <> "True" Then Return
+
+
+
+	; Start playing background music
+	writeLogEchoToConsole("[Info]: Playing background music..." & @CRLF)
+	callbackPlayBackgroundMusic("","","","")
+
+
+	; Get background play lenght
+	$playLenght = getBackgroundPlayLenght()
+
+
+	; Create a timer to restart the music track when it reached the specified playLenght
+	$backgroundSoundTimerID = _Timer_SetTimer($hWndTimer, $playLenght * 1000, "callbackPlayBackgroundMusic")
+
+EndFunc
+
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: stopBackgroundMusic
+; Description ...: Stops the background music + repeat timer
+; Syntax ........: stopBackgroundMusic()
+; Parameters ....:
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......: Also updates user settings to disable background music in the future
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func stopBackgroundMusic()
+
+		; Stop any current playing sound
+		SoundPlay("")
+
+		; Skip if no background music timer exists
+		If $backgroundSoundTimerID = 0 Then Return
+
+
+		; Disable timer
+		_Timer_KillTimer($hWndTimer, $backgroundSoundTimerID)
+
+
+		; Update user settings
+		IniWrite($dataFolder & "\Settings\settings.ini", "Sound", "BackgroundMusicOn", "False")
+
+		writeLog("[Info]: Background music disabled" & @CRLF)
+EndFunc
+
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: enableBackgroundMusic
+; Description ...: Enable background music and save user setting
+; Syntax ........: enableBackgroundMusic()
+; Parameters ....:
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func enableBackgroundMusic()
+	Local $playLenght
+
+	; Get background play lenght
+	$playLenght = getBackgroundPlayLenght()
+
 
 	; Start playing background music
 	callbackPlayBackgroundMusic("","","","")
 
 
-	; Create a hidden AutoIt window to get a window handle for a timer
-	AutoItWinSetTitle("Music Timer")
-	$hWndTimer = WinGetHandle(AutoItWinGetTitle())
+
+	; Check if a background music timer already exists
+	If $backgroundSoundTimerID = 0 Then
+
+		; Create a timer to restart the music track when it reached the specified playLenght
+		$backgroundSoundTimerID = _Timer_SetTimer($hWndTimer, $playLenght * 1000, "callbackPlayBackgroundMusic")
+
+	Else
+
+		; Reuse timer
+		$backgroundSoundTimerID = _Timer_SetTimer($hWndTimer, $playLenght * 1000, "callbackPlayBackgroundMusic", $backgroundSoundTimerID)
+
+	EndIf
 
 
-	; Create a timer to restart the music track when it reached the specified playLenght
-	_Timer_SetTimer($hWndTimer, $playLenght * 1000, "callbackPlayBackgroundMusic")
+
+	; Update user settings
+	IniWrite($dataFolder & "\Settings\settings.ini", "Sound", "BackgroundMusicOn", "True")
+
+	writeLog("[Info]: Background music enabled" & @CRLF)
+EndFunc
+
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: getBackgroundPlayLenght
+; Description ...: Retrive the background music play lenght in seconds
+; Syntax ........: getBackgroundPlayLenght()
+; Parameters ....:
+; Return values .: playlenght
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func getBackgroundPlayLenght()
+	Local $backgroundPlayLenght
+	Local $xml
+	Local $soundXML
+
+	; Get Background info from assets.xml
+	$xml = loadXML($dataFolder & "\PackData\Assets\assets.xml")
+
+	; Array for selected asset group
+	$soundXML = getElements($xml, "Sounds")
+
+	; Get play lenght
+	$backgroundPlayLenght = getElement($soundXML[1], "BackgroundMusicPlayLenght")
+
+	Return $backgroundPlayLenght
+EndFunc
+
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: toggleBackgroundMusic
+; Description ...: Press F7 to Enable / Disable background music
+; Syntax ........: toggleBackgroundMusic()
+; Parameters ....:
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func toggleBackgroundMusic()
+
+	If IniRead($dataFolder & "\Settings\settings.ini", "Sound", "BackgroundMusicOn", "True") = "True" Then
+
+		stopBackgroundMusic()
+
+	Else
+
+		enableBackgroundMusic()
+
+	EndIf
+
 
 EndFunc
+
+
