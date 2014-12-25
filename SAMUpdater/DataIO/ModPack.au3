@@ -82,3 +82,32 @@ EndFunc
 
 
 
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: getTotalDiskspaceRequirementFromModpackXML
+; Description ...: Calculates the total filesize in bytes of the Files section of <modID>.xml
+; Syntax ........: getTotalDiskspaceRequirementFromModpackXML($modID, $dataFolder)
+; Parameters ....: $modID               - The modID
+;                  $dataFolder          - Application data folder
+; Return values .: total filesize of modpack in bytes
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func getTotalDiskspaceRequirementFromModpackXML($modID, $dataFolder)
+	Local $currentXMLFiles
+	Local $totalSize = 0
+
+	; Get all the file info of the current files
+	$currentXMLFiles = getXMLfilesFromSection($modID, $dataFolder, "Files")
+
+	; Calculate total file size
+	For $i =  0 to UBound($currentXMLFiles) - 1
+		$totalSize = $totalSize + $currentXMLFiles[$i][4]
+	Next
+
+	Return $totalSize
+EndFunc

@@ -28,11 +28,6 @@ Opt('MustDeclareVars', 1)
 Func cacheModpack($baseModURL, $modID, $dataFolder)
 	Local $uncachedFiles
 
-	; Download <modID>.xml
-	writeLogEchoToConsole("[Info]: Downloading remote repository modpack file list" & @CRLF)
-	downloadFile($baseModURL & "/packdata/modpacks/" & $modID & "/data/" & $modID & ".xml", $dataFolder & "\PackData\Modpacks\" & $modID & "\Data\" & $modID & ".xml")
-
-
 	; Get a list of files that are not yet cached
 	$uncachedFiles = getUncachedFileList($modID, $dataFolder)
 
@@ -77,7 +72,7 @@ Func getUncachedFileList($modID, $dataFolder)
 	$totalFiles = UBound($currentXMLfiles) - 1
 
 
-	writeLog("[Info]: Caculating uncached files list..." & @CRLF)
+	writeLog("[Info]: Caculating uncached files..." & @CRLF)
 
 	; Startup crypt libary to speedup hash generation
 	_Crypt_Startup()
@@ -88,7 +83,7 @@ Func getUncachedFileList($modID, $dataFolder)
 		$percentage = Round($i / $totalFiles * 100, 2)
 		$percentage = "(" & StringFormat("%.2f", $percentage)  & "%)"
 
-		ConsoleWrite(@CR & "[Info]: Caculating uncached files list " & $percentage)
+		ConsoleWrite(@CR & "[Info]: Caculating uncached files " & $percentage)
 
 
 		; If remote file size is 0, create a blank cache file
@@ -183,4 +178,97 @@ Func cacheFiles($baseModURL, $uncachedFiles, $modID, $dataFolder)
 
 	writeLogEchoToConsole("[Info]: Modpack cache download complete" & @CRLF & @CRLF)
 
+EndFunc
+
+
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: getStatusInfoOfUncachedFiles
+; Description ...: Return a 1d array containing a list of uncached filenames
+; Syntax ........: getStatusInfoOfUncachedFiles($modID, $dataFolder, byRef $totalFileSize)
+; Parameters ....: $modID               - The modID.
+;                  $dataFolder          - Application data folder.
+;				   $totalFileSize		- (In/Out) Total filesize of uncached files
+; Return values .: Array of uncached filenames
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......: Index 0 = file count
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func getStatusInfoOfUncachedFiles($modID, $dataFolder, ByRef $totalFileSize)
+	Dim $uncachedFiles[1]
+	Dim $currentXMLfiles ; All files that exist in the current modpack
+	Local $filesize = 0
+	Local $hash
+	Local $totalFiles
+	Local $percentage
+
+
+	; Load <modID>.xml
+	$currentXMLfiles = getXMLfilesFromSection($modID, $dataFolder, "Files")
+
+
+	; Total files in Files section
+	$totalFiles = UBound($currentXMLfiles) - 1
+
+
+	writeLog("[Info]: Caculating uncached files..." & @CRLF)
+
+	; Startup crypt libary to speedup hash generation
+	_Crypt_Startup()
+
+	For $i = 0 To $totalFiles
+
+		; Display progress percentage
+		$percentage = Round($i / $totalFiles * 100, 2)
+		$percentage = "(" & StringFormat("%.2f", $percentage)  & "%)"
+
+		ConsoleWrite(@CR & "[Info]: Caculating uncached files " & $percentage)
+
+
+		; Skip if remote file size is 0
+		If $currentXMLfiles[$i][4] = 0 Then ContinueLoop
+
+
+		; Verify file if it already exists
+		If FileExists($dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $currentXMLfiles[$i][3]) Then
+
+			$hash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $currentXMLfiles[$i][3], $CALG_SHA1)
+
+			; File verified, skipping file
+			If $hash = $currentXMLfiles[$i][3] then	ContinueLoop
+
+		EndIf
+
+
+
+		; Unique cache file found
+		_ArrayAdd($uncachedFiles, $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0])
+
+		; Total download filesize
+		$filesize = $filesize + $currentXMLfiles[$i][4]
+
+	Next
+
+
+	; Shutdown the crypt library.
+	_Crypt_Shutdown()
+
+
+	; Return total filesize
+	$totalFileSize = $filesize
+
+	; Store number of uncached files in index zero
+	$uncachedFiles[0] = UBound($uncachedFiles) - 1
+
+	ConsoleWrite(@CRLF)
+
+
+	Return $uncachedFiles
 EndFunc

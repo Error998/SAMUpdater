@@ -179,6 +179,11 @@ Func initModpackFiles($modpacks, $dataFolder)
 
 			verifyAndDownload($url, $path, $dataFolder, $hash)
 		EndIf
+
+
+		; Download <modID>.xml
+		writeLogEchoToConsole("[Info]: Downloading modpack data file for " & $modpacks[$i][0])
+		downloadFile($modpacks[$i][11] & "/packdata/modpacks/" & $modpacks[$i][0] & "/data/" & $modpacks[$i][0] & ".xml", $dataFolder & "\PackData\Modpacks\" & $modpacks[$i][0] & "\Data\" & $modpacks[$i][0] & ".xml")
 	Next
 
 	writeLogEchoToConsole("[Info]: Modpack assets initialized" & @CRLF & @CRLF)
@@ -208,7 +213,7 @@ Func initModpacks($modpacks, $dataFolder)
 	initModpackFolders($modpacks, $dataFolder)
 
 
-	; Download Modpack files (Icon, splash and description)
+	; Download Modpack files (Icon, splash and description, modID.xml)
 	initModpackFiles($modpacks, $dataFolder)
 
 EndFunc

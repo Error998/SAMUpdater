@@ -4,6 +4,8 @@
 #include <StaticConstants.au3>
 #include <WindowsConstants.au3>
 #include <GuiRichEdit.au3>
+#include "..\DataIO\Modpack.au3"
+#include "..\DataIO\Cache.au3"
 #include "GUIScrollbars_Size.au3"
 
 Opt("GUIOnEventMode", 1)
@@ -66,22 +68,31 @@ Func addModpack($modpackNum, ByRef $ctrlIDs)
 	GUICtrlCreateLabel("", 328, 13 + $offset, 86, 80)
 	GUICtrlSetState(-1, $GUI_DISABLE)
 
-	; Info Button
-	$ctrlIDs[$modpackNum][0] =  GUICtrlCreateButton("Info", 328, 24 + $offset, 75, 25)
-	GUICtrlSetOnEvent(-1, "btnInfo")
-
-	; Download button
 
 	If $modpacks[$modpackNum][12] = "False" Then
-		; Downloads are disabled redirect to Info event if Modpack is not active
-		$ctrlIDs[$modpackNum][0]  = GUICtrlCreateButton("Offline", 328, 56 + $offset, 75, 25)
-		GUICtrlSetOnEvent(-1, "btnInfo")
+
+		; Disabled Info Button
+		$ctrlIDs[$modpackNum][0] =  GUICtrlCreateButton("Info", 328, 24 + $offset, 75, 25)
+		GUICtrlSetState(-1, $GUI_DISABLE)
+
+
+		; Disabled Download button
+		$ctrlIDs[$modpackNum][1]  = GUICtrlCreateButton("Offline", 328, 56 + $offset, 75, 25)
+		GUICtrlSetState(-1, $GUI_DISABLE)
 
 
 	Else
+
+		; Info Button
+		$ctrlIDs[$modpackNum][0] =  GUICtrlCreateButton("Info", 328, 24 + $offset, 75, 25)
+		GUICtrlSetOnEvent(-1, "btnInfo")
+
+
 		; Download button
 		$ctrlIDs[$modpackNum][1]  = GUICtrlCreateButton("Download", 328, 56 + $offset, 75, 25)
 		GUICtrlSetOnEvent(-1, "btnDownload")
+
+
 	EndIf
 
 
@@ -212,7 +223,7 @@ EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: btnInfo
-; Description ...: Displays the Splash and description of the selected modpack
+; Description ...:
 ; Syntax ........: btnInfo()
 ; Parameters ....: None
 ; Return values .: None
@@ -225,13 +236,37 @@ EndFunc
 ; ===============================================================================================================================
 Func btnInfo()
 	Local $modpackNum
+	Local $totalFileSize = 0
+	Local $hddSpaceRequirement
+	Local $uncachedFiles
 
 	$modpackNum = findModpackNumFromCtrlID(@GUI_CtrlId, 0, $ctrlIDs)
 
 	; Display Splash and description
-	writeLogEchoToConsole("[Info]: Displaying info for modpack: " & $modpackNum & @CRLF)
 	showSplashAndDescription($modpackNum)
 
+
+
+	; Advanced info
+	writeLogEchoToConsole("[Info]: Generating advanced info for modpack: " & $modpacks[$modpackNum][0] & @CRLF & @CRLF)
+
+	SplashImageOn("Please wait...", $dataFolder & "\PackData\Assets\GUI\AdvInfo\plswaitbackground.jpg", 380, 285)
+
+	; Calculate modpack storage requirement
+	$hddSpaceRequirement = getTotalDiskspaceRequirementFromModpackXML($modpacks[$modpackNum][0], $dataFolder)
+	$hddSpaceRequirement = getHumanReadableFilesize($hddSpaceRequirement)
+
+
+	; Calculate uncached files + filesize
+	$uncachedFiles = getStatusInfoOfUncachedFiles($modpacks[$modpackNum][0], $dataFolder, $totalFileSize)
+
+	SplashOff()
+	writeLogEchoToConsole("[Info]: Updating " & $uncachedFiles[0] & " file(s), total download size: " & getHumanReadableFilesize($totalFileSize) & @CRLF)
+	writeLogEchoToConsole("[Info]: Installed modpack will use: " & $hddSpaceRequirement & " harddrive space." & @CRLF & @CRLF)
+
+
+
+	;_ArrayDisplay($uncachedFiles)
 EndFunc
 
 

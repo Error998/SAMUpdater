@@ -111,10 +111,8 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 	Local $url
 	Local $hash
 
-	writeLogEchoToConsole("[Info]: Initializing GUI assests" & @CRLF)
 
-
-	; Get list of MD5 hashes from assets.xml
+	; Get list of hashes from assets.xml
 	$hashListXML = loadAssetHashList($baseURL & "/packdata/assets/assets.xml", $dataFolder, "ModPackSelection")
 
 
@@ -149,8 +147,83 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 
 	verifyAndDownload($url, $path, $dataFolder, $hash)
 
-	writeLogEchoToConsole("[Info]: GUI assets initialized" & @CRLF & @CRLF)
+
 
 EndFunc
 
 
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: initGUIadvInfoAssets
+; Description ...: Check if local GUIadvInfo assets match remote assets if not download remote assets
+; Syntax ........: initGUIadvInfoAssets($baseURL, $dataFolder)
+; Parameters ....: $baseURL             - Base URLlocation for the assets.
+;                  $dataFolder          - Application data folder.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func initGUIadvInfoAssets($baseURL, $dataFolder)
+	local $hashListXML
+	Local $path
+	Local $url
+	Local $hash
+
+
+	; Get list of hashes from assets.xml
+	$hashListXML = loadAssetHashList($baseURL & "/packdata/assets/assets.xml", $dataFolder, "AdvInfo")
+
+
+	; Download please wait background
+	$url = $baseURL & "/packdata/assets/gui/advinfo/plswaitbackground.jpg"
+	$path = "\PackData\Assets\GUI\AdvInfo\plswaitbackground.jpg"
+	$hash = getElement($hashListXML[1], "PleaseWaitBackgroundSHA1")
+
+	verifyAndDownload($url, $path, $dataFolder, $hash)
+
+
+
+
+EndFunc
+
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: initGUIAssets
+; Description ...: Initialize all GUI assets (backgrounds, pictures, descriptions, etc.)
+; Syntax ........: initGUIAssets($baseURL, $dataFolder)
+; Parameters ....: $baseURL             - Base URLlocation for the assets
+;                  $dataFolder          - Application data folder.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func initGUIAssets($baseURL, $dataFolder)
+	writeLogEchoToConsole("[Info]: Initializing GUI assests" & @CRLF)
+
+
+	; Initialize ModSelection GUI assets, download default files and background.
+	initGUImodSelectionAssets($baseURL, $dataFolder)
+
+
+
+	; Initialize Advanced Info GUI assets
+	initGUIadvInfoAssets($baseURL, $dataFolder)
+
+
+
+	writeLogEchoToConsole("[Info]: GUI assets initialized" & @CRLF & @CRLF)
+EndFunc
