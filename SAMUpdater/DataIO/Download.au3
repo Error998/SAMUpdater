@@ -207,7 +207,7 @@ Func verifyAndDownload($fileURL, $filename, $dataFolder, $hash, $retryCount = 3)
 
 	For $i = 1 to $retryCount
 		; Download File
-		writeLogEchoToConsole("[Info]: Downloading - " & $filename & @CRLF)
+		trimPathToFitConsole("[Info]: Downloading - ", $filename)
 		if Not downloadFile($fileURL, $dataFolder & "\" & $filename) Then
 			writeLogEchoToConsole("[ERROR]: Download failed - " & $filename & @CRLF)
 			writeLogEchoToConsole("[ERROR]: Please check your internet connection!" & @CRLF)
@@ -219,7 +219,7 @@ Func verifyAndDownload($fileURL, $filename, $dataFolder, $hash, $retryCount = 3)
 
 		; Verify hash with downloaded file
 		If compareHash($dataFolder & "\" & $filename, $hash) Then
-			writeLogEchoToConsole(@CR & "[Info]: File integrity passed - " & $filename & @CRLF)
+			trimPathToFitConsole("[Info]: File integrity passed - ", $filename)
 			Return True
 
 		ElseIf $i = $retryCount Then

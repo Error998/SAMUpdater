@@ -1,6 +1,7 @@
 #include-once
 #include <Crypt.au3>
 #include <StringConstants.au3>
+#include <MsgBoxConstants.au3>
 #include "RecFileListToArray.au3"
 
 Opt('MustDeclareVars', 1)
@@ -43,9 +44,10 @@ Func createFolder($sPath)
 		DirCreate($sPath)
 		If @error = -1 Then
 			writeLogEchoToConsole("[ERROR]: Failed to create folder - " & $sPath & @CRLF)
+			MsgBox($MB_ICONERROR, "Folder Creation Error", "Failed to create folder" & @CRLF &  $sPath)
 			Exit
 		EndIf
-		writeLogEchoToConsole("[Info]: Folder created - " & $sPath & @CRLF)
+		trimPathToFitConsole("[Info]: Folder created - ", $sPath)
 	EndIf
 EndFunc
 
