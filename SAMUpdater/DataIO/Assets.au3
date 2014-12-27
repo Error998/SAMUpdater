@@ -189,7 +189,12 @@ Func initGUIadvInfoAssets($baseURL, $dataFolder)
 	verifyAndDownload($url, $path, $dataFolder, $hash)
 
 
+	; Download AdvInfo GUI background
+	$url = $baseURL & "/packdata/assets/gui/advinfo/background.jpg"
+	$path = "\PackData\Assets\GUI\AdvInfo\background.jpg"
+	$hash = getElement($hashListXML[1], "BackgroundSHA1")
 
+	verifyAndDownload($url, $path, $dataFolder, $hash)
 
 EndFunc
 

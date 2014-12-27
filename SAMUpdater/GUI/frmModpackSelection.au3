@@ -227,7 +227,7 @@ EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: btnInfo
-; Description ...:
+; Description ...: Display the AdvInfo GUI for the modpack
 ; Syntax ........: btnInfo()
 ; Parameters ....: None
 ; Return values .: None
@@ -240,65 +240,18 @@ EndFunc
 ; ===============================================================================================================================
 Func btnInfo()
 	Local $modpackNum
-	Local $totalFileSize = 0
-	Local $hddSpaceRequirement
-	Local $uncachedFiles
-	Local $removeFiles
 
-
+	; Caculate what modpack's info should be displayed
 	$modpackNum = findModpackNumFromCtrlID(@GUI_CtrlId, 0, $ctrlIDs)
+
 
 	; Display Splash and description
 	showSplashAndDescription($modpackNum)
 
-	; Check if the AdvInfo window is already open
-	WinGetHandle("Modpack Advanced Information")
-	If @error = 0 Then Return
 
-	; Advanced info
-	writeLogEchoToConsole("[Info]: Generating advanced info for modpack: " & $modpacks[$modpackNum][0] & @CRLF & @CRLF)
-
-	SplashImageOn("Please wait...", $dataFolder & "\PackData\Assets\GUI\AdvInfo\plswaitbackground.jpg", 380, 285)
-
-	; Calculate modpack storage requirement
-	$hddSpaceRequirement = getTotalDiskspaceRequirementFromModpackXML($modpacks[$modpackNum][0], $dataFolder)
-	$hddSpaceRequirement = getHumanReadableFilesize($hddSpaceRequirement)
-
-
-	; Calculate uncached files + filesize
-	$uncachedFiles = getStatusInfoOfUncachedFiles($modpacks[$modpackNum][0], $dataFolder, $totalFileSize)
-
-
-	; User friendly total download size
-	$totalFileSize = getHumanReadableFilesize($totalFileSize)
-
-
-	; Caculate all files that will be removed
-	$removeFiles = getStatusInfoOfFilesToRemove($modpacks[$modpackNum][13], $modpacks[$modpackNum][0], $dataFolder)
-
-
-
-	writeLogEchoToConsole("[Info]: Updating " & $uncachedFiles[0] & " file(s), total download size: " & $totalFileSize & @CRLF)
-	writeLogEchoToConsole("[Info]: Installed modpack will use: " & $hddSpaceRequirement & " harddrive space." & @CRLF & @CRLF)
-
-	writeLogEchoToConsole("[Info]: Displaying AdvInfoGUI" & @CRLF & @CRLF)
-
-	; Local cache is up to date
-	If $uncachedFiles[0] = 0 And $removeFiles[0] = 0 Then
-		SplashOff()
-
-		MsgBox($MB_ICONINFORMATION, "Local cache is up to date", "Modpack is already cached locally, nothing new to download or remove." & @CRLF & @CRLF & "   Click Download if you wish to reinstall the modpack." & @CRLF & @CRLF & @CRLF & "   Installed modpack will use: " & $hddSpaceRequirement & " harddrive space.")
-
-		Return
-	EndIf
-
-	_ArrayConcatenate($uncachedFiles, $removeFiles, 1)
-
-	_ArraySort($uncachedFiles, 0, 1)
 
 	; Display AdvInfo GUI
-	displayAdvInfo($totalFileSize, $hddSpaceRequirement, $uncachedFiles)
-
+	displayAdvInfo($modpackNum)
 
 
 EndFunc

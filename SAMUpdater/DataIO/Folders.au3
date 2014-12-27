@@ -3,6 +3,7 @@
 #include <StringConstants.au3>
 #include <MsgBoxConstants.au3>
 #include "RecFileListToArray.au3"
+#include "Logs.au3"
 
 Opt('MustDeclareVars', 1)
 
@@ -55,7 +56,7 @@ EndFunc
 
 
 
-; #FUNCTION# ===================================================================
+; #FUNCTION# ==============================================================================
 ; Name...........: removeFile($sPath)
 ; Description ...: Send a file or entire folder to the recycle bin
 ; Syntax.........: removeFile($sPath)
@@ -64,16 +65,19 @@ EndFunc
 ; Author ........: Error_998
 ; Modified ......:
 ; Remarks .......: Remove the leading \ from the path to delete the folder
+;				   DO NO use file loggin in this function as the updater_helper uses it
+;				   and it wont have a log file handle
+;===========================================================================================
 Func removeFile($sPath)
 	If (FileRecycle($sPath) = True) Then
-		writeLogEchoToConsole("[Info]: Deleted - " & $sPath & @CRLF)
+		ConsoleWrite("[Info]: Deleted - " & $sPath & @CRLF)
 	ElseIf FileExists($sPath) Then
-		writeLogEchoToConsole("[ERROR]: Unable to delete - " & $sPath & @CRLF)
+		ConsoleWrite("[ERROR]: Unable to delete - " & $sPath & @CRLF)
 		MsgBox(48,"Unable to delete file!", "Please make sure the file or folder is not currently in use or open." & @CRLF & _
 				  "Close the offending application then restart SAMUpater" & @CRLF & "Click OK to close SAMUpdater")
 		Exit
     Else
-        writeLogEchoToConsole("[Info]: Does not exist, consider it removed - " & $sPath & @CRLF)
+        ConsoleWrite("[Info]: Does not exist, consider it removed - " & $sPath & @CRLF)
 	EndIf
 
 EndFunc
