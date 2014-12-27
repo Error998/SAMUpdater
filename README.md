@@ -1,4 +1,4 @@
-SAMUpdater v0.0.7.4 alpha
+SAMUpdater v0.0.8.0 alpha
 ========================
 
 A Minecraft Auto Updater that will update mods and config files.
@@ -6,7 +6,7 @@ A Minecraft Auto Updater that will update mods and config files.
 
 Lisence
 -------
-Copyright © 2014 Error_998 <support@saminecraft.co.za>
+Copyright Â© 2014 Error_998 <support@saminecraft.co.za>
 This work is free. You can redistribute it and/or modify it under the
 terms of the Do What The Fuck You Want To Public License, Version 2,
 as published by Sam Hocevar. See the COPYING file or visit
