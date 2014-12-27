@@ -78,7 +78,8 @@ Func initSoundAssets($baseURL, $dataFolder)
 	$path = "\PackData\Assets\Sounds\background.mp3"
 	$hash = getElement($hashListXML[1], "BackgroundMusicSHA1")
 
-	verifyAndDownload($url, $path, $dataFolder, $hash)
+	; Download background music with a retry count of 5 and display progress indicator
+	verifyAndDownload($url, $path, $dataFolder, $hash, 5, True)
 
 	$backgroundPlayLenght = getElement($hashListXML[1], "BackgroundMusicPlayLenght")
 

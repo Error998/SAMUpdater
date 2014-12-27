@@ -249,7 +249,7 @@ Func getStatusInfoOfUncachedFiles($modID, $dataFolder, ByRef $totalFileSize)
 
 
 		; Unique cache file found
-		_ArrayAdd($uncachedFiles, $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0])
+		_ArrayAdd($uncachedFiles, $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0] & "#ADD")
 
 		; Total download filesize
 		$filesize = $filesize + $currentXMLfiles[$i][4]

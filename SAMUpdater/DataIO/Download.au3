@@ -73,7 +73,7 @@ Func downloadFile($URL, $path, $retryCount = 5, $showProgress = False)
 				Return False
 			Else
 				; Wait 10 seconds then retry
-				If $showProgress Then
+				If $showProgress = False Then
 					writeLogEchoToConsole(@CRLF & "[WARNING]: Failed to download file retry " & $i & " of " & $retryCount & @CRLF)
 				Else
 					writeLogEchoToConsole("[WARNING]: Failed to download file retry " & $i & " of " & $retryCount & @CRLF)
@@ -182,6 +182,7 @@ EndFunc
 ;                  $dataFolder          - Application data folder
 ;                  $hash                - Hash to verify file integrity
 ;                  $retryCount          - (Optional) How many times file should be redownloaded if integrity fails
+;				   $showProgress		- (Optional) Should progress indicator be shown. Default is False
 ; Return values .: Success				- True
 ;				   Failure				- Exit Application
 ; Author ........: Error_998
@@ -191,7 +192,7 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func verifyAndDownload($fileURL, $filename, $dataFolder, $hash, $retryCount = 3)
+Func verifyAndDownload($fileURL, $filename, $dataFolder, $hash, $retryCount = 5, $showProgress = False)
 
 	; Verify hash with downloaded file
 	If FileExists($dataFolder & "\" & $filename) Then
@@ -207,8 +208,13 @@ Func verifyAndDownload($fileURL, $filename, $dataFolder, $hash, $retryCount = 3)
 
 	For $i = 1 to $retryCount
 		; Download File
-		trimPathToFitConsole("[Info]: Downloading - ", $filename)
-		if Not downloadFile($fileURL, $dataFolder & "\" & $filename) Then
+		If $showProgress = False Then
+			trimPathToFitConsole("[Info]: Downloading - ", $filename)
+		Else
+			trimPathToFitConsole(@CR & "[Info]: Downloading - ", $filename, True) ; No @CRLF to console
+		EndIf
+
+		if Not downloadFile($fileURL, $dataFolder & "\" & $filename, $retryCount, $showProgress) Then
 			writeLogEchoToConsole("[ERROR]: Download failed - " & $filename & @CRLF)
 			writeLogEchoToConsole("[ERROR]: Please check your internet connection!" & @CRLF)
 			writeLogEchoToConsole("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
@@ -219,7 +225,12 @@ Func verifyAndDownload($fileURL, $filename, $dataFolder, $hash, $retryCount = 3)
 
 		; Verify hash with downloaded file
 		If compareHash($dataFolder & "\" & $filename, $hash) Then
-			trimPathToFitConsole("[Info]: File integrity passed - ", $filename)
+			If $showProgress = True Then
+				trimPathToFitConsole(@CR & "[Info]: File integrity passed - ", $filename)
+			Else
+				trimPathToFitConsole("[Info]: File integrity passed - ", $filename)
+			EndIf
+
 			Return True
 
 		ElseIf $i = $retryCount Then

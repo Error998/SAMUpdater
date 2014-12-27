@@ -187,3 +187,73 @@ Func removeOldFiles($defaultInstallFolder, $modID, $dataFolder)
 
 	writeLogEchoToConsole("[Info]: Modpack file update complete" & @CRLF & @CRLF)
 EndFunc
+
+
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: getStatusInfoOfFilesToRemove
+; Description ...: Creates an array of all files that has to be removed and is currently present in installation
+; Syntax ........: getStatusInfoOfFilesToRemove($defaultInstallFolder, $modID, $dataFolder)
+; Parameters ....: $defaultInstallFolder- Installation folder.
+;                  $modID               - The modID.
+;                  $dataFolder          - Application data folder.
+; Return values .: Array of files that need to be removed
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......: Index zero  = file count
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func getStatusInfoOfFilesToRemove($defaultInstallFolder, $modID, $dataFolder)
+	Dim $currentXMLfiles  ; All files that exist in the current modpack
+	Dim $removeFiles[1]   ; All files that has to be removed and is currently present in installation
+	Local $destinationFile
+	Local $sourceFile
+	Local $totalFiles
+	Local $percentage
+
+	writeLog("[Info]: Calculating files that needs removing..." & @CRLF)
+	$currentXMLfiles = getXMLfilesFromSection($modID, $dataFolder, "Removed")
+
+
+	$totalFiles = UBound($currentXMLfiles) - 1
+
+
+	For $i = 0 to $totalFiles
+
+		; Display progress percentage
+		$percentage = Round($i / $totalFiles * 100, 2)
+		$percentage = "(" & StringFormat("%.2f", $percentage)  & "%)"
+		ConsoleWrite(@CR & "[Info]: Calculating files that needs removing..." & $percentage)
+
+
+
+		; Filename of file to remove
+		If $currentXMLfiles[$i][2] = "" Then
+			$destinationFile = $currentXMLfiles[$i][0]
+		Else
+			$destinationFile = $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0]
+		EndIf
+
+
+		; Skip if file was already removed
+		If Not FileExists($defaultInstallFolder & "\" & $destinationFile) Then ContinueLoop
+
+
+		; Add file marked for removal that is present in current installation
+		_ArrayAdd($removeFiles, $destinationFile & "#DEL")
+
+	Next
+
+	; Update file count in index zero
+	$removeFiles[0] = UBound($removeFiles) - 1
+
+	ConsoleWrite(@CRLF)
+
+	Return $removeFiles
+EndFunc

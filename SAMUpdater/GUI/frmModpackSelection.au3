@@ -5,10 +5,14 @@
 #include <WindowsConstants.au3>
 #include <GuiRichEdit.au3>
 #include "..\DataIO\Modpack.au3"
+#include "..\DataIO\InstallModpack.au3"
 #include "..\DataIO\Cache.au3"
+#include "frmAdvInfo.au3"
 #include "GUIScrollbars_Size.au3"
 
 Opt("GUIOnEventMode", 1)
+
+
 ; Number of modpack and ctrl id of the 2 buttons and label of the modpack region
 Global $ctrlIDs[5][3]
 
@@ -239,13 +243,17 @@ Func btnInfo()
 	Local $totalFileSize = 0
 	Local $hddSpaceRequirement
 	Local $uncachedFiles
+	Local $removeFiles
+
 
 	$modpackNum = findModpackNumFromCtrlID(@GUI_CtrlId, 0, $ctrlIDs)
 
 	; Display Splash and description
 	showSplashAndDescription($modpackNum)
 
-
+	; Check if the AdvInfo window is already open
+	WinGetHandle("Modpack Advanced Information")
+	If @error = 0 Then Return
 
 	; Advanced info
 	writeLogEchoToConsole("[Info]: Generating advanced info for modpack: " & $modpacks[$modpackNum][0] & @CRLF & @CRLF)
@@ -260,13 +268,39 @@ Func btnInfo()
 	; Calculate uncached files + filesize
 	$uncachedFiles = getStatusInfoOfUncachedFiles($modpacks[$modpackNum][0], $dataFolder, $totalFileSize)
 
-	SplashOff()
-	writeLogEchoToConsole("[Info]: Updating " & $uncachedFiles[0] & " file(s), total download size: " & getHumanReadableFilesize($totalFileSize) & @CRLF)
+
+	; User friendly total download size
+	$totalFileSize = getHumanReadableFilesize($totalFileSize)
+
+
+	; Caculate all files that will be removed
+	$removeFiles = getStatusInfoOfFilesToRemove($modpacks[$modpackNum][13], $modpacks[$modpackNum][0], $dataFolder)
+
+
+
+	writeLogEchoToConsole("[Info]: Updating " & $uncachedFiles[0] & " file(s), total download size: " & $totalFileSize & @CRLF)
 	writeLogEchoToConsole("[Info]: Installed modpack will use: " & $hddSpaceRequirement & " harddrive space." & @CRLF & @CRLF)
 
+	writeLogEchoToConsole("[Info]: Displaying AdvInfoGUI" & @CRLF & @CRLF)
+
+	; Local cache is up to date
+	If $uncachedFiles[0] = 0 And $removeFiles[0] = 0 Then
+		SplashOff()
+
+		MsgBox($MB_ICONINFORMATION, "Local cache is up to date", "Modpack is already cached locally, nothing new to download or remove." & @CRLF & @CRLF & "   Click Download if you wish to reinstall the modpack." & @CRLF & @CRLF & @CRLF & "   Installed modpack will use: " & $hddSpaceRequirement & " harddrive space.")
+
+		Return
+	EndIf
+
+	_ArrayConcatenate($uncachedFiles, $removeFiles, 1)
+
+	_ArraySort($uncachedFiles, 0, 1)
+
+	; Display AdvInfo GUI
+	displayAdvInfo($totalFileSize, $hddSpaceRequirement, $uncachedFiles)
 
 
-	;_ArrayDisplay($uncachedFiles)
+
 EndFunc
 
 

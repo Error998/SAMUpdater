@@ -173,9 +173,10 @@ EndFunc
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: trimPathToFitConsole
 ; Description ...: Displays $text to console and left trim $path to make it fit in a 80 wide console window - write detailed log
-; Syntax ........: trimPathToFitConsole($text, $path)
+; Syntax ........: trimPathToFitConsole($text, $path, $noCRLF)
 ; Parameters ....: $text                - Start text to display.
 ;                  $path                - Path string to make fit in console with above text.
+;				   $noCRLF				- Should a @CRLF not be added to the console output. Default is False
 ; Return values .: None
 ; Author ........: Error_998
 ; Modified ......:
@@ -184,7 +185,7 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func trimPathToFitConsole($text, $path)
+Func trimPathToFitConsole($text, $path, $noCRLF = False)
 	Local $textLen
 	Local $pathLen
 
@@ -206,7 +207,11 @@ Func trimPathToFitConsole($text, $path)
 	EndIf
 
 	; Display console entry
-	ConsoleWrite($text & $path & @CRLF)
+	If $noCRLF = True Then
+		ConsoleWrite($text & $path)
+	Else
+		ConsoleWrite($text & $path & @CRLF)
+	EndIf
 
 
 EndFunc

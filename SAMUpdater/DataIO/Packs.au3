@@ -182,7 +182,7 @@ Func initModpackFiles($modpacks, $dataFolder)
 
 
 		; Download <modID>.xml
-		writeLogEchoToConsole("[Info]: Downloading modpack data file for " & $modpacks[$i][0])
+		writeLogEchoToConsole("[Info]: Downloading modpack data file for " & $modpacks[$i][0] & @CRLF)
 		downloadFile($modpacks[$i][11] & "/packdata/modpacks/" & $modpacks[$i][0] & "/data/" & $modpacks[$i][0] & ".xml", $dataFolder & "\PackData\Modpacks\" & $modpacks[$i][0] & "\Data\" & $modpacks[$i][0] & ".xml")
 	Next
 

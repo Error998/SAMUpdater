@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<object type="TAForm" name="frmAdvInfo">
+	<properties>
+		<property name="Left" vt="Int16">192</property>
+		<property name="Top" vt="Int8">124</property>
+		<property name="Width" vt="Int16">997</property>
+		<property name="Height" vt="Int16">625</property>
+		<property name="Caption" vt="String">Modpack Advanced Information</property>
+		<property name="Color" vt="Ident">clBtnFace</property>
+		<property name="Font.Charset" vt="Ident">DEFAULT_CHARSET</property>
+		<property name="Font.Color" vt="Ident">clWindowText</property>
+		<property name="Font.Height" vt="Int8">-11</property>
+		<property name="Font.Name" vt="String">MS Sans Serif</property>
+		<property name="Font.Style" vt="Set"/>
+		<property name="OldCreateOrder" vt="False">False</property>
+		<property name="Visible" vt="True">True</property>
+		<property name="Style" vt="Int32">-1798701056</property>
+		<property name="ExStyle" vt="Int16">256</property>
+		<property name="Version" vt="String">1.04</property>
+		<property name="FormOptOnEvent" vt="False">False</property>
+		<property name="FormOptExpVars" vt="False">False</property>
+		<property name="FormOptPopulate" vt="False">False</property>
+		<property name="FormOptVarsForSet" vt="False">False</property>
+		<property name="FormOptIndentChar" vt="Int8">0</property>
+		<property name="FormOptIndentCount" vt="Int8">1</property>
+		<property name="FormOptIndentInit" vt="Int8">0</property>
+		<property name="FormOptVarScope" vt="Int8">0</property>
+		<property name="Resizing" vt="Set"/>
+		<property name="PixelsPerInch" vt="Int8">96</property>
+		<property name="TextHeight" vt="Int8">13</property>
+	</properties>
+	<components>
+		<object type="TALabel" name="lblStorage">
+			<properties>
+				<property name="Left" vt="Int8">64</property>
+				<property name="Top" vt="Int8">56</property>
+				<property name="Width" vt="Int16">169</property>
+				<property name="Height" vt="Int8">17</property>
+				<property name="Caption" vt="String">Harddrive storage required: 280MB</property>
+				<property name="TabOrder" vt="Int8">0</property>
+				<property name="HaveVariable" vt="False">False</property>
+				<property name="CtrlStyle" vt="Int32">1342308608</property>
+				<property name="CtrlExStyle" vt="Int8">0</property>
+				<property name="Resizing" vt="Set"/>
+			</properties>
+			<components/>
+		</object>
+		<object type="TALabel" name="lblTotalUncanchedFiles">
+			<properties>
+				<property name="Left" vt="Int8">64</property>
+				<property name="Top" vt="Int8">80</property>
+				<property name="Width" vt="Int16">157</property>
+				<property name="Height" vt="Int8">17</property>
+				<property name="Caption" vt="String">Files marked for download: 1234</property>
+				<property name="TabOrder" vt="Int8">1</property>
+				<property name="HaveVariable" vt="False">False</property>
+				<property name="CtrlStyle" vt="Int32">1342308608</property>
+				<property name="CtrlExStyle" vt="Int8">0</property>
+				<property name="Resizing" vt="Set"/>
+			</properties>
+			<components/>
+		</object>
+		<object type="TALabel" name="lblTotalFilesize">
+			<properties>
+				<property name="Left" vt="Int8">64</property>
+				<property name="Top" vt="Int8">104</property>
+				<property name="Width" vt="Int8">113</property>
+				<property name="Height" vt="Int8">17</property>
+				<property name="Caption" vt="String">Download size: 156MB</property>
+				<property name="TabOrder" vt="Int8">2</property>
+				<property name="HaveVariable" vt="False">False</property>
+				<property name="CtrlStyle" vt="Int32">1342308608</property>
+				<property name="CtrlExStyle" vt="Int8">0</property>
+				<property name="Resizing" vt="Set"/>
+			</properties>
+			<components/>
+		</object>
+		<object type="TATreeView" name="AdvInfoTree">
+			<properties>
+				<property name="Left" vt="Int16">256</property>
+				<property name="Top" vt="Int8">48</property>
+				<property name="Width" vt="Int16">713</property>
+				<property name="Height" vt="Int16">481</property>
+				<property name="CtrlStyle" vt="Int32">1342373943</property>
+				<property name="CtrlExStyle" vt="Int8">0</property>
+				<property name="Resizing" vt="Set"/>
+				<property name="Items.Data" vt="Binary">
+					<bin>0100000025000000FFFFFFFF00000000FFFFFFFFFFFFFFFF0000000002000000</bin>
+					<bin>0C4D6F647061636B20526F6F7424000000FFFFFFFF00000000FFFFFFFFFFFFFF</bin>
+					<bin>FF00000000010000000B536F6D6520666F6C64657228000000FFFFFFFF000000</bin>
+					<bin>00FFFFFFFFFFFFFFFF00000000010000000F537562666F6C6465722066696C65</bin>
+					<bin>3129000000FFFFFFFF00000000FFFFFFFFFFFFFFFF0000000000000000105375</bin>
+					<bin>62666F6C6465722066696C65203225000000FFFFFFFF00000000FFFFFFFFFFFF</bin>
+					<bin>FFFF00000000010000000C4D6F726520666F6C6465727329000000FFFFFFFF00</bin>
+					<bin>000000FFFFFFFFFFFFFFFF0000000001000000104D6F72652053756220666F6C</bin>
+					<bin>646572731D000000FFFFFFFF00000000FFFFFFFFFFFFFFFF0000000000000000</bin>
+					<bin>0446696C65</bin>
+				</property>
+				<property name="TabOrder" vt="Int8">3</property>
+			</properties>
+			<components/>
+		</object>
+		<object type="TAButton" name="btnCloseAdvInfo">
+			<properties>
+				<property name="Left" vt="Int16">512</property>
+				<property name="Top" vt="Int16">552</property>
+				<property name="Width" vt="Int8">75</property>
+				<property name="Height" vt="Int8">25</property>
+				<property name="Caption" vt="String">Close</property>
+				<property name="TabOrder" vt="Int8">4</property>
+				<property name="Color" vt="Ident">clBtnFace</property>
+				<property name="CtrlStyle" vt="Int32">1342373888</property>
+				<property name="CtrlExStyle" vt="Int8">0</property>
+				<property name="Resizing" vt="Set">DockWidth, DockHeight</property>
+			</properties>
+			<components/>
+		</object>
+	</components>
+</object>
