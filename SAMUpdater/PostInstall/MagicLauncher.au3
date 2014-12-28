@@ -18,7 +18,7 @@ Opt('MustDeclareVars', 1)
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func configureMagicLauncher($modID, $forgeVersion)
+Func configureMagicLauncher($modID, $forgeVersion, $defaultMaxMem)
 	Local $aConfig
 	Local $profileStartIndex
 
@@ -26,7 +26,7 @@ Func configureMagicLauncher($modID, $forgeVersion)
 	writeLogEchoToConsole("[Info]: Auto configuration of MagicLauncher started..." & @CRLF)
 
 	; If a config was made from scratch exit function
-	If createNewMagicLauncherConfig($modID, $forgeVersion) Then Return
+	If createNewMagicLauncherConfig($modID, $forgeVersion, $defaultMaxMem) Then Return
 
 
 	; Read MagicLauncher.cfg
@@ -39,7 +39,7 @@ Func configureMagicLauncher($modID, $forgeVersion)
 
 	; Profile not found, create it
 	If $profileStartIndex = 0 Then
-		insertProfile($modID, $forgeVersion, $aConfig)
+		insertProfile($modID, $forgeVersion, $aConfig, $defaultMaxMem)
 
 		; New configured profile was inserted and saved
 		Return
@@ -47,7 +47,7 @@ Func configureMagicLauncher($modID, $forgeVersion)
 
 
 	; Profile found - update it
-	updateProfile($modID, $forgeVersion, $aConfig, $profileStartIndex)
+	updateProfile($modID, $forgeVersion, $aConfig, $profileStartIndex, $defaultMaxMem)
 
 
 EndFunc
@@ -96,7 +96,7 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func createNewMagicLauncherConfig($modID, $forgeVersion)
+Func createNewMagicLauncherConfig($modID, $forgeVersion, $defaultMaxMem)
 	Local $hFile
 	Local $appfolder
 
@@ -120,7 +120,7 @@ Func createNewMagicLauncherConfig($modID, $forgeVersion)
 		FileWriteLine($hFile, '  <MinecraftJar="' & $appfolder & '\\.minecraft\\versions\\' & $forgeVersion & '\\' & $forgeVersion & '.jar">')
 		FileWriteLine($hFile, '  <ShowLog="true">')
 		FileWriteLine($hFile, '  <JavaParameters="-XX:MaxPermSize=192m -Dforge.forceNoStencil=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSIncrementalPacing -XX:ParallelGCThreads=2 -XX:+AggressiveOpts">')
-		FileWriteLine($hFile, '  <MaxMemory="1536">')
+		FileWriteLine($hFile, '  <MaxMemory="' & $defaultMaxMem & '">')
 		FileWriteLine($hFile, '  <BaseDir="' & $appfolder & '\\.minecraft\\Modpacks\\' & $modID & '\\.minecraft">')
 		FileWriteLine($hFile, '  <InactiveExternalMods=>')
 		FileWriteLine($hFile, '  <InactiveCoreMods=>')
@@ -192,7 +192,7 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func insertProfile($modID, $forgeVersion, $aConfig)
+Func insertProfile($modID, $forgeVersion, $aConfig, $defaultMaxMem)
 	Local $path
 
 	writeLogEchoToConsole("[Info]: No existing modpack profile was found - Adding new profile '" & $modID & "'" & @CRLF)
@@ -205,7 +205,7 @@ Func insertProfile($modID, $forgeVersion, $aConfig)
 	_ArrayInsert($aConfig, 4, '  <MinecraftJar="' & $path & '\\.minecraft\\versions\\' & $forgeVersion & '\\' & $forgeVersion & '.jar">')
 	_ArrayInsert($aConfig, 5, '  <ShowLog="true">')
 	_ArrayInsert($aConfig, 6, '  <JavaParameters="-XX:MaxPermSize=192m -Dforge.forceNoStencil=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSIncrementalPacing -XX:ParallelGCThreads=2 -XX:+AggressiveOpts">')
-	_ArrayInsert($aConfig, 7, '  <MaxMemory="1536">')
+	_ArrayInsert($aConfig, 7, '  <MaxMemory="' & $defaultMaxMem & '">')
 	_ArrayInsert($aConfig, 8, '  <BaseDir="' & $path & '\\.minecraft\\Modpacks\\' & $modID & '\\.minecraft">')
 	_ArrayInsert($aConfig, 9, '  <InactiveExternalMods=>')
 	_ArrayInsert($aConfig, 10, '  <InactiveCoreMods=>')
@@ -328,12 +328,14 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func updateProfile($modID, $forgeVersion, $aConfig, $profileStartIndex)
+Func updateProfile($modID, $forgeVersion, $aConfig, $profileStartIndex, $defaultMaxMem)
 	Local $profileEndIndex
 	Local $path
-
+	Local $maxMem
 
 	$profileEndIndex = findProfileEndIndex($profileStartIndex, $aConfig)
+
+	$maxMem = getMaxMem($profileStartIndex, $profileEndIndex, $aConfig, $defaultMaxMem)
 
 	; Update Environment
 	updateProfileTag($profileStartIndex, $profileEndIndex, "Environment", $forgeVersion, $aConfig)
@@ -355,7 +357,7 @@ Func updateProfile($modID, $forgeVersion, $aConfig, $profileStartIndex)
 
 
 	; Update MaxMemory
-	updateProfileTag($profileStartIndex, $profileEndIndex, "MaxMemory", 1536, $aConfig)
+	updateProfileTag($profileStartIndex, $profileEndIndex, "MaxMemory", $maxMem, $aConfig)
 
 
 	; Update BaseDir
@@ -472,5 +474,38 @@ Func updateProfileTag($profileStartIndex, $profileEndIndex, $tag, $value, ByRef 
 
 	Return
 
+
+EndFunc
+
+
+
+
+
+
+Func getMaxMem($profileStartIndex, $profileEndIndex, $aConfig, $defaultMaxMem)
+	Local $maxMem
+
+	; Loop all entries in current profile
+	For $i = $profileStartIndex To $profileEndIndex
+
+		; Find the MaxMem Tag
+		If StringInStr($aConfig[$i], "<MaxMemory=") <> 0 Then
+			$maxMem = StringTrimLeft($aConfig[$i], 14)
+			$maxMem = StringTrimRight($maxMem, 2)
+
+			; MaxMem is smaller than recommended, exit loop and set it to default
+			If $maxMem < $defaultMaxMem Then ExitLoop
+
+
+			; Return clients custom MaxMem setting
+			Return $maxMem
+		EndIf
+
+
+	Next
+
+
+	; Default MaxMem setting
+	Return $defaultMaxMem
 
 EndFunc
