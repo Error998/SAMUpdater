@@ -5,18 +5,39 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=Update helper for samupdater.exe
-#AutoIt3Wrapper_Res_Fileversion=0.0.0.7
+#AutoIt3Wrapper_Res_Fileversion=0.0.0.8
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
 #include <File.au3>
+#include <MsgBoxConstants.au3>
 #include "..\DataIO\Folders.au3"
+#include "..\DataIO\Logs.au3"
+#include "..\GUI\Colors.au3"
+
 
 Opt('MustDeclareVars', 1)
 
 ; ### Init Varibles ###
-Const $version = "0.0.0.7"
+Const $version = "0.0.0.8"
+Global $dataFolder = @AppDataDir & "\SAMUpdater"
+
+; Initialize colors used in console window
+Global $hdllKernel32 = initColors()
+
+; Log file handle
+Global $hLog = initLogs($dataFolder)
+
 Local $updatePath
+
+; Close the log file on application exit
+OnAutoItExitRegister("closeLog")
+
+; Set console color
+setConsoleColor($FOREGROUND_Light_Green)
+
+
+
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: verifyUpdateFiles
@@ -35,13 +56,13 @@ Local $updatePath
 Func verifyUpdateFiles()
 	Local $versionInfo
 
-	ConsoleWrite("[Info]: Checking update file integrity" & @CRLF)
+	writelogEchoToConsole("[Info]: Checking update file integrity" & @CRLF)
 
 	; Sanity check to make sure a update actually exists
 	If Not FileExists(@ScriptDir & "\update.dat") Then
-		ConsoleWrite("[ERROR]: Update file not found, please run SAMUpdater" & @CRLF)
-		ConsoleWrite("[ERROR]: Is this issue persists please contact your mod pack creator" & @CRLF & @CRLF)
-		MsgBox(48, "Update file not found","Could not locate Update.dat! Please run SAMUpdater again.")
+		writelogEchoToConsole("[ERROR]: Update file not found, please run SAMUpdater again." & @CRLF)
+		writelogEchoToConsole("[ERROR]: Is this issue persists contact your mod pack creator" & @CRLF & @CRLF)
+		MsgBox($MB_ICONERROR, "Update file not found","Could not locate Update.dat! Please run SAMUpdater again.")
 		Exit
 	EndIf
 
@@ -49,23 +70,23 @@ Func verifyUpdateFiles()
 	_FileReadToArray(@ScriptDir & "\version.dat", $versionInfo)
 	; Check if the version.dat does contain the location of SAMUpdater.exe
 	If $versionInfo[0] <> 7 Then
-		ConsoleWrite("[ERROR]: Could not locate the location of SAMUpdater from version.dat" & @CRLF)
-		ConsoleWrite("[ERROR]: Please run SAMUpdater again." & @CRLF)
-		ConsoleWrite("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
-		MsgBox(48, "Invalid version.dat", "Please run SAMUpdater again")
+		writelogEchoToConsole("[ERROR]: Could not locate the location of SAMUpdater from version.dat" & @CRLF)
+		writelogEchoToConsole("[ERROR]: Please run SAMUpdater again." & @CRLF)
+		writelogEchoToConsole("[ERROR]: If the issue persist contact your mod pack creator" & @CRLF & @CRLF)
+		MsgBox($MB_ICONERROR, "Invalid version.dat", "Please run SAMUpdater again")
 		Exit
 	EndIf
 
 
 	; Verify the integrity of update.dat
 	If Not compareHash(@ScriptDir & "\update.dat", $versionInfo[3]) Then
-		ConsoleWrite("[ERROR]: File corrupt, integrity failed - Update.dat, please run SAMUpdater again" & @CRLF)
-		ConsoleWrite("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
-		MsgBox(48, "Invalid update.dat", "Please run SAMUpdater again")
+		writelogEchoToConsole("[ERROR]: File corrupt, integrity failed - Update.dat, please run SAMUpdater again" & @CRLF)
+		writelogEchoToConsole("[ERROR]: If the issue persist contact your mod pack creator" & @CRLF & @CRLF)
+		MsgBox($MB_ICONERROR, "Invalid update.dat", "Please run SAMUpdater again")
 		Exit
 	EndIf
 
-	ConsoleWrite("[Info]: File integrity passed" & @CRLF & @CRLF)
+	writelogEchoToConsole("[Info]: File integrity passed" & @CRLF & @CRLF)
 	Return $versionInfo[7]
 EndFunc
 
@@ -93,14 +114,15 @@ Func UpdateSAMUpdater()
 
 
 	; Delete the old SAMUpdater.exe
+	writelog("[Info]: Deleting " & $updatePath & "\SAMUpdater.exe")
 	removeFile($updatePath & "\SAMUpdater.exe")
 
 
 	; Install the update
 	If Not FileMove(@ScriptDir & "\update.dat", $updatePath & "\SAMUpdater.exe") Then
-		ConsoleWrite("[ERROR]: Unable to apply the update to SAMUpdater.exe" & @CRLF)
-		ConsoleWrite("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
-		MsgBox(48, "Unable to update SAMUpdater", "Please redownload the latest SAMUpdater")
+		writelogEchoToConsole("[ERROR]: Unable to apply the update to SAMUpdater.exe" & @CRLF)
+		writelogEchoToConsole("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
+		MsgBox($MB_ICONERROR, "Unable to update SAMUpdater", "Please redownload the latest SAMUpdater")
 		Exit
 	EndIf
 
@@ -110,10 +132,11 @@ EndFunc
 
 
 ; ########## Main ##########
+writelog("[Info]: Update_Helper launched")
+writelogEchoToConsole("[Info]: Update_Helper version " & $version & @CRLF & @CRLF)
 
-ConsoleWrite("[Info]: Update_Helper version " & $version & @CRLF & @CRLF)
 ; Wait 5 seconds for SAMUpdater to close completely
-ConsoleWrite("[Info]: Waiting for SAMUpdater to close")
+writelogEchoToConsole("[Info]: Waiting 5 seconds for SAMUpdater to close")
 For $i = 1 To 5
 	ConsoleWrite(".")
 	Sleep(1000)
@@ -125,8 +148,9 @@ ConsoleWrite(@CRLF & @CRLF)
 $updatePath = UpdateSAMUpdater()
 
 
-ConsoleWrite("[Info]: Update successful" & @CRLF & @CRLF)
-ConsoleWrite("[Info]: Launching SAMUpdater" & @CRLF)
+writelogEchoToConsole("[Info]: Update successful" & @CRLF & @CRLF)
+writelogEchoToConsole("[Info]: Launching SAMUpdater" & @CRLF)
+
 
 Run($updatePath & "\SAMUpdater.exe", $updatePath)
 Exit

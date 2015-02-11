@@ -144,7 +144,6 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func autoUpdate($version, $updateURL, $dataFolder)
-	Local $updateAvailable = False
 
 	; If no update is available return
 	If Not isNewUpdateAvailable($version, $updateURL, $dataFolder) Then
