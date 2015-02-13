@@ -5,7 +5,7 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=Update helper for samupdater.exe
-#AutoIt3Wrapper_Res_Fileversion=0.0.0.8
+#AutoIt3Wrapper_Res_Fileversion=0.0.1.7
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -19,7 +19,8 @@
 Opt('MustDeclareVars', 1)
 
 ; ### Init Varibles ###
-Const $version = "0.0.0.8"
+Const $version = "0.0.1.7"
+
 Global $dataFolder = @AppDataDir & "\SAMUpdater"
 
 ; Initialize colors used in console window
@@ -28,7 +29,8 @@ Global $hdllKernel32 = initColors()
 ; Log file handle
 Global $hLog = initLogs($dataFolder)
 
-Local $updatePath
+Local $path
+
 
 ; Close the log file on application exit
 OnAutoItExitRegister("closeLog")
@@ -41,25 +43,26 @@ setConsoleColor($FOREGROUND_Light_Green)
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: verifyUpdateFiles
-; Description ...:
-; Syntax ........: verifyUpdateFiles()
-; Parameters ....:
+; Description ...: Checks in update.dat exist and matches Hash.
+; Syntax ........: verifyUpdateFiles($dataFolder)
+; Parameters ....: $dataFolder			- Appliaction data folder
 ; Return values .: Success				- Path to SAMUpdater.exe
 ;				   Failure				- Application closes
 ; Author ........: Error_998
 ; Modified ......:
-; Remarks .......: version.dat should be current and contain the location of SAMUpdater.exe
+; Remarks .......: version.ini should be current
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func verifyUpdateFiles()
-	Local $versionInfo
+Func verifyUpdateFiles($dataFolder)
+	Local $path
+	Local $hash
 
 	writelogEchoToConsole("[Info]: Checking update file integrity" & @CRLF)
 
 	; Sanity check to make sure a update actually exists
-	If Not FileExists(@ScriptDir & "\update.dat") Then
+	If Not FileExists($dataFolder & "\update.dat") Then
 		writelogEchoToConsole("[ERROR]: Update file not found, please run SAMUpdater again." & @CRLF)
 		writelogEchoToConsole("[ERROR]: Is this issue persists contact your mod pack creator" & @CRLF & @CRLF)
 		MsgBox($MB_ICONERROR, "Update file not found","Could not locate Update.dat! Please run SAMUpdater again.")
@@ -67,27 +70,53 @@ Func verifyUpdateFiles()
 	EndIf
 
 
-	_FileReadToArray(@ScriptDir & "\version.dat", $versionInfo)
-	; Check if the version.dat does contain the location of SAMUpdater.exe
-	If $versionInfo[0] <> 7 Then
-		writelogEchoToConsole("[ERROR]: Could not locate the location of SAMUpdater from version.dat" & @CRLF)
-		writelogEchoToConsole("[ERROR]: Please run SAMUpdater again." & @CRLF)
-		writelogEchoToConsole("[ERROR]: If the issue persist contact your mod pack creator" & @CRLF & @CRLF)
-		MsgBox($MB_ICONERROR, "Invalid version.dat", "Please run SAMUpdater again")
-		Exit
-	EndIf
-
 
 	; Verify the integrity of update.dat
-	If Not compareHash(@ScriptDir & "\update.dat", $versionInfo[3]) Then
-		writelogEchoToConsole("[ERROR]: File corrupt, integrity failed - Update.dat, please run SAMUpdater again" & @CRLF)
+	$hash = IniRead($dataFolder & "\version.ini", "SAMUpdater", "SHA1", "")
+
+	If Not compareHash($dataFolder & "\update.dat", $hash) Then
+		writelogEchoToConsole("[ERROR]: File corrupt, integrity failed - update.dat" & @CRLF)
+		writelogEchoToConsole("[ERROR]: Please run SAMUpdater again" & @CRLF)
 		writelogEchoToConsole("[ERROR]: If the issue persist contact your mod pack creator" & @CRLF & @CRLF)
 		MsgBox($MB_ICONERROR, "Invalid update.dat", "Please run SAMUpdater again")
 		Exit
 	EndIf
 
 	writelogEchoToConsole("[Info]: File integrity passed" & @CRLF & @CRLF)
-	Return $versionInfo[7]
+
+
+EndFunc
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: getFullUpdatePath
+; Description ...: Get the path + filename of the application that launched Updater_Helper
+; Syntax ........: getFullUpdatePath($dataFolder)
+; Parameters ....: $dataFolder          - Application data folder
+; Return values .: Full path with filename of the launching application
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func getFullUpdatePath($dataFolder)
+	Local $fullPath
+
+
+	$fullPath = IniRead($dataFolder & "\version.ini", "SAMUpdater", "LaunchingAppFullPath", "")
+	If $fullPath = "" Then
+		writelogEchoToConsole("[ERROR]: Path to Updater was not located in version.ini" & @CRLF)
+		writelogEchoToConsole("[ERROR]: Please run SAMUpdater again."  & @CRLF)
+		MsgBox($MB_ICONERROR, "Invalid version.ini", "Do not run Update_Helper directly, please launch SAMUpdater again.")
+		Exit
+	EndIf
+
+	Return $fullPath
 EndFunc
 
 
@@ -106,28 +135,45 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func UpdateSAMUpdater()
-	Local $updatePath
+Func UpdateSAMUpdater($dataFolder)
+	Local $fullPath
+	Local $path
 
-	; Verify Update.dat and version.dat
-	$updatePath = verifyUpdateFiles()
+	; Verify Update.dat
+	verifyUpdateFiles($dataFolder)
 
+	; Path + Filename
+	$fullPath = getFullUpdatePath($dataFolder)
+	; Path Only
+	$path = getPath($fullPath)
 
 	; Delete the old SAMUpdater.exe
-	writelog("[Info]: Deleting " & $updatePath & "\SAMUpdater.exe")
-	removeFile($updatePath & "\SAMUpdater.exe")
+	trimPathToFitConsole("[Info]: Deleting ", $fullPath)
+	removeFile($fullPath)
+
+	; If SAMUpdater was renamed to something it will be removed above, but we have to also
+	; make sure that SAMUpdater.exe does not exist else we cant update.
+	If FileExists($path & "\SAMUpdater.exe") Then
+		trimPathToFitConsole("[Info]: Deleting ", $path & "\SAMUpdater.exe")
+		removeFile($path & "\SAMUpdater.exe")
+	EndIf
 
 
 	; Install the update
-	If Not FileMove(@ScriptDir & "\update.dat", $updatePath & "\SAMUpdater.exe") Then
+	If Not FileMove($dataFolder & "\update.dat", $path & "\SAMUpdater.exe") Then
 		writelogEchoToConsole("[ERROR]: Unable to apply the update to SAMUpdater.exe" & @CRLF)
+		writelog("[ERROR]: Unable to move " & $dataFolder & "\update.dat to " & $path & "\SAMUpdater.exe")
 		writelogEchoToConsole("[ERROR]: If the issue persist please contact your mod pack creator" & @CRLF & @CRLF)
 		MsgBox($MB_ICONERROR, "Unable to update SAMUpdater", "Please redownload the latest SAMUpdater")
 		Exit
 	EndIf
 
-	Return $updatePath
+	Return $path
 EndFunc
+
+
+
+
 
 
 
@@ -145,13 +191,13 @@ ConsoleWrite(@CRLF & @CRLF)
 
 
 ; Update SAMupdater
-$updatePath = UpdateSAMUpdater()
+$path = UpdateSAMUpdater($dataFolder)
 
 
 writelogEchoToConsole("[Info]: Update successful" & @CRLF & @CRLF)
 writelogEchoToConsole("[Info]: Launching SAMUpdater" & @CRLF)
 
 
-Run($updatePath & "\SAMUpdater.exe", $updatePath)
+Run($path & "\SAMUpdater.exe", $path)
 Exit
 

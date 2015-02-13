@@ -70,7 +70,7 @@ EndFunc
 ;===========================================================================================
 Func removeFile($sPath)
 	If (FileRecycle($sPath) = True) Then
-		ConsoleWrite("[Info]: Deleted - " & $sPath & @CRLF)
+		;ConsoleWrite("[Info]: Deleted - " & $sPath & @CRLF)
 	ElseIf FileExists($sPath) Then
 		ConsoleWrite("[ERROR]: Unable to delete - " & $sPath & @CRLF)
 		MsgBox(48,"Unable to delete file!", "Please make sure the file or folder is not currently in use or open." & @CRLF & _
