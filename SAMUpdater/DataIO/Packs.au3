@@ -26,9 +26,12 @@ Func loadPackList($packsURL, $dataFolder)
 	Local $xml
 	Local $modpacksXML
 
+
 	; Download Packs.xml
-	writeLogEchoToConsole("[Info]: Downloading mod pack list" & @CRLF)
-	downloadFile($packsURL, $dataFolder & "\PackData\Packs.xml")
+	If $isOnline Then
+		writeLogEchoToConsole("[Info]: Downloading mod pack list" & @CRLF)
+		downloadFile($packsURL, $dataFolder & "\PackData\Packs.xml")
+	EndIf
 
 	; Load and parse Packs.xml
 	$xml = loadXML($dataFolder& "\PackData\Packs.xml")
@@ -147,6 +150,13 @@ Func initModpackFiles($modpacks, $dataFolder)
 	Local $url
 	Local $path
 	Local $hash
+
+	; Skip if offline
+	If Not $isOnline Then
+		writeLogEchoToConsole("[Info]: Offline, skipping Modpack asset download" & @CRLF & @CRLF)
+		Return
+	EndIf
+
 
 	writeLogEchoToConsole("[Info]: Initializing Modpack assets" & @CRLF)
 

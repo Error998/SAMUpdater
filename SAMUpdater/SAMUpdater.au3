@@ -5,8 +5,8 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_ProductVersion=0.1.1.3
-#AutoIt3Wrapper_Res_Fileversion=0.1.1.3
+#AutoIt3Wrapper_Res_ProductVersion=0.2.0.0
+#AutoIt3Wrapper_Res_Fileversion=0.2.0.0
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -24,18 +24,19 @@
 #include "GUI\frmModpackSelection.au3"
 #include "PostInstall\MagicLauncher.au3"
 #include "PostInstall\Application.au3"
-
+#include "OfflineMode\OfflineMode.au3"
 
 Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.1.1.3"
+Const $version = "0.2.0.0"
 ;Const $baseURL = "http://localhost/samupdater"
 Const $baseURL = "http://local.saminecraft.co.za/sam/samupdater"
 Const $updateURL = $baseURL & "/version.ini"
 Const $packsURL = $baseURL & "/packdata/packs.xml"
 Global $dataFolder = @AppDataDir & "\SAMUpdater"
+Global $isOnline = "True"
 
 ; Initialize colors used in console window
 Global $hdllKernel32 = initColors()
@@ -69,13 +70,30 @@ writeLogEchoToConsole("[Info]: Folders initialized" & @CRLF & @CRLF)
 
 
 
-; Check and update SAMUpdater
-autoUpdate($version, $updateURL, $dataFolder)
-
-
-
 ; Initialize settings.ini
 initUserSettings($dataFolder)
+
+
+
+; Determine is Updater is online or not
+$isOnline = getSettingIsOnline($dataFolder)
+
+If $isOnline Then
+	; Online
+	writeLogEchoToConsole("[Info]: SAMUpdater is currently in Online Mode" & @CRLF & @CRLF)
+Else
+	; Offline
+	writeLogEchoToConsole("[Warning]: SAMUpdater is currently in Offline Mode" & @CRLF & @CRLF)
+
+	; Prompt user to switch to Online mode
+
+	toggleNetworkMode()
+EndIf
+
+
+
+; Check and update SAMUpdater
+autoUpdate($version, $updateURL, $dataFolder)
 
 
 

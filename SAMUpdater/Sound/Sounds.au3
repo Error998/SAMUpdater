@@ -70,13 +70,17 @@ Func playBackgroundMusic($dataFolder)
 	$hWndTimer = WinGetHandle(AutoItWinGetTitle())
 
 
-	; Create F7 Hotkey to toggle background music
-	HotKeySet("{F7}", "toggleBackgroundMusic")
 
+	; Check music file exists
+	If Not FileExists($dataFolder & "\PackData\Assets\Sounds\background.mp3") Then Return
 
 	; Check user settings if sound should be enabled
 	If IniRead($dataFolder & "\Settings\settings.ini", "Sound","BackgroundMusicOn", "True") <> "True" Then Return
 
+
+
+	; Create F7 Hotkey to toggle background music
+	HotKeySet("{F7}", "toggleBackgroundMusic")
 
 
 	; Start playing background music

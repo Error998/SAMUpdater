@@ -36,6 +36,7 @@ Func initUserSettings($dataFolder)
 
 	; settings.ini does not exist, creating new file
 	IniWrite($file, "Sound", "BackgroundMusicOn", "True")
+	IniWrite($file, "Network", "Mode", "Online")
 
 	writeLogEchoToConsole("[Info]: User settings created" & @CRLF & @CRLF)
 

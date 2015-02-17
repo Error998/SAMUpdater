@@ -2,6 +2,7 @@
 #include <Array.au3>
 #include <Crypt.au3>
 #include <File.au3>
+#include <MsgBoxConstants.au3>
 #include "..\DataIO\XML.au3"
 #include "..\DataIO\Download.au3"
 #include "..\DataIO\ModPack.au3"
@@ -27,14 +28,48 @@ Opt('MustDeclareVars', 1)
 ; ===============================================================================================================================
 Func cacheModpack($baseModURL, $modID, $dataFolder)
 	Local $uncachedFiles
+	Local $reply
 
 	; Get a list of files that are not yet cached
 	$uncachedFiles = getUncachedFileList($modID, $dataFolder)
 
-	; Download and cache files if needed
-	If $uncachedFiles[0] > 0 Then
-		cacheFiles($baseModURL, $uncachedFiles, $modID, $dataFolder)
+	; Cache is up to date, return
+	If $uncachedFiles[0] = 0 Then Return
+
+
+
+
+	; If offline and cache is incomplete let the user know
+	If Not $isOnline Then
+		writeLogEchoToConsole("[Warning]: Offline but found " & $uncachedFiles[0] & " uncached files." & @CRLF)
+		writeLogEchoToConsole("[Warning]: Please switch to online mode to download the uncache files." & @CRLF)
+
+
+		$reply = MsgBox($MB_ICONWARNING + $MB_YESNO, "Missing cache files", "Would you like to switch to online mode and download the missing cache files?" & @CRLF  & @CRLF & " Clicking NO will close the application.")
+
+
+		; Cache files missing, staying offline, closing app since we cant continue
+		If $reply = $IDNO Then
+
+			writeLogEchoToConsole("[Info]: User opted not to switch to Online mode." & @CRLF)
+			writeLogEchoToConsole("[Info]: Application will now close" & @CRLF)
+			Exit
+
+		EndIf
+
+
+		; Switch to Online mode
+		$isOnline = True
+
+		; Save new user setting
+		IniWrite($dataFolder & "\Settings\settings.ini", "Network", "Mode", "Online")
+
 	EndIf
+
+
+
+	cacheFiles($baseModURL, $uncachedFiles, $modID, $dataFolder)
+
 
 EndFunc
 

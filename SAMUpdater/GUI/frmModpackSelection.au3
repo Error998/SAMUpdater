@@ -93,7 +93,11 @@ Func addModpack($modpackNum, ByRef $ctrlIDs)
 
 
 		; Download button
-		$ctrlIDs[$modpackNum][1]  = GUICtrlCreateButton("Download", 328, 56 + $offset, 75, 25)
+		If $isOnline Then
+			$ctrlIDs[$modpackNum][1]  = GUICtrlCreateButton("Download", 328, 56 + $offset, 75, 25)
+		Else
+			$ctrlIDs[$modpackNum][1]  = GUICtrlCreateButton("Install", 328, 56 + $offset, 75, 25)
+		EndIf
 		GUICtrlSetOnEvent(-1, "btnDownload")
 
 
@@ -244,6 +248,9 @@ Func btnInfo()
 	; Caculate what modpack's info should be displayed
 	$modpackNum = findModpackNumFromCtrlID(@GUI_CtrlId, 0, $ctrlIDs)
 
+	; Disable CTRL + O Hotkey
+	HotKeySet("^o")
+
 
 	; Display Splash and description
 	showSplashAndDescription($modpackNum)
@@ -254,6 +261,8 @@ Func btnInfo()
 	displayAdvInfo($modpackNum)
 
 
+	; Re-enable CTRL + O hotkey
+	HotKeySet("^o", toggleNetworkMode)
 EndFunc
 
 
@@ -279,6 +288,7 @@ Func CLOSEButton()
 
 	; Set Exit GUI loop condition
 	$closeGUI = True
+
 	writeLogEchoToConsole("[Info]: Closing ModpackSelection GUI" & @CRLF & @CRLF)
 EndFunc
 
@@ -387,10 +397,20 @@ Func DisplayModpackSelection()
 	; Create and display GUI with populated controls
 	createModpackSelectionGUI()
 
+
+	; Create CTRL + O hotkey to toggle network mode
+	HotKeySet("^o", toggleNetworkMode)
+
+
 	; Main GUI message loop
 	While Not $closeGUI
 
 	WEnd
+
+
+	; Remove CTRL + O Hotkey
+	HotKeySet("^o")
+
 
 	Return $downloadModpackNum
 EndFunc

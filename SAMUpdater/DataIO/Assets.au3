@@ -26,7 +26,7 @@ Func loadAssetHashList($assetURL, $dataFolder, $assetID, $dontDownload = False)
 	Local $hashListXML
 
 	; Should we redownload assets.xml
-	If $dontDownload = False Then
+	If $dontDownload = False And $isOnline = True Then
 		; Download assets.xml
 		downloadFile($assetURL, $dataFolder & "\PackData\Assets\assets.xml")
 	EndIf
@@ -72,14 +72,15 @@ Func initSoundAssets($baseURL, $dataFolder)
 	; Get list of hashes from assets.xml
 	$hashListXML = loadAssetHashList($baseURL & "/packdata/assets/assets.xml", $dataFolder, "Sounds")
 
-
 	; Download background.mp3
 	$url = $baseURL & "/packdata/assets/sounds/background.mp3"
 	$path = "\PackData\Assets\Sounds\background.mp3"
 	$hash = getElement($hashListXML[1], "BackgroundMusicSHA1")
 
 	; Download background music with a retry count of 5 and display progress indicator
-	verifyAndDownload($url, $path, $dataFolder, $hash, 5, True)
+	if $isOnline Then
+		verifyAndDownload($url, $path, $dataFolder, $hash, 5, True)
+	EndIf
 
 	$backgroundPlayLenght = getElement($hashListXML[1], "BackgroundMusicPlayLenght")
 
@@ -218,7 +219,16 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func initGUIAssets($baseURL, $dataFolder)
-	writeLogEchoToConsole("[Info]: Initializing GUI assests" & @CRLF)
+
+	; Skip if offline
+	If Not $isOnline Then
+		writeLogEchoToConsole("[Info]: Offline, skipping GUI asset downloads" & @CRLF & @CRLF)
+		Return
+	EndIf
+
+
+
+	writeLogEchoToConsole("[Info]: Initializing GUI assets" & @CRLF)
 
 
 	; Initialize ModSelection GUI assets, download default files and background.

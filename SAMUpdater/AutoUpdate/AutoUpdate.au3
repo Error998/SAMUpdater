@@ -140,6 +140,10 @@ EndFunc
 ; ===============================================================================================================================
 Func autoUpdate($version, $updateURL, $dataFolder)
 
+	; Skip if offline
+	If Not $isOnline Then Return
+
+
 	; If no update is available return
 	If Not isNewUpdateAvailable($version, $updateURL, $dataFolder) Then
 		Return
