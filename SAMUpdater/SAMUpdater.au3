@@ -5,8 +5,8 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_ProductVersion=0.2.0.0
-#AutoIt3Wrapper_Res_Fileversion=0.2.0.0
+#AutoIt3Wrapper_Res_ProductVersion=0.2.1.3
+#AutoIt3Wrapper_Res_Fileversion=0.2.1.3
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -30,9 +30,9 @@ Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.2.0.0"
-;Const $baseURL = "http://localhost/samupdater"
-Const $baseURL = "http://local.saminecraft.co.za/sam/samupdater"
+Const $version = "0.2.1.3"
+Const $baseURL = "http://localhost/samupdater"
+;Const $baseURL = "http://local.saminecraft.co.za/sam/samupdater"
 Const $updateURL = $baseURL & "/version.ini"
 Const $packsURL = $baseURL & "/packdata/packs.xml"
 Global $dataFolder = @AppDataDir & "\SAMUpdater"

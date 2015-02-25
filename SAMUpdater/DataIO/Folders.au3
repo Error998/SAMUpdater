@@ -55,29 +55,48 @@ EndFunc
 
 
 
-
-; #FUNCTION# ==============================================================================
-; Name...........: removeFile($sPath)
-; Description ...: Send a file or entire folder to the recycle bin
-; Syntax.........: removeFile($sPath)
-; Parameters ....: Path to the file or folder to delete
-; Return values .: Failure			- Application closes
+; #FUNCTION# ====================================================================================================================
+; Name ..........: removeFile
+; Description ...: Permanently delete or move to Recycle bin, a file or entire folder
+; Syntax ........: removeFile($path[, $recycle = False])
+; Parameters ....: $path                - Full path and filename to delete
+;                  $recycle             - [optional] Boolean value
+;										  True send file to Recycle bin
+;										  False permanently delete file
+; Return values .: Failure				- Application closes
 ; Author ........: Error_998
 ; Modified ......:
-; Remarks .......: Remove the leading \ from the path to delete the folder
-;				   DO NO use file loggin in this function as the updater_helper uses it
-;				   and it wont have a log file handle
-;===========================================================================================
-Func removeFile($sPath)
-	If (FileRecycle($sPath) = True) Then
-		;ConsoleWrite("[Info]: Deleted - " & $sPath & @CRLF)
-	ElseIf FileExists($sPath) Then
-		ConsoleWrite("[ERROR]: Unable to delete - " & $sPath & @CRLF)
+; Remarks .......:
+; Related .......: Remove leading '\' from the path to delete the folder and everything in it.
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func removeFile($path, $recycle = False)
+
+	; Send file to recycle bin
+	If $recycle = "True" Then
+		writeLog("[Info]: Sending file to recycle bin - " & $path & @CRLF)
+
+		FileRecycle($path)
+
+
+	Else
+		writeLog("[Info]: Deleting - " & $path & @CRLF)
+
+		;Permanently delete file
+		FileDelete($path)
+	EndIf
+
+
+
+	; Sanity check to make sure file was deleted
+	If FileExists($path) Then
+		writeLogEchoToConsole("[ERROR]: Unable to delete - " & $path & @CRLF)
 		MsgBox(48,"Unable to delete file!", "Please make sure the file or folder is not currently in use or open." & @CRLF & _
 				  "Close the offending application then restart SAMUpater" & @CRLF & "Click OK to close SAMUpdater")
 		Exit
     Else
-        ConsoleWrite("[Info]: Does not exist, consider it removed - " & $sPath & @CRLF)
+        writeLog("[Info]: File has been removed - " & $path & @CRLF)
 	EndIf
 
 EndFunc

@@ -5,6 +5,7 @@
 #include <FileConstants.au3>
 #include <MsgBoxConstants.au3>
 #include "..\DataIO\XML.au3"
+#include "..\DataIO\Folders.au3"
 #include "..\DataIO\Download.au3"
 
 Opt('MustDeclareVars', 1)
@@ -28,12 +29,19 @@ Opt('MustDeclareVars', 1)
 ; Example .......: No
 ; ===============================================================================================================================
 Func installModPack($defaultInstallFolder, $modID, $dataFolder)
+	Local $recycle
+
 
 	; Install
 	installFromCache($defaultInstallFolder, $modID, $dataFolder)
 
+
+	; Should files be permanently deleted or sent to recycle bin
+	$recycle = IniRead($dataFolder & "\Settings\settings.ini", "Files", "DeleteToRecycleBin", "False")
+
+
 	; Remove
-	removeOldFiles($defaultInstallFolder, $modID, $dataFolder)
+	removeOldFiles($defaultInstallFolder, $modID, $dataFolder, $recycle)
 
 EndFunc
 
@@ -124,10 +132,11 @@ EndFunc
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: removeOldFiles
 ; Description ...: Delete all files marked for removal to recycle bin
-; Syntax ........: removeOldFiles($defaultInstallFolder, $modID, $dataFolder)
+; Syntax ........: removeOldFiles($defaultInstallFolder, $modID, $dataFolder, $recycle)
 ; Parameters ....: $defaultInstallFolder- Installation folder.
 ;                  $modID               - The modID.
 ;                  $dataFolder          - Application data folder.
+;				   $recycle				- true send to recycle bin, false permanently delete file
 ; Return values .: None
 ; Author ........: Error_998
 ; Modified ......:
@@ -136,7 +145,7 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func removeOldFiles($defaultInstallFolder, $modID, $dataFolder)
+Func removeOldFiles($defaultInstallFolder, $modID, $dataFolder, $recycle)
 	Dim $currentXMLfiles  ; All files that exist in the current modpack
 	Local $destinationFile
 	Local $sourceFile
@@ -169,19 +178,14 @@ Func removeOldFiles($defaultInstallFolder, $modID, $dataFolder)
 		EndIf
 
 
-		; Send file to recyclebin
-		If Not FileRecycle($destinationFile) Then
 
-			; Could not delete file
-			writeLogEchoToConsole("[ERROR]: Unable to delete file - " & $destinationFile & @CRLF)
-				MsgBox($MB_ICONWARNING , "Unable to delete file", "Unable to delete file: " & @CRLF & $destinationFile & @CRLF & @CRLF & "Please make sure that the file is not open or in use." & @CRLF & @CRLF& "The installation will continue but it is HIGHLY recommemded to restart the modpack installation afterwards!")
+		; Delete File
+		removeFile($destinationFile, $recycle)
 
-		Else
+		; File deleted
+		trimPathToFitConsole("[Info]: (" & $i + 1 & "\" & $totalFiles + 1& ") Successfully removed - ", $destinationFile)
 
-			; File deleted
-			trimPathToFitConsole("[Info]: (" & $i + 1 & "\" & $totalFiles + 1& ") Successfully removed - ", $destinationFile)
 
-		EndIf
 
 	Next
 

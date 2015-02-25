@@ -5,7 +5,7 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=Update helper for samupdater.exe
-#AutoIt3Wrapper_Res_Fileversion=0.0.1.7
+#AutoIt3Wrapper_Res_Fileversion=0.0.2.0
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -13,13 +13,14 @@
 #include <MsgBoxConstants.au3>
 #include "..\DataIO\Folders.au3"
 #include "..\DataIO\Logs.au3"
+#include "..\DataIO\UserSettings.au3"
 #include "..\GUI\Colors.au3"
 
 
 Opt('MustDeclareVars', 1)
 
 ; ### Init Varibles ###
-Const $version = "0.0.1.7"
+Const $version = "0.0.2.0"
 
 Global $dataFolder = @AppDataDir & "\SAMUpdater"
 
@@ -29,14 +30,19 @@ Global $hdllKernel32 = initColors()
 ; Log file handle
 Global $hLog = initLogs($dataFolder)
 
-Local $path
-
-
 ; Close the log file on application exit
 OnAutoItExitRegister("closeLog")
 
+
 ; Set console color
 setConsoleColor($FOREGROUND_Light_Green)
+
+
+; Initialize User Settings
+initUserSettings($dataFolder)
+
+
+Local $path
 
 
 
@@ -138,6 +144,7 @@ EndFunc
 Func UpdateSAMUpdater($dataFolder)
 	Local $fullPath
 	Local $path
+	Local $recycle
 
 	; Verify Update.dat
 	verifyUpdateFiles($dataFolder)
@@ -149,13 +156,19 @@ Func UpdateSAMUpdater($dataFolder)
 
 	; Delete the old SAMUpdater.exe
 	trimPathToFitConsole("[Info]: Deleting ", $fullPath)
-	removeFile($fullPath)
+
+
+	; Read user setting (Recycle bin or permanent delete file)
+	$recycle = IniRead($dataFolder & "\Settings\settings.ini", "Files", "DeleteToRecycleBin", "False")
+
+
+	removeFile($fullPath, $recycle)
 
 	; If SAMUpdater was renamed to something it will be removed above, but we have to also
 	; make sure that SAMUpdater.exe does not exist else we cant update.
 	If FileExists($path & "\SAMUpdater.exe") Then
 		trimPathToFitConsole("[Info]: Deleting ", $path & "\SAMUpdater.exe")
-		removeFile($path & "\SAMUpdater.exe")
+		removeFile($path & "\SAMUpdater.exe", $recycle)
 	EndIf
 
 
