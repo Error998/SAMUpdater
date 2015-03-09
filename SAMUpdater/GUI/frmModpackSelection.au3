@@ -8,7 +8,7 @@
 #include "..\DataIO\InstallModpack.au3"
 #include "..\DataIO\Cache.au3"
 #include "frmAdvInfo.au3"
-#include "GUIScrollbars_Size.au3"
+#include "GUIScrollbars_Ex.au3"
 
 Opt("GUIOnEventMode", 1)
 
@@ -29,7 +29,7 @@ Global $selectedModpackNum
 ; Syntax ........: addModpack($modpackNum, Byref $ctrlIDs)
 ; Parameters ....: $modpackNum          - Zero based index of the selected modpack to add
 ;                  $ctrlIDs             - [in/out] Array to hold the control ID of the clickable items
-; Return values .: None
+; Return values .: The (top + height) of the bottom most control, used to determine the size for the scrollable area
 ; Author ........: Error_998
 ; Modified ......:
 ; Remarks .......:
@@ -38,6 +38,9 @@ Global $selectedModpackNum
 ; Example .......: No
 ; ===============================================================================================================================
 Func addModpack($modpackNum, ByRef $ctrlIDs)
+	; Background color of modpack box
+	Local $backgroundColor = 0xC0C0C0
+
 	Local $offset = $modpackNum * 100
 	Local $iconPath
 	Local $heading
@@ -67,22 +70,26 @@ Func addModpack($modpackNum, ByRef $ctrlIDs)
 	; Border
 	$ctrlIDs[$modpackNum][2] = GUICtrlCreateLabel("", 13, 13 + $offset, 315, 80)
 	GUICtrlSetOnEvent(-1, "ModpackClicked")
+	GUICtrlSetBkColor(-1, $backgroundColor)
 
 	; Border part under buttons thats not clickable
-	GUICtrlCreateLabel("", 328, 13 + $offset, 86, 80)
+	GUICtrlCreateLabel("", 327, 13 + $offset, 87, 80)
 	GUICtrlSetState(-1, $GUI_DISABLE)
-
+	GUICtrlSetBkColor(-1, $backgroundColor)
 
 	If $modpacks[$modpackNum][12] = "False" Then
 
 		; Disabled Info Button
 		$ctrlIDs[$modpackNum][0] =  GUICtrlCreateButton("Info", 328, 24 + $offset, 75, 25)
 		GUICtrlSetState(-1, $GUI_DISABLE)
+		;GUICtrlSetBkColor(-1, $backgroundColor)
+
 
 
 		; Disabled Download button
 		$ctrlIDs[$modpackNum][1]  = GUICtrlCreateButton("Offline", 328, 56 + $offset, 75, 25)
 		GUICtrlSetState(-1, $GUI_DISABLE)
+		;GUICtrlSetBkColor(-1, $backgroundColor)
 
 
 	Else
@@ -90,6 +97,7 @@ Func addModpack($modpackNum, ByRef $ctrlIDs)
 		; Info Button
 		$ctrlIDs[$modpackNum][0] =  GUICtrlCreateButton("Info", 328, 24 + $offset, 75, 25)
 		GUICtrlSetOnEvent(-1, "btnInfo")
+		;GUICtrlSetBkColor(-1, $backgroundColor)
 
 
 		; Download button
@@ -99,6 +107,7 @@ Func addModpack($modpackNum, ByRef $ctrlIDs)
 			$ctrlIDs[$modpackNum][1]  = GUICtrlCreateButton("Install", 328, 56 + $offset, 75, 25)
 		EndIf
 		GUICtrlSetOnEvent(-1, "btnDownload")
+		;GUICtrlSetBkColor(-1, $backgroundColor)
 
 
 	EndIf
@@ -110,13 +119,19 @@ Func addModpack($modpackNum, ByRef $ctrlIDs)
 	; Heading - Modpack Name
 	GUICtrlCreateLabel($heading, 93, 21 + $offset, 223, 24)
 	GUICtrlSetFont(-1, 12, 800, 0, "MS Sans Serif")
+	GUICtrlSetBkColor(-1, $backgroundColor)
 
 	; Line 1 - Modpack Version
 	GUICtrlCreateLabel($line1, 93, 45 + $offset, 223, 17)
+	GUICtrlSetBkColor(-1, $backgroundColor)
 
 	; Line 2 - Game Version
 	GUICtrlCreateLabel($line2, 93, 61 + $offset, 223, 17)
+	GUICtrlSetBkColor(-1, $backgroundColor)
 
+
+	; Return the bottom most pixel heigh
+	Return $offset + 93
 EndFunc
 
 
@@ -343,6 +358,8 @@ Func createModpackSelectionGUI()
 	Local $descriptionPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\defaultdescription.rtf"
 
 	Global $frmModpackSelection = GUICreate("SAMUpdater v" & $version, 869, 486, 192, 124)
+	GUISetOnEvent($GUI_EVENT_CLOSE, "CLOSEButton")
+
 
 	; GUI Background
 	GUICtrlCreatePic($backgroundPath, 0, 0, 869, 486)
@@ -352,29 +369,78 @@ Func createModpackSelectionGUI()
 	Global $picSplash = GUICtrlCreatePic($splashPath, 456, 13, 400, 200)
 
 	; Modpack News control
-	Global $hRichEdit = _GUICtrlRichEdit_Create($frmModpackSelection, "",456, 216, 400, 255, BitOR($ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL, $ES_READONLY ))
+	Global $hRichEdit = _GUICtrlRichEdit_Create($frmModpackSelection, "",456, 216,400, 255, BitOR($ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL, $ES_READONLY ))
 
 
-	; Populate Modpack list
-	For $i =  0 to UBound($modpacks) - 1
-		addModpack($i, $ctrlIDs)
-	Next
+	; Show main form
+	GUISetState(@SW_SHOW ,$frmModpackSelection)
+
 
 	; Display Splash and description from first modpack
 	$selectedModpackNum = -1
 	showSplashAndDescription(0)
 
 
-	GUISetOnEvent($GUI_EVENT_CLOSE, "CLOSEButton")
+	; Create the scrollable modpack list
+	createScrollableView()
 
 
 	writeLogEchoToConsole("[Info]: Displaying ModpackSelection GUI" & @CRLF)
-	GUISetState(@SW_SHOW)
 
 
 EndFunc
 
 
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: createScrollableView
+; Description ...: Creates a transparent scrollable control group displaying the modpacks
+; Syntax ........: createScrollableView()
+; Parameters ....:
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......: Transparent color is 0xacbdef
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func createScrollableView()
+	Local $hAperture
+	Local $iAperture_Width = 433
+	Local $iAperture_Ht = 458
+	Local $iLeft = 5
+	Local $iTop = 13
+	Local $maxVerticalScrollHeight
+
+	; Create aperture GUI
+	$hAperture = GUICreate("", $iAperture_Width, $iAperture_Ht, $iLeft, $iTop, $WS_POPUP,  BitOR($WS_EX_MDICHILD, $WS_EX_LAYERED), $frmModpackSelection)
+
+	; Set the child background to some colour which we can set as the transparent colour
+	GUISetBkColor(0xacbdef)
+
+
+	; Populate aperture controls that will be scrollable - Modpack list
+	For $i =  0 to UBound($modpacks) - 1
+		$maxVerticalScrollHeight = addModpack($i, $ctrlIDs)
+	Next
+
+
+	; Show aperture gui
+	GUISetState()
+
+
+	; Add vertical scrollbar if needed
+	If $maxVerticalScrollHeight > 300 Then
+		_GUIScrollbars_Generate($hAperture, 0, $maxVerticalScrollHeight)
+	EndIf
+
+	; Apply the trancparency for the aperture gui
+	_WINAPI_SetLayeredWindowAttributes($hAperture, 0xacbdef, 255)
+
+
+	GUISetOnEvent($GUI_EVENT_CLOSE, "CLOSEButton")
+EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: DisplayModpackSelection
