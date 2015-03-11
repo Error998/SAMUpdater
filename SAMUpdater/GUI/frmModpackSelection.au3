@@ -299,7 +299,7 @@ EndFunc
 Func CLOSEButton()
 
 	; Release GUI control resources
-	GUIDelete()
+	GUIDelete($frmModpackSelection)
 
 	; Set Exit GUI loop condition
 	$closeGUI = True
