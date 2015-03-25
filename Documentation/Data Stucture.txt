@@ -18,28 +18,23 @@ packs.xml
 ---------
 
 <Packs version="1.0">
-	<ModPack>
-		<ModPackID>TestServer</ModPackID>
-		<ModPackName>Minecraft Test Server</ModPackName>
-		<ModPackVersion>Modpack version: 1.6.4 Update 2</ModPackVersion>
-		<GameVersion>Minecraft version 1.6.4</GameVersion>
-		<Description>description.rtf</Description>
-		<DescriptionSHA1>0x671117E419A10C45FF93DD1B84496465</DescriptionSHA1>
-		<ModPackIcon>icon.jpg</ModPackIcon>
-		<ModPackIconSHA1>0xA3B34720EF1BCA5352871DEFDF483656</ModPackIconSHA1>
-		<ModPackSplash>splash.jpg</ModPackSplash>
-		<ModPackSplashSHA1>0x034F0B28FF1EDA5DF6B9839C96CA2259</ModPackSplashSHA1>
-		<ForgeID>1.7.10-Forge10.13.2.1236</ForgeID>
-		<URL>ftp://SAMUpdater:test@localhost</URL>
-		<Active>True</Active>
-		<DefaultInstallFolder>%appdata%\.minecraft</DefaultInstallFolder>
-		<DesktopShortcutTarget>%appdata%\.minecraft\MagicLauncher_1.2.5.exe</DesktopShortcutTarget>
-		<ShortcutFilename>Magic Launcher</ShortcutFilename>
-		<LaunchApplicationAfterUpdate>True</LaunchApplicationAfterUpdate>
-	</ModPack>
-	<ModPack>
+	<Pack>
+		<PackID>UniqueName</PackID>
+		<PackName>Friendly Pack name</PackName>
+		<PackVersion>Modpack version: Update 2</PackVersion>
+		<ContentVersion>Minecraft version 1.6.4</ContentVersion>
+		<PackDescriptionSHA1>0x671117E419A10C45FF93DD1B84496465</PackDescriptionSHA1>
+		<PackIconSHA1>0xA3B34720EF1BCA5352871DEFDF483656</PackIconSHA1>
+		<PackSplashSHA1>0x034F0B28FF1EDA5DF6B9839C96CA2259</PackSplashSHA1>
+		<PackDatabaseSHA1>0x8F3DE3C985E02839596CE8A1C37E49571B167DF9</PackDatabaseSHA1>
+		<PackConfigSHA1>0x42B2FF5ACE1749683690E01DA44D7D686EDF8291</PackConfigSHA1>		
+		<PackRepository>http://localhost/packageRepository</PackRepository>
+		<PackDownloadable>True</PackDownloadable>
+		<PackVisible>True</PackVisible>
+	</Pack>
+	<Pack>
 		..
-	<ModPack>
+	<Pack>
 </Packs>
 
 ------------------------------------------------------

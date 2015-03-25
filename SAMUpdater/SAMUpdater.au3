@@ -5,8 +5,8 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_ProductVersion=0.3.1.1
-#AutoIt3Wrapper_Res_Fileversion=0.3.1.1
+#AutoIt3Wrapper_Res_ProductVersion=0.4.0.0
+#AutoIt3Wrapper_Res_Fileversion=0.4.0.0
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -30,7 +30,7 @@ Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.3.1.1"
+Const $version = "0.4.0.0"
 Const $baseURL = "http://localhost/samupdater"
 ;Const $baseURL = "http://local.saminecraft.co.za/sam/samupdater"
 Const $updateURL = $baseURL & "/version.ini"
@@ -45,9 +45,9 @@ Global $hdllKernel32 = initColors()
 Global $hLog = initLogs($dataFolder)
 
 Global $userSettingSoundOn
-Global $modpacks
+Global $packs
 
-Local $modpackNum
+Local $packNum
 
 
 
@@ -91,6 +91,9 @@ Else
 EndIf
 
 
+; ************** Initialization Done **************
+
+
 
 ; Check and update SAMUpdater
 autoUpdate($version, $updateURL, $dataFolder)
@@ -101,15 +104,15 @@ autoUpdate($version, $updateURL, $dataFolder)
 playBackgroundMusic($dataFolder)
 
 
-; Load and parse Packs.xml, returns 2d array [modpackNum][elements]
-$modpacks = parsePacks($packsURL, $dataFolder)
+; Load and parse Packs.xml, returns 2d array [packNum][elements]
+$packs = parsePacks($packsURL, $dataFolder)
 
 
 
 ;Initialize all Modpacks, create needed folders, download modpack descriptions, splash and icons
-initModpacks($modpacks, $dataFolder)
+initPacks($packs, $dataFolder)
 
-
+Exit
 
 ; Initialize all GUI assets (pictures, backgrounds, descriptions, etc)
 initGUIAssets($baseURL, $dataFolder)
@@ -117,12 +120,12 @@ initGUIAssets($baseURL, $dataFolder)
 
 
 ; Display Modpack selection GUI
-$modpackNum = DisplayModpackSelection()
+$packNum = DisplayModpackSelection()
 
 
 
 ; Exit application - no modpack was selected to download
-If $modpackNum = -1 Then
+If $packNum = -1 Then
 
 	Exit
 
@@ -130,15 +133,11 @@ EndIf
 
 
 ; Log entries
-writeLog("[Info]: Modpack Information" & @CRLF)
-writeLog("[Info]: Modpack ID            - " & $modpacks[$modpackNum][0] & @CRLF)
-writeLog("[Info]: Modpack Name          - " & $modpacks[$modpackNum][1] & @CRLF)
-writeLog("[Info]: Modpack Description   - " & $modpacks[$modpackNum][2] & @CRLF)
-writeLog("[Info]: Remote Repository URL - " & $modpacks[$modpackNum][11] & @CRLF)
-writeLog("[Info]: Installation Folder   - " & $modpacks[$modpackNum][13] & @CRLF)
-writeLog("[Info]: Shortcut target       - " & $modpacks[$modpackNum][14] & @CRLF)
-writeLog("[Info]: Shortcut name         - " & $modpacks[$modpackNum][15] & @CRLF)
-writeLog("[Info]: Launch Application    - " & $modpacks[$modpackNum][16] & @CRLF & @CRLF)
+writeLog("[Info]: Selected Pack Information" & @CRLF)
+writeLog("[Info]: Pack ID               - " & $packs[$packNum][0] & @CRLF)
+writeLog("[Info]: Pack Name             - " & $packs[$packNum][1] & @CRLF)
+writeLog("[Info]: Pack Description      - " & $packs[$packNum][2] & @CRLF)
+writeLog("[Info]: Pack Repository       - " & $packs[$packNum][11] & @CRLF)
 
 
 ; Cache modpack
