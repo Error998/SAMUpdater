@@ -7,6 +7,7 @@
 #include <WindowsConstants.au3>
 #include <MsgBoxConstants.au3>
 #include <ButtonConstants.au3>
+#include <ColorConstants.au3>
 #include "..\DataIO\Folders.au3"
 
 
@@ -175,35 +176,39 @@ Func createAdvInfo($totalFileSize, $hddSpaceRequirement, $numberOfUncachedFiles,
 	Local $hImage
 
 	; From
-	GUICreate("Modpack Advanced Information", 854, 449, 192, 124, -1, -1, $frmModpackSelection)
+	GUICreate("Modpack Advanced Information", 627, 684, -1, -1, -1, -1, $frmModpackSelection)
 	GUISetOnEvent($GUI_EVENT_CLOSE, "AdvInfoCLOSEButton")
 
 	; Background picture
-	GUICtrlCreatePic($backgroundPath, 0, 0, 854, 449)
+	GUICtrlCreatePic($backgroundPath, 0, 0, 627, 684)
 	GUICtrlSetState(-1, $GUI_DISABLE)
 
 	; Lable Group
-	GUICtrlCreateLabel("", 16, 24, 193, 103)
-
 		; Storage Requirements
-		GUICtrlCreateLabel("Harddrive storage required: " & $hddSpaceRequirement, 22, 43, 185, 17)
+		GUICtrlCreateLabel("Harddrive storage required: " & $hddSpaceRequirement, 206, 54, 185, 17)
+		GUICtrlSetColor(-1, $COLOR_WHITE)
+		GUICtrlSetBkColor(-1,$COLOR_BLACK)
 
 		; Number of files to download
-		GUICtrlCreateLabel("Files marked for download: " & $numberOfUncachedFiles, 22, 67, 185, 17)
+		GUICtrlCreateLabel("Files marked for download: " & $numberOfUncachedFiles, 206, 78, 185, 17)
+		GUICtrlSetColor(-1, $COLOR_WHITE)
+		GUICtrlSetBkColor(-1,$COLOR_BLACK)
 
 		; Download size
-		GUICtrlCreateLabel("Download size: " & $totalFileSize, 22, 91, 185, 17)
+		GUICtrlCreateLabel("Download size: " & $totalFileSize, 206, 102, 185, 17)
+		GUICtrlSetColor(-1, $COLOR_WHITE)
+		GUICtrlSetBkColor(-1,$COLOR_BLACK)
 	; End of group
 
 
 	; Close button
-	GUICtrlCreateButton("Close", 501, 408, 74, 25)
+	GUICtrlCreateButton("Close", 280, 645, 74, 25)
 	GUICtrlSetOnEvent(-1, "AdvInfoCLOSEButton")
 
 
 
 	; Treeview
-	Local $tree = GUICtrlCreateTreeView(232, 24, 601, 369, $TVS_NOSCROLL)
+	Local $tree = GUICtrlCreateTreeView(14, 262, 601, 369, $TVS_NOSCROLL)
 
 	; Icons used for the treeview
 	$hImage = _GUIImageList_Create(16, 16, 5, 3)
