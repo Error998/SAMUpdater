@@ -63,31 +63,48 @@ EndFunc
 ; ===============================================================================================================================
 Func parsePacks($packsURL, $dataFolder)
 	Local $packsXML
-
+	Local $totalVisiblePacks = 0
+	Local $visiblePackNumber = 0
+	Local $PackVisible = "False"
 
 	; Load Packs.xml
 	$packsXML = loadPackList($packsURL, $dataFolder)
 
 
-	; Zero based 2d array holding packs with pack elements
-	Global $packs[ $packsXML[0] ][12]
+	; Calculate Visible Packs
+	For $i =  0 To ($packsXML[0] - 1)
+		If getElement($packsXML[$i + 1], "PackVisible") = "True" Then
+			$totalVisiblePacks = $totalVisiblePacks + 1
+		EndIf
+	Next
+
+
+	; Zero based 2d array holding all visible packs with pack elements
+	Global $packs[$totalVisiblePacks][12]
 	writeLogEchoToConsole("[Info]: Packs available: " & UBound($packs) & @CRLF & @CRLF)
 
 
 	; Store all elemetns
 	For $i = 0 To ($packsXML[0] - 1)
-		$packs[$i][0] = getElement($packsXML[$i + 1], "PackID")
-		$packs[$i][1] = getElement($packsXML[$i + 1], "PackName")
-		$packs[$i][2] = getElement($packsXML[$i + 1], "PackVersion")
-		$packs[$i][3] = getElement($packsXML[$i + 1], "ContentVersion")
-		$packs[$i][4] = getElement($packsXML[$i + 1], "PackDescriptionSHA1")
-		$packs[$i][5] = getElement($packsXML[$i + 1], "PackIconSHA1")
-		$packs[$i][6] = getElement($packsXML[$i + 1], "PackSplashSHA1")
-		$packs[$i][7] = getElement($packsXML[$i + 1], "PackDatabaseSHA1")
-		$packs[$i][8] = getElement($packsXML[$i + 1], "PackConfigSHA1")
-		$packs[$i][9] = getElement($packsXML[$i + 1], "PackRepository")
-		$packs[$i][10] = getElement($packsXML[$i + 1], "PackDownloadable")
-		$packs[$i][11] = getElement($packsXML[$i + 1], "PackVisible")
+		$PackVisible = getElement($packsXML[$i + 1], "PackVisible")
+
+		; Skip if Pack is not visible
+		If $PackVisible <> "True" Then ContinueLoop
+
+		$packs[$visiblePackNumber][0] = getElement($packsXML[$i + 1], "PackID")
+		$packs[$visiblePackNumber][1] = getElement($packsXML[$i + 1], "PackName")
+		$packs[$visiblePackNumber][2] = getElement($packsXML[$i + 1], "PackVersion")
+		$packs[$visiblePackNumber][3] = getElement($packsXML[$i + 1], "ContentVersion")
+		$packs[$visiblePackNumber][4] = getElement($packsXML[$i + 1], "PackDescriptionSHA1")
+		$packs[$visiblePackNumber][5] = getElement($packsXML[$i + 1], "PackIconSHA1")
+		$packs[$visiblePackNumber][6] = getElement($packsXML[$i + 1], "PackSplashSHA1")
+		$packs[$visiblePackNumber][7] = getElement($packsXML[$i + 1], "PackDatabaseSHA1")
+		$packs[$visiblePackNumber][8] = getElement($packsXML[$i + 1], "PackConfigSHA1")
+		$packs[$visiblePackNumber][9] = getElement($packsXML[$i + 1], "PackRepository")
+		$packs[$visiblePackNumber][10] = getElement($packsXML[$i + 1], "PackDownloadable")
+		$packs[$visiblePackNumber][11] = getElement($packsXML[$i + 1], "PackVisible")
+
+		$visiblePackNumber = $visiblePackNumber + 1
 	Next
 
 	Return $packs
@@ -182,10 +199,6 @@ Func initPackFiles($packs, $dataFolder)
 		$PackRepository = $packs[$i][9]
 		$PackDownloadable = $packs[$i][10]
 		$PackVisible = $packs[$i][11]
-
-
-		; If the Pack is not visible, skip download of assests
-		If $PackVisible = "False" Then ContinueLoop
 
 
 		; Verify local file else download remote Description

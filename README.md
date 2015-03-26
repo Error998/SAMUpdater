@@ -1,4 +1,4 @@
-SAMUpdater v0.4.0.0 alpha
+SAMUpdater v0.4.0.1 alpha
 =========================
 
 A Minecraft Auto Updater that will update mods and config files.
@@ -25,3 +25,5 @@ Make Pack Creator more user friendly
 
 Planned features - support file archives in remote repository
 				 - extracting of archive to local cache
+				 
+Create wiki
