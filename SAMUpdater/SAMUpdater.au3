@@ -5,8 +5,8 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_ProductVersion=0.4.0.2
-#AutoIt3Wrapper_Res_Fileversion=0.4.0.2
+#AutoIt3Wrapper_Res_ProductVersion=0.4.0.4
+#AutoIt3Wrapper_Res_Fileversion=0.4.0.4
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -21,7 +21,7 @@
 #include "DataIO\UserSettings.au3"
 #include "Sound\Sounds.au3"
 #include "GUI\Colors.au3"
-#include "GUI\frmModpackSelection.au3"
+#include "GUI\frmPackSelection.au3"
 #include "PostInstall\MagicLauncher.au3"
 #include "PostInstall\Application.au3"
 #include "OfflineMode\OfflineMode.au3"
@@ -30,7 +30,7 @@ Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.4.0.2"
+Const $version = "0.4.0.4"
 Const $baseURL = "http://localhost/samupdater"
 ;Const $baseURL = "http://local.saminecraft.co.za/sam/samupdater"
 Const $updateURL = $baseURL & "/version.ini"
@@ -118,7 +118,7 @@ $packs = parsePacks($packsURL, $dataFolder)
 ;Initialize all Modpacks, create needed folders, download modpack descriptions, splash and icons
 initPacks($packs, $dataFolder)
 
-Exit
+
 
 ; Display Pack Selection GUI
 $packNum = DisplayPackSelection()
@@ -137,12 +137,13 @@ EndIf
 writeLog("[Info]: Selected Pack Information" & @CRLF)
 writeLog("[Info]: Pack ID               - " & $packs[$packNum][0] & @CRLF)
 writeLog("[Info]: Pack Name             - " & $packs[$packNum][1] & @CRLF)
-writeLog("[Info]: Pack Description      - " & $packs[$packNum][2] & @CRLF)
-writeLog("[Info]: Pack Repository       - " & $packs[$packNum][11] & @CRLF)
+writeLog("[Info]: Pack Version          - " & $packs[$packNum][2] & @CRLF)
+writeLog("[Info]: Content Version       - " & $packs[$packNum][3] & @CRLF)
+writeLog("[Info]: Pack Repository       - " & $packs[$packNum][9] & @CRLF)
 
-
-; Cache modpack
-cacheModpack($modpacks[$modpackNum][11], $modpacks[$modpackNum][0], $dataFolder)
+Exit
+; Cache pack
+cacheModpack($packs[$packNum][9], $packs[$packNum][0], $dataFolder)
 
 
 
@@ -152,19 +153,19 @@ cacheModpack($modpacks[$modpackNum][11], $modpacks[$modpackNum][0], $dataFolder)
 
 
 ;Install Modpack
-installModPack($modpacks[$modpackNum][13], $modpacks[$modpackNum][0], $dataFolder)
+installModPack($packs[$packNum][13], $packs[$packNum][0], $dataFolder)
 
 
 
 ; Custom Post install stuff
-configureMagicLauncher($modpacks[$modpackNum][0], $modpacks[$modpackNum][10], 1536)
+configureMagicLauncher($packs[$packNum][0], $packs[$packNum][10], 1536)
 
 
 
 
 
 ; Create desktop shortcut
-createDesktopShortcut($modpacks[$modpackNum][14], $modpacks[$modpackNum][15])
+createDesktopShortcut($packs[$packNum][14], $packs[$packNum][15])
 
 
 
@@ -174,7 +175,7 @@ MsgBox($MB_ICONINFORMATION, "Update complete", "The update is now complete", 20)
 
 
 ; Launch installed application
-lauchShortcut($modpacks[$modpackNum][16], $modpacks[$modpackNum][15])
+lauchShortcut($packs[$packNum][16], $packs[$packNum][15])
 
 
 

@@ -17,17 +17,17 @@ Opt("GUIOnEventMode", 1)
 Global $ctrlIDs[5][3]
 
 ; The zero based index of the modpack to download - Used as return value
-Global $downloadModpackNum = -1
+Global $downloadPacknum = -1
 
 ; Used to determine if the splash and description should be reloaded or not
-Global $selectedModpackNum
+Global $selectedPackNum
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: addModpack
-; Description ...: Add a modpack to the list on the left of the GUI
-; Syntax ........: addModpack($modpackNum, Byref $ctrlIDs)
-; Parameters ....: $modpackNum          - Zero based index of the selected modpack to add
+; Name ..........: addPack
+; Description ...: Add a pack to the list on the left of the GUI
+; Syntax ........: addPack($packNum, Byref $ctrlIDs)
+; Parameters ....: $packNum		        - Zero based index of the selected modpack to add
 ;                  $ctrlIDs             - [in/out] Array to hold the control ID of the clickable items
 ; Return values .: The (top + height) of the bottom most control, used to determine the size for the scrollable area
 ; Author ........: Error_998
@@ -37,39 +37,54 @@ Global $selectedModpackNum
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func addModpack($modpackNum, ByRef $ctrlIDs)
-	; Background color of modpack box
+Func addPack($packNum, ByRef $ctrlIDs)
+	; Background color of pack box
 	Local $backgroundColor = 0xC0C0C0
 
-	Local $offset = $modpackNum * 100
+	Local $offset = $packNum * 100
 	Local $iconPath
-	Local $heading
-	Local $line1
-	Local $line2
+
+	Local $PackID
+	Local $PackName
+	Local $PackVersion
+	Local $ContentVersion
+	Local $PackDescriptionSHA1
+	Local $PackIconSHA1
+	Local $PackSplashSHA1
+	Local $PackDatabaseSHA1
+	Local $PackConfigSHA1
+	Local $PackRepository
+	Local $PackDownloadable
+	Local $PackVisible
+
+	; Assign all Pack elemets
+	$PackID = $packs[$packNum][0]
+	$PackName = $packs[$packNum][1]
+	$PackVersion = $packs[$packNum][2]
+	$ContentVersion = $packs[$packNum][3]
+	$PackDescriptionSHA1 = $packs[$packNum][4]
+	$PackIconSHA1 = $packs[$packNum][5]
+	$PackSplashSHA1 = $packs[$packNum][6]
+	$PackDatabaseSHA1 = $packs[$packNum][7]
+	$PackConfigSHA1 = $packs[$packNum][8]
+	$PackRepository = $packs[$packNum][9]
+	$PackDownloadable = $packs[$packNum][10]
+	$PackVisible = $packs[$packNum][11]
+
 
 	; Set Icon path
-	If $modpacks[$modpackNum][7] == "" Then
+	If $PackIconSHA1 == "" Then
 		$iconPath = $dataFolder & "\Packdata\Assets\GUI\Modpackselection\defaulticon.jpg"
 	Else
-		$iconPath = $dataFolder & "\Packdata\Modpacks\" & $modpacks[$modpackNum][0] & "\Data\icon.jpg"
+		$iconPath = $dataFolder & "\Packdata\Modpacks\" & $PackID & "\Data\icon.jpg"
 	EndIf
-
-	; Set Heading text
-	$heading = $modpacks[$modpackNum][1]
-
-	; Set Line 1 text
-	$line1 = $modpacks[$modpackNum][2]
-
-	; Set Line 2 text
-	$line2 = $modpacks[$modpackNum][3]
-
 
 
 	; ### Create controls ####
 
 	; Border
-	$ctrlIDs[$modpackNum][2] = GUICtrlCreateLabel("", 13, 13 + $offset, 315, 80)
-	GUICtrlSetOnEvent(-1, "ModpackClicked")
+	$ctrlIDs[$packNum][2] = GUICtrlCreateLabel("", 13, 13 + $offset, 315, 80)
+	GUICtrlSetOnEvent(-1, "PackClicked")
 	GUICtrlSetBkColor(-1, $backgroundColor)
 
 	; Border part under buttons thats not clickable
@@ -77,37 +92,33 @@ Func addModpack($modpackNum, ByRef $ctrlIDs)
 	GUICtrlSetState(-1, $GUI_DISABLE)
 	GUICtrlSetBkColor(-1, $backgroundColor)
 
-	If $modpacks[$modpackNum][12] = "False" Then
+	If $PackDownloadable = "False" Then
 
 		; Disabled Info Button
-		$ctrlIDs[$modpackNum][0] =  GUICtrlCreateButton("Info", 328, 24 + $offset, 75, 25)
+		$ctrlIDs[$packNum][0] =  GUICtrlCreateButton("Info", 328, 24 + $offset, 75, 25)
 		GUICtrlSetState(-1, $GUI_DISABLE)
-		;GUICtrlSetBkColor(-1, $backgroundColor)
 
 
 
 		; Disabled Download button
-		$ctrlIDs[$modpackNum][1]  = GUICtrlCreateButton("Offline", 328, 56 + $offset, 75, 25)
+		$ctrlIDs[$packNum][1]  = GUICtrlCreateButton("Offline", 328, 56 + $offset, 75, 25)
 		GUICtrlSetState(-1, $GUI_DISABLE)
-		;GUICtrlSetBkColor(-1, $backgroundColor)
 
 
 	Else
 
 		; Info Button
-		$ctrlIDs[$modpackNum][0] =  GUICtrlCreateButton("Info", 328, 24 + $offset, 75, 25)
+		$ctrlIDs[$packNum][0] =  GUICtrlCreateButton("Info", 328, 24 + $offset, 75, 25)
 		GUICtrlSetOnEvent(-1, "btnInfo")
-		;GUICtrlSetBkColor(-1, $backgroundColor)
 
 
 		; Download button
 		If $isOnline Then
-			$ctrlIDs[$modpackNum][1]  = GUICtrlCreateButton("Download", 328, 56 + $offset, 75, 25)
+			$ctrlIDs[$packNum][1]  = GUICtrlCreateButton("Download", 328, 56 + $offset, 75, 25)
 		Else
-			$ctrlIDs[$modpackNum][1]  = GUICtrlCreateButton("Install", 328, 56 + $offset, 75, 25)
+			$ctrlIDs[$packNum][1]  = GUICtrlCreateButton("Install", 328, 56 + $offset, 75, 25)
 		EndIf
 		GUICtrlSetOnEvent(-1, "btnDownload")
-		;GUICtrlSetBkColor(-1, $backgroundColor)
 
 
 	EndIf
@@ -116,17 +127,17 @@ Func addModpack($modpackNum, ByRef $ctrlIDs)
 	; Icon
 	GUICtrlCreatePic($iconPath, 21, 21 + $offset, 64, 64)
 
-	; Heading - Modpack Name
-	GUICtrlCreateLabel($heading, 93, 21 + $offset, 223, 24)
+	; Heading - Pack Name
+	GUICtrlCreateLabel($PackName, 93, 21 + $offset, 223, 24)
 	GUICtrlSetFont(-1, 12, 800, 0, "MS Sans Serif")
 	GUICtrlSetBkColor(-1, $backgroundColor)
 
-	; Line 1 - Modpack Version
-	GUICtrlCreateLabel($line1, 93, 45 + $offset, 223, 17)
+	; Line 1 - Pack Version
+	GUICtrlCreateLabel($PackVersion, 93, 45 + $offset, 223, 17)
 	GUICtrlSetBkColor(-1, $backgroundColor)
 
-	; Line 2 - Game Version
-	GUICtrlCreateLabel($line2, 93, 61 + $offset, 223, 17)
+	; Line 2 - Content Version
+	GUICtrlCreateLabel($ContentVersion, 93, 61 + $offset, 223, 17)
 	GUICtrlSetBkColor(-1, $backgroundColor)
 
 
@@ -138,9 +149,9 @@ EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: showSplashAndDescription
-; Description ...: Shows the Splach picture and the description of the selected modpack
-; Syntax ........: showSplashAndDescription($modpackNum)
-; Parameters ....: $modpackNum          - Zero based index of the selected modpack to display.
+; Description ...: Shows the Splach picture and the description of the selected pack
+; Syntax ........: showSplashAndDescription($packNum)
+; Parameters ....: $packNum          - Zero based index of the selected pack to display.
 ; Return values .: None
 ; Author ........: Error_998
 ; Modified ......:
@@ -149,28 +160,56 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func showSplashAndDescription($modpackNum)
+Func showSplashAndDescription($packNum)
 	Local $descriptionPath
 	Local $splashPath
 
+	Local $PackID
+	Local $PackName
+	Local $PackVersion
+	Local $ContentVersion
+	Local $PackDescriptionSHA1
+	Local $PackIconSHA1
+	Local $PackSplashSHA1
+	Local $PackDatabaseSHA1
+	Local $PackConfigSHA1
+	Local $PackRepository
+	Local $PackDownloadable
+	Local $PackVisible
+
+	; Assign all Pack elemets
+	$PackID = $packs[$packNum][0]
+	$PackName = $packs[$packNum][1]
+	$PackVersion = $packs[$packNum][2]
+	$ContentVersion = $packs[$packNum][3]
+	$PackDescriptionSHA1 = $packs[$packNum][4]
+	$PackIconSHA1 = $packs[$packNum][5]
+	$PackSplashSHA1 = $packs[$packNum][6]
+	$PackDatabaseSHA1 = $packs[$packNum][7]
+	$PackConfigSHA1 = $packs[$packNum][8]
+	$PackRepository = $packs[$packNum][9]
+	$PackDownloadable = $packs[$packNum][10]
+	$PackVisible = $packs[$packNum][11]
+
+
 	; Check if we actaully need to update anything
-	If $modpackNum = $selectedModpackNum Then
+	If $packNum = $selectedPackNum Then
 		Return
 	EndIf
 
 
 	; Set splash path
-	If $modpacks[$modpackNum][9] == "" Then
+	If $PackSplashSHA1 == "" Then
 		$splashPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\defaultsplash.jpg"
 	Else
-		$splashPath = $dataFolder & "\Packdata\Modpacks\" & $modpacks[$modpackNum][0] & "\Data\splash.jpg"
+		$splashPath = $dataFolder & "\Packdata\Modpacks\" & $PackID & "\Data\splash.jpg"
 	EndIf
 
 	; Set description path
-	If $modpacks[$modpackNum][5] == "" Then
+	If $PackDescriptionSHA1 == "" Then
 		$descriptionPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\defaultdescription.rtf"
 	Else
-		$descriptionPath = $dataFolder & "\Packdata\Modpacks\" & $modpacks[$modpackNum][0] & "\Data\description.rtf"
+		$descriptionPath = $dataFolder & "\Packdata\Modpacks\" & $PackID & "\Data\description.rtf"
 	EndIf
 
 
@@ -188,15 +227,15 @@ Func showSplashAndDescription($modpackNum)
 	_GUICtrlRichEdit_ResumeRedraw($hRichEdit)
 
 	; Save the modpack num of the current displayed info
-	$selectedModpackNum = $modpackNum
+	$selectedPackNum = $packNum
 EndFunc
 
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: ModpackClicked
-; Description ...: Displays the Splash and description of the selected modpack
-; Syntax ........: ModpackClicked()
+; Name ..........: PackClicked
+; Description ...: Displays the Splash and description of the selected pack
+; Syntax ........: PackClicked()
 ; Parameters ....: None
 ; Return values .: None
 ; Author ........: Error_998
@@ -206,14 +245,14 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func ModpackClicked()
-	Local $modpackNum
+Func PackClicked()
+	Local $packNum
 
-	$modpackNum = findModpackNumFromCtrlID(@GUI_CtrlId, 2, $ctrlIDs)
+	$packNum = findPackNumFromCtrlID(@GUI_CtrlId, 2, $ctrlIDs)
 
 	; Display Splash and description
-	writeLogEchoToConsole("[Info]: Displaying info for modpack: " & $modpackNum & @CRLF)
-	showSplashAndDescription($modpackNum)
+	writeLogEchoToConsole("[Info]: Displaying info for pack: " & $packNum & @CRLF)
+	showSplashAndDescription($packNum)
 
 EndFunc
 
@@ -221,7 +260,7 @@ EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: btnDownload
-; Description ...: Download button event, set flags to close gui and save the modpack num
+; Description ...: Download button event, set flags to close gui and save the pack num
 ; Syntax ........: btnDownload()
 ; Parameters ....:
 ; Return values .: None
@@ -234,9 +273,9 @@ EndFunc
 ; ===============================================================================================================================
 Func btnDownload()
 
-	$downloadModpackNum = findModpackNumFromCtrlID(@GUI_CtrlId, 1, $ctrlIDs)
+	$downloadPacknum = findModpackNumFromCtrlID(@GUI_CtrlId, 1, $ctrlIDs)
 
-	writeLogEchoToConsole("[Info]: Modpack #: " & $downloadModpackNum & " selected for download" & @CRLF)
+	writeLogEchoToConsole("[Info]: Pack #: " & $downloadPacknum & " selected for download" & @CRLF)
 
 	; Close GUI and free resources
 	CLOSEButton()
@@ -246,7 +285,7 @@ EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: btnInfo
-; Description ...: Display the AdvInfo GUI for the modpack
+; Description ...: Display the AdvInfo GUI for the pack
 ; Syntax ........: btnInfo()
 ; Parameters ....: None
 ; Return values .: None
@@ -258,22 +297,22 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func btnInfo()
-	Local $modpackNum
+	Local $packNum
 
 	; Caculate what modpack's info should be displayed
-	$modpackNum = findModpackNumFromCtrlID(@GUI_CtrlId, 0, $ctrlIDs)
+	$packNum = findPackNumFromCtrlID(@GUI_CtrlId, 0, $ctrlIDs)
 
-	; Disable CTRL + O Hotkey
+	; Disable CTRL + O Hotkey - Cant set offline mode while displaying Adv Info GUI
 	HotKeySet("^o")
 
 
 	; Display Splash and description
-	showSplashAndDescription($modpackNum)
+	showSplashAndDescription($packNum)
 
 
 
 	; Display AdvInfo GUI
-	displayAdvInfo($modpackNum)
+	displayAdvInfo($packNum)
 
 
 	; Re-enable CTRL + O hotkey
@@ -299,12 +338,12 @@ EndFunc
 Func CLOSEButton()
 
 	; Release GUI control resources
-	GUIDelete($frmModpackSelection)
+	GUIDelete($frmPackSelection)
 
 	; Set Exit GUI loop condition
 	$closeGUI = True
 
-	writeLogEchoToConsole("[Info]: Closing ModpackSelection GUI" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Closing Pack Selection GUI" & @CRLF & @CRLF)
 EndFunc
 
 
@@ -312,13 +351,13 @@ EndFunc
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: findModpackNumFromCtrlID
-; Description ...: Determine the zero index based modpack number of the control that was clicked
-; Syntax ........: findModpackNumFromCtrlID($clickedCTRLid, $controlIndex, $ctrlIDs)
+; Name ..........: findPackNumFromCtrlID
+; Description ...: Determine the zero index based pack number of the control that was clicked
+; Syntax ........: findPackNumFromCtrlID($clickedCTRLid, $controlIndex, $ctrlIDs)
 ; Parameters ....: $clickedCTRLid       - The id of the control that was clicked.
 ;                  $controlIndex        - The index specifying the button that was clicked
-;                  $ctrlIDs             - The array of controlID's from the created modpack list.
-; Return values .: Zero based modpack index
+;                  $ctrlIDs             - The array of controlID's from the created pack list.
+; Return values .: Zero based pack index
 ; Author ........: Error_998
 ; Modified ......:
 ; Remarks .......:
@@ -326,7 +365,7 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func findModpackNumFromCtrlID($clickedCTRLid, $controlIndex, $ctrlIDs)
+Func findPackNumFromCtrlID($clickedCTRLid, $controlIndex, $ctrlIDs)
 	; Find the modpack number for the control that was clicked
 	For $i = 0 To UBound($ctrlIDs) - 1
 		If $clickedCTRLid = $ctrlIDs[$i][$controlIndex] Then ExitLoop
@@ -340,9 +379,9 @@ EndFunc
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: createModpackSelectionGUI
-; Description ...: Create and populate the ModpackSelection GUI
-; Syntax ........: createModpackSelectionGUI()
+; Name ..........: createPackSelectionGUI
+; Description ...: Create and populate the Pack Selection GUI
+; Syntax ........: createPackSelectionGUI()
 ; Parameters ....: None
 ; Return values .: None
 ; Author ........: Error_998
@@ -352,12 +391,12 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func createModpackSelectionGUI()
+Func createPackSelectionGUI()
 	Local $backgroundPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\background.jpg"
 	Local $splashPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\defaultsplash.jpg"
 	Local $descriptionPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\defaultdescription.rtf"
 
-	Global $frmModpackSelection = GUICreate("SAMUpdater v" & $version, 869, 486, 192, 124)
+	Global $frmPackSelection = GUICreate("SAMUpdater v" & $version, 869, 486, 192, 124)
 	GUISetOnEvent($GUI_EVENT_CLOSE, "CLOSEButton")
 
 
@@ -365,27 +404,27 @@ Func createModpackSelectionGUI()
 	GUICtrlCreatePic($backgroundPath, 0, 0, 869, 486)
 	GUICtrlSetState(-1, $GUI_DISABLE)
 
-	; Modpack Splash picture
+	; Pack Splash picture
 	Global $picSplash = GUICtrlCreatePic($splashPath, 456, 13, 400, 200)
 
-	; Modpack News control
-	Global $hRichEdit = _GUICtrlRichEdit_Create($frmModpackSelection, "",456, 216,400, 255, BitOR($ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL, $ES_READONLY ))
+	; Pack News control
+	Global $hRichEdit = _GUICtrlRichEdit_Create($frmPackSelection, "",456, 216,400, 255, BitOR($ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL, $ES_READONLY ))
 
 
 	; Show main form
-	GUISetState(@SW_SHOW ,$frmModpackSelection)
+	GUISetState(@SW_SHOW ,$frmPackSelection)
 
 
-	; Display Splash and description from first modpack
-	$selectedModpackNum = -1
+	; Display Splash and description from first pack
+	$selectedPackNum = -1
 	showSplashAndDescription(0)
 
 
-	; Create the scrollable modpack list
+	; Create the scrollable pack list
 	createScrollableView()
 
 
-	writeLogEchoToConsole("[Info]: Displaying ModpackSelection GUI" & @CRLF)
+	writeLogEchoToConsole("[Info]: Displaying Pack Selection GUI" & @CRLF)
 
 
 EndFunc
@@ -394,7 +433,7 @@ EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: createScrollableView
-; Description ...: Creates a transparent scrollable control group displaying the modpacks
+; Description ...: Creates a transparent scrollable control group displaying the packs
 ; Syntax ........: createScrollableView()
 ; Parameters ....:
 ; Return values .: None
@@ -414,15 +453,15 @@ Func createScrollableView()
 	Local $maxVerticalScrollHeight
 
 	; Create aperture GUI
-	$hAperture = GUICreate("", $iAperture_Width, $iAperture_Ht, $iLeft, $iTop, $WS_POPUP,  BitOR($WS_EX_MDICHILD, $WS_EX_LAYERED), $frmModpackSelection)
+	$hAperture = GUICreate("", $iAperture_Width, $iAperture_Ht, $iLeft, $iTop, $WS_POPUP,  BitOR($WS_EX_MDICHILD, $WS_EX_LAYERED), $frmPackSelection)
 
-	; Set the child background to some colour which we can set as the transparent colour
+	; Set the child background to some color which we can set as the transparent color
 	GUISetBkColor(0xacbdef)
 
 
-	; Populate aperture controls that will be scrollable - Modpack list
-	For $i =  0 to UBound($modpacks) - 1
-		$maxVerticalScrollHeight = addModpack($i, $ctrlIDs)
+	; Populate aperture controls that will be scrollable - Pack list
+	For $i =  0 to UBound($packs) - 1
+		$maxVerticalScrollHeight = addPack($i, $ctrlIDs)
 	Next
 
 
@@ -443,12 +482,12 @@ Func createScrollableView()
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: DisplayModpackSelection
-; Description ...: Populate the and create the GUI controls then display it. User can select which modpack to download.
-; Syntax ........: DisplayModpackSelection()
+; Name ..........: DisplayPackSelection
+; Description ...: Populate the and create the GUI controls then display it. User can select which pack to download.
+; Syntax ........: DisplayPackSelection()
 ; Parameters ....: None
-; Return values .: Zero based modpack index to download
-;				 : If no modpack was selected to download return  -1
+; Return values .: Zero based pack index to download
+;				 : If no pack was selected to download, return  -1
 ; Author ........: Error_998
 ; Modified ......:
 ; Remarks .......:
@@ -456,12 +495,12 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func DisplayModpackSelection()
+Func DisplayPackSelection()
 	; Varible to detect if GUI was closed
 	Global $closeGUI = False
 
 	; Create and display GUI with populated controls
-	createModpackSelectionGUI()
+	createPackSelectionGUI()
 
 
 	; Create CTRL + O hotkey to toggle network mode
@@ -478,7 +517,7 @@ Func DisplayModpackSelection()
 	HotKeySet("^o")
 
 
-	Return $downloadModpackNum
+	Return $downloadPacknum
 EndFunc
 
 
