@@ -6,42 +6,28 @@
 Opt('MustDeclareVars', 1)
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: loadAssetHashList
-; Description ...: Download assets.xml and return specified assetID's MD5 file list
-; Syntax ........: loadAssetHashList($assetsURL, $dataFolder, [$dontDownload = false])
-; Parameters ....: $assetsURL      	    - URL location to assets.xml
-;                  $dataFolder          - Application data folder
-;				   $assetID				- The xml node in assets.xml to return
-;				   $dontDownload		- (Optional) Set to True to not redownload the assset.xml file
-; Return values .: XML document
+; Name ..........: initAssetSettings
+; Description ...: Downloads assets.cfg
+; Syntax ........: initAssetSettings($baseURL, $dataFolder)
+; Parameters ....: $baseURL             - Base URL location for the assets.
+;                  $dataFolder          - Application data folder.
+; Return values .: None
 ; Author ........: Error_998
 ; Modified ......:
-; Remarks .......: $assetID is used to return a specific asset groups data, assets.xml can contain more than 1 asset group
+; Remarks .......: Must be called before playing background music, or file must already exist
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func loadAssetHashList($assetURL, $dataFolder, $assetID, $dontDownload = False)
-	Local $xml
-	Local $hashListXML
+Func initAssetSettings($baseURL, $dataFolder)
 
-	; Should we redownload assets.xml
-	If $dontDownload = False And $isOnline = True Then
-		; Download assets.xml
-		downloadFile($assetURL, $dataFolder & "\PackData\Assets\assets.xml")
+	; Download assets.cfg
+	If $isOnline Then
+		writeLogEchoToConsole("[Info]: Initializing Asset configuration" & @CRLF)
+		downloadFile($baseURL & "/packdata/assets/assets.cfg", $dataFolder & "\PackData\Assets\assets.cfg")
 	EndIf
 
-
-	; Load and parse assets.xml
-	$xml = loadXML($dataFolder & "\PackData\Assets\assets.xml")
-
-	; Array for selected asset group
-	$hashListXML = getElements($xml, $assetID)
-
-	Return $hashListXML
-
 EndFunc
-
 
 
 
@@ -66,23 +52,26 @@ Func initSoundAssets($baseURL, $dataFolder)
 	Local $hash
 	Local $backgroundPlayLenght
 
+
+	; Download assets.cfg
+	initAssetSettings($baseURL, $dataFolder)
+
+
+
 	writeLogEchoToConsole("[Info]: Initializing Sound data" & @CRLF)
 
-
-	; Get list of hashes from assets.xml
-	$hashListXML = loadAssetHashList($baseURL & "/packdata/assets/assets.xml", $dataFolder, "Sounds")
 
 	; Download background.mp3
 	$url = $baseURL & "/packdata/assets/sounds/background.mp3"
 	$path = "\PackData\Assets\Sounds\background.mp3"
-	$hash = getElement($hashListXML[1], "BackgroundMusicSHA1")
+	$hash = IniRead($dataFolder &  "\PackData\Assets\assets.cfg", "Sounds", "BackgroundMusicSHA1", "")
 
 	; Download background music with a retry count of 5 and display progress indicator
 	if $isOnline Then
 		verifyAndDownload($url, $path, $dataFolder, $hash, 5, True)
 	EndIf
 
-	$backgroundPlayLenght = getElement($hashListXML[1], "BackgroundMusicPlayLenght")
+	$backgroundPlayLenght = IniRead($dataFolder &  "\PackData\Assets\assets.cfg", "Sounds", "BackgroundMusicPlayLenght", "10")
 
 	writeLogEchoToConsole("[Info]: Initialized" & @CRLF & @CRLF)
 
@@ -94,9 +83,9 @@ EndFunc
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: initGUImodSelectionAssets
-; Description ...: Check if local GUImodSelection assets match remote assets if not download remote assets
-; Syntax ........: initGUImodSelectionAssets($baseURL, $dataFolder)
+; Name ..........: initGUIPackSelectionAssets
+; Description ...: Check if local GUIPackSelection assets match remote assets if not download remote assets
+; Syntax ........: initGUIPackSelectionAssets($baseURL, $dataFolder)
 ; Parameters ....: $baseURL             - Base URLlocation for the assets.
 ;                  $dataFolder          - Application data folder.
 ; Return values .: None
@@ -107,21 +96,17 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func initGUImodSelectionAssets($baseURL, $dataFolder)
+Func initGUIPackSelectionAssets($baseURL, $dataFolder)
 	local $hashListXML
 	Local $path
 	Local $url
 	Local $hash
 
 
-	; Get list of hashes from assets.xml
-	$hashListXML = loadAssetHashList($baseURL & "/packdata/assets/assets.xml", $dataFolder, "ModPackSelection")
-
-
 	; Download background.jpg
 	$url = $baseURL & "/packdata/assets/gui/modpackselection/background.jpg"
 	$path = "\PackData\Assets\GUI\ModpackSelection\background.jpg"
-	$hash = getElement($hashListXML[1], "BackgroundSHA1")
+	$hash = IniRead($dataFolder &  "\PackData\Assets\assets.cfg", "PackSelectionGUI", "BackgroundSHA1", "")
 
 	verifyAndDownload($url, $path, $dataFolder, $hash)
 
@@ -129,7 +114,7 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 	; Download defaulticon.jpg
 	$url = $baseURL & "/packdata/assets/gui/modpackselection/defaulticon.jpg"
 	$path = "\PackData\Assets\GUI\ModpackSelection\defaulticon.jpg"
-	$hash = getElement($hashListXML[1], "DefaultIconSHA1")
+	$hash = IniRead($dataFolder &  "\PackData\Assets\assets.cfg", "PackSelectionGUI", "DefaultIconSHA1", "")
 
 	verifyAndDownload($url, $path, $dataFolder, $hash)
 
@@ -137,7 +122,7 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 	; Download defaultsplash.jpg
 	$url = $baseURL & "/packdata/assets/gui/modpackselection/defaultsplash.jpg"
 	$path = "\PackData\Assets\GUI\ModpackSelection\defaultsplash.jpg"
-	$hash = getElement($hashListXML[1], "DefaultSplashSHA1")
+	$hash = IniRead($dataFolder &  "\PackData\Assets\assets.cfg", "PackSelectionGUI", "DefaultSplashSHA1", "")
 
 	verifyAndDownload($url, $path, $dataFolder, $hash)
 
@@ -145,7 +130,7 @@ Func initGUImodSelectionAssets($baseURL, $dataFolder)
 	; Download defaultdescription.rtf
 	$url = $baseURL & "/packdata/assets/gui/modpackselection/defaultdescription.rtf"
 	$path = "\PackData\Assets\GUI\ModpackSelection\defaultdescription.rtf"
-	$hash = getElement($hashListXML[1], "DefaultDescriptionSHA1")
+	$hash = IniRead($dataFolder &  "\PackData\Assets\assets.cfg", "PackSelectionGUI", "DefaultDescriptionSHA1", "")
 
 	verifyAndDownload($url, $path, $dataFolder, $hash)
 
@@ -178,14 +163,10 @@ Func initGUIadvInfoAssets($baseURL, $dataFolder)
 	Local $hash
 
 
-	; Get list of hashes from assets.xml
-	$hashListXML = loadAssetHashList($baseURL & "/packdata/assets/assets.xml", $dataFolder, "AdvInfo")
-
-
 	; Download please wait background
 	$url = $baseURL & "/packdata/assets/gui/advinfo/plswaitbackground.jpg"
 	$path = "\PackData\Assets\GUI\AdvInfo\plswaitbackground.jpg"
-	$hash = getElement($hashListXML[1], "PleaseWaitBackgroundSHA1")
+	$hash = IniRead($dataFolder &  "\PackData\Assets\assets.cfg", "AdvInfoGUI", "PleaseWaitBackgroundSHA1", "")
 
 	verifyAndDownload($url, $path, $dataFolder, $hash)
 
@@ -193,7 +174,7 @@ Func initGUIadvInfoAssets($baseURL, $dataFolder)
 	; Download AdvInfo GUI background
 	$url = $baseURL & "/packdata/assets/gui/advinfo/background.jpg"
 	$path = "\PackData\Assets\GUI\AdvInfo\background.jpg"
-	$hash = getElement($hashListXML[1], "BackgroundSHA1")
+	$hash = IniRead($dataFolder &  "\PackData\Assets\assets.cfg", "AdvInfoGUI", "BackgroundSHA1", "")
 
 	verifyAndDownload($url, $path, $dataFolder, $hash)
 
@@ -231,8 +212,8 @@ Func initGUIAssets($baseURL, $dataFolder)
 	writeLogEchoToConsole("[Info]: Initializing GUI assets" & @CRLF)
 
 
-	; Initialize ModSelection GUI assets, download default files and background.
-	initGUImodSelectionAssets($baseURL, $dataFolder)
+	; Initialize Pack Selection GUI assets, download default files and background.
+	initGUIPackSelectionAssets($baseURL, $dataFolder)
 
 
 

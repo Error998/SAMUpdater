@@ -5,8 +5,8 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_ProductVersion=0.4.0.1
-#AutoIt3Wrapper_Res_Fileversion=0.4.0.1
+#AutoIt3Wrapper_Res_ProductVersion=0.4.0.2
+#AutoIt3Wrapper_Res_Fileversion=0.4.0.2
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -30,7 +30,7 @@ Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.4.0.1"
+Const $version = "0.4.0.2"
 Const $baseURL = "http://localhost/samupdater"
 ;Const $baseURL = "http://local.saminecraft.co.za/sam/samupdater"
 Const $updateURL = $baseURL & "/version.ini"
@@ -104,6 +104,12 @@ autoUpdate($version, $updateURL, $dataFolder)
 playBackgroundMusic($dataFolder)
 
 
+
+; Initialize all GUI assets (pictures, backgrounds, descriptions, etc)
+initGUIAssets($baseURL, $dataFolder)
+
+
+
 ; Load and parse Packs.xml, returns 2d array [packNum][elements]
 $packs = parsePacks($packsURL, $dataFolder)
 
@@ -114,13 +120,8 @@ initPacks($packs, $dataFolder)
 
 Exit
 
-; Initialize all GUI assets (pictures, backgrounds, descriptions, etc)
-initGUIAssets($baseURL, $dataFolder)
-
-
-
-; Display Modpack selection GUI
-$packNum = DisplayModpackSelection()
+; Display Pack Selection GUI
+$packNum = DisplayPackSelection()
 
 
 
