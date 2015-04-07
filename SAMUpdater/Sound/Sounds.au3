@@ -209,17 +209,9 @@ EndFunc
 ; ===============================================================================================================================
 Func getBackgroundPlayLenght()
 	Local $backgroundPlayLenght
-	Local $xml
-	Local $soundXML
-
-	; Get Background info from assets.xml
-	$xml = loadXML($dataFolder & "\PackData\Assets\assets.xml")
-
-	; Array for selected asset group
-	$soundXML = getElements($xml, "Sounds")
 
 	; Get play lenght
-	$backgroundPlayLenght = getElement($soundXML[1], "BackgroundMusicPlayLenght")
+	$backgroundPlayLenght = Int(IniRead($dataFolder &  "\PackData\Assets\assets.ini", "Sounds", "BackgroundMusicPlayLenght", "1") )
 
 	Return $backgroundPlayLenght
 EndFunc

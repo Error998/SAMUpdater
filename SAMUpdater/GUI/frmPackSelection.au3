@@ -299,7 +299,7 @@ EndFunc
 Func btnInfo()
 	Local $packNum
 
-	; Caculate what modpack's info should be displayed
+	; Caculate what pack's info should be displayed
 	$packNum = findPackNumFromCtrlID(@GUI_CtrlId, 0, $ctrlIDs)
 
 	; Disable CTRL + O Hotkey - Cant set offline mode while displaying Adv Info GUI

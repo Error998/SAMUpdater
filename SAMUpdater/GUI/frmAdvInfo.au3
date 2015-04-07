@@ -9,6 +9,7 @@
 #include <ButtonConstants.au3>
 #include <ColorConstants.au3>
 #include "..\DataIO\Folders.au3"
+#include "..\DataIO\CustomPackSettings.au3"
 
 
 Opt("GUIOnEventMode", 1)
@@ -29,12 +30,12 @@ Opt("GUIOnEventMode", 1)
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func displayAdvInfo($modpackNum)
+Func displayAdvInfo($packNum)
 	Local $totalFileSize = 0
 	Local $hddSpaceRequirement
 	Local $uncachedFiles
 	Local $removeFiles
-	Local $modID = $modpacks[$modpackNum][0]
+	Local $PackID = $packs[$packNum][0]
 	Local $numberOfUncachedFiles
 
 
@@ -50,12 +51,12 @@ Func displayAdvInfo($modpackNum)
 
 
 	; Get data to be displayed
-	getModpackAdvInfo($modID, $hddSpaceRequirement, $uncachedFiles, $totalFileSize, $removeFiles)
+	getPackAdvInfo($PackID, $hddSpaceRequirement, $uncachedFiles, $totalFileSize, $removeFiles)
 
 
 
 	writeLogEchoToConsole("[Info]: Updating " & $uncachedFiles[0] & " file(s), total download size: " & $totalFileSize & @CRLF)
-	writeLogEchoToConsole("[Info]: Installed modpack will use: " & $hddSpaceRequirement & " harddrive space." & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Installed pack will use: " & $hddSpaceRequirement & " harddrive space." & @CRLF & @CRLF)
 	writeLogEchoToConsole("[Info]: Displaying AdvInfoGUI" & @CRLF & @CRLF)
 
 
@@ -66,7 +67,7 @@ Func displayAdvInfo($modpackNum)
 		; Turn off the splash
 		SplashOff()
 
-		MsgBox($MB_ICONINFORMATION, "Local cache is up to date", "Modpack is already cached locally, nothing new to download or remove." & @CRLF & @CRLF & "   Click Download if you wish to reinstall the modpack." & @CRLF & @CRLF & @CRLF & "   Installed modpack will use: " & $hddSpaceRequirement & " harddrive space.")
+		MsgBox($MB_ICONINFORMATION, "Local cache is up to date", "Pack is already cached locally, nothing new to download or remove." & @CRLF & @CRLF & "   Click Download if you wish to reinstall the pack." & @CRLF & @CRLF & @CRLF & "   Installed modpack will use: " & $hddSpaceRequirement & " harddrive space.")
 
 		Return
 	EndIf
@@ -85,7 +86,7 @@ Func displayAdvInfo($modpackNum)
 
 
 	; Create AdvInfo GUI
-	createAdvInfo($totalFileSize, $hddSpaceRequirement, $numberOfUncachedFiles,  $uncachedFiles, $modpacks[$modpackNum][13])
+	createAdvInfo($PackID, $totalFileSize, $hddSpaceRequirement, $numberOfUncachedFiles,  $uncachedFiles)
 
 
 EndFunc
@@ -96,12 +97,12 @@ EndFunc
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: getModpackAdvInfo
+; Name ..........: getPackAdvInfo
 ; Description ...: Generate data for AdvInfo GUI - Storage requiements, uncached files, download fileze and files to be removed
-; Syntax ........: getModpackAdvInfo($modID, Byref $hddSpaceRequirement, Byref $uncachedFiles, Byref $totalFileSize,
+; Syntax ........: getPackAdvInfo($PackID, Byref $hddSpaceRequirement, Byref $uncachedFiles, Byref $totalFileSize,
 ;                  Byref $removeFiles)
-; Parameters ....: $modID               - The modID.
-;                  $hddSpaceRequirement - [in/out] Total storage space requirement for the modpack.
+; Parameters ....: $PackID              - The PackID.
+;                  $hddSpaceRequirement - [in/out] Total storage space requirement for the pack.
 ;                  $uncachedFiles       - [in/out] All files that still need to be cached.
 ;                  $totalFileSize       - [in/out] The total download size.
 ;                  $removeFiles         - [in/out] All files that will be removed from the local installation.
@@ -113,21 +114,22 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func getModpackAdvInfo($modID, ByRef $hddSpaceRequirement, ByRef $uncachedFiles, ByRef $totalFileSize, ByRef $removeFiles)
+Func getPackAdvInfo($PackID, ByRef $hddSpaceRequirement, ByRef $uncachedFiles, ByRef $totalFileSize, ByRef $removeFiles)
+	Local $installationPath
 
 	; Generate Advanced info
-	writeLogEchoToConsole("[Info]: Generating advanced info for modpack: " & $modID & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Generating advanced info for pack: " & $PackID & @CRLF & @CRLF)
 
 
 
 	; Calculate modpack storage requirement
-	$hddSpaceRequirement = getTotalDiskspaceRequirementFromModpackXML($modID, $dataFolder)
+	$hddSpaceRequirement = getTotalDiskspaceRequirementFromModpackXML($PackID, $dataFolder)
 	$hddSpaceRequirement = getHumanReadableFilesize($hddSpaceRequirement)
 
 
 
 	; Calculate uncached files + filesize
-	$uncachedFiles = getStatusInfoOfUncachedFiles($modID, $dataFolder, $totalFileSize)
+	$uncachedFiles = getStatusInfoOfUncachedFiles($PackID, $dataFolder, $totalFileSize)
 
 
 
@@ -136,8 +138,12 @@ Func getModpackAdvInfo($modID, ByRef $hddSpaceRequirement, ByRef $uncachedFiles,
 
 
 
+	; Get the pack's installation path
+	$installationPath = getInstallFolder($PackID, $dataFolder)
+
+
 	; Caculate all files that will be removed
-	$removeFiles = getStatusInfoOfFilesToRemove($modpacks[$modpackNum][13], $modID, $dataFolder)
+	$removeFiles = getStatusInfoOfFilesToRemove($installationPath, $PackID, $dataFolder)
 
 
 
@@ -151,12 +157,12 @@ EndFunc
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: createAdvInfo
 ; Description ...: Display the AdvInfo GUI
-; Syntax ........: createAdvInfo($totalFileSize, $hddSpaceRequirement, $numberOfUncachedFiles, $files, $defaultInstallFolder)
-; Parameters ....: $totalFileSize       	- Total filesize to be downloaded.
-;                  $hddSpaceRequirement 	- Modpack storage requirement.
+; Syntax ........: createAdvInfo($PackID, $totalFileSize, $hddSpaceRequirement, $numberOfUncachedFiles, $files)
+; Parameters ....: $PackID					- The PackID
+;				   $totalFileSize       	- Total filesize to be downloaded.
+;                  $hddSpaceRequirement 	- Pack storage requirement.
 ;				   $uncachedFileCount		- Total number of files that will be downloaded
 ;                  $files       			- Combined files that will be added and removed.
-;                  $defaultInstallFolder	- Modpack installation folder.
 ; Return values .: None
 ; Author ........: Error_998
 ; Modified ......:
@@ -165,7 +171,7 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func createAdvInfo($totalFileSize, $hddSpaceRequirement, $numberOfUncachedFiles, $files, $defaultInstallFolder)
+Func createAdvInfo($PackID, $totalFileSize, $hddSpaceRequirement, $numberOfUncachedFiles, $files)
 	Local $backgroundPath = $dataFolder & "\PackData\Assets\GUI\AdvInfo\background.jpg"
 	Local $hParent
 	Local $hChild
@@ -176,7 +182,7 @@ Func createAdvInfo($totalFileSize, $hddSpaceRequirement, $numberOfUncachedFiles,
 	Local $hImage
 
 	; From
-	GUICreate("Modpack Advanced Information", 627, 684, -1, -1, -1, -1, $frmModpackSelection)
+	GUICreate("Pack Advanced Information", 627, 684, -1, -1, -1, -1, $frmPackSelection)
 	GUISetOnEvent($GUI_EVENT_CLOSE, "AdvInfoCLOSEButton")
 
 	; Background picture
@@ -219,7 +225,7 @@ Func createAdvInfo($totalFileSize, $hddSpaceRequirement, $numberOfUncachedFiles,
 
 
 	; Root entry displaying Installation path
-	$hRoot = _GUICtrlTreeView_Add($tree, 0, $defaultInstallFolder, 0, 0)
+	$hRoot = _GUICtrlTreeView_Add($tree, 0, getInstallFolder($PackID, $dataFolder), 0, 0)
 
 
 	For $i = 1 To $files[0]

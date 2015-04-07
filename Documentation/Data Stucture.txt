@@ -75,20 +75,46 @@ packs.xml
 
 
 
-assets.xml
----------
+assets.ini
+----------
 
-<assets version="1.0">
-	<Sounds>
-		<BackgroundMusicSHA1></BackgroundMusicSHA1>
-		<BackgroundMusicPlayLenght>227</BackgroundMusicPlayLenght>
-	<Sounds>
-	<ModPackSelection>
-		<BackgroundSHA1></BackgroundSHA1>
-		<DefaultIconSHA1></DefaultIconSHA1>
-		<DefaultSplashSHA1></DefaultSplashSHA1>
-		<DefaultDescriptionSHA1></DefaultDescriptionSHA1>
-	</ModPackSelection>
-</assets>
+[Sounds]
+BackgroundMusicSHA1=0x99670635B5050B4D36667D51FC9376BD095D832A
+BackgroundMusicPlayLenght=255
+[PackSelectionGUI]
+BackgroundSHA1=0x1D1D1ADDE58EA1E4E5CCDCDAA12FFE5865BA5F54
+DefaultIconSHA1=0x1E9DAA03A20AE1646595D287C51AF9C0D5B9EAC3
+DefaultSplashSHA1=0x2E44291E92B7BC8D2B59517379EE295CD15A592F
+DefaultDescriptionSHA1=0x9A522BBD03C976F199C643A2377613C41052A6B3
+[AdvInfoGUI]
+PleaseWaitBackgroundSHA1=0x4AF6AEBF2884E322A3F45D43316E3277ED427DA7
+BackgroundSHA1=0x4896597CA72E5DB8175F6421CD71BDB930D015AE
+
+------------------------------------------------------
+
+
+
+
+PackID.ini
+----------
+
+[General]
+PackType=MagicLauncher
+[Forge]
+ForgeVersion=1.7.10-Forge10.13.2.1307-1.7.10
+[Install]
+DefaultInstallFolder=%appdata%\.minecraft
+[Shortcut]
+DesktopShortcutTarget=%appdata%\.minecraft\MagicLauncher_1.2.6.exe
+ShortcutName=Magic Launcher
+LaunchApplicationAfterUpdate=True
+
+------------------------------------------------------
+
+
+custom.ini
+----------
+[Install]
+InstallationPath=C:\Games\Pack
 
 ------------------------------------------------------

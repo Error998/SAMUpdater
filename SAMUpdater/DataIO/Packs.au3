@@ -128,12 +128,15 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func initPackFolders($packs, $dataFolder)
+	Local $PackID
+
 	writeLogEchoToConsole("[Info]: Initializing pack folders" & @CRLF)
 
 	; Create all pack folders
 	For $i = 0 To (UBound($packs) - 1)
-		createFolder($dataFolder & "\PackData\ModPacks\" & $packs[$i][0] & "\Data")
-		createFolder($dataFolder & "\PackData\ModPacks\" & $packs[$i][0] & "\Cache")
+		$packs[$i][0] = $PackID
+		createFolder($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data")
+		createFolder($dataFolder & "\PackData\ModPacks\" & $PackID & "\Cache")
 	Next
 
 	writeLogEchoToConsole("[Info]: Pack folders initialized" & @CRLF & @CRLF)
@@ -158,7 +161,7 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func initPackFiles($packs, $dataFolder)
-	; Download pack description, icon, splash, PackID.xml and PackID.cfg for each modpack
+	; Download pack description, icon, splash, PackID.xml and PackID.ini for each modpack
 	Local $url
 	Local $path
 
@@ -236,8 +239,8 @@ Func initPackFiles($packs, $dataFolder)
 
 
 		; Verify local file else download remote Pack Config
-		$url = $PackRepository & "/packdata/modpacks/" & $PackID & "/data/" & $PackID & ".cfg"
-		$path = "PackData\Modpacks\" & $PackID & "\Data\" & $PackID & ".cfg"
+		$url = $PackRepository & "/packdata/modpacks/" & $PackID & "/data/" & $PackID & ".ini"
+		$path = "PackData\Modpacks\" & $PackID & "\Data\" & $PackID & ".ini"
 
 		verifyAndDownload($url, $path, $dataFolder, $PackConfigSHA1, 5, True)
 

@@ -11,9 +11,9 @@ Opt('MustDeclareVars', 1)
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: loadXMLfileSection
-; Description ...: Read <modID>.xml and return a specific file section
+; Description ...: Read <PackID>.xml and return a specific file section
 ; Syntax ........: loadXMLfileSection($modID, $dataFolder, $section)
-; Parameters ....: $modID				- modID
+; Parameters ....: $modID				- PackID
 ;				   $dataFolder 			- Application data folder
 ;				   $section				- either "Removed" or "Files"
 ; Return values .: Trimed XML data containing a file section
@@ -24,12 +24,12 @@ Opt('MustDeclareVars', 1)
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func loadXMLfileSection($modID, $dataFolder, $section)
+Func loadXMLfileSection($PackID, $dataFolder, $section)
 	Local $xml
 	Dim $filesSectionXML
 
 	; Load and parse xml document
-	$xml = loadXML($dataFolder & "\PackData\Modpacks\" & $modID & "\Data\" & $modID & ".xml")
+	$xml = loadXML($dataFolder & "\PackData\Modpacks\" & $PackID & "\Data\" & $PackID & ".xml")
 
 	; Array for each file section
 	$filesSectionXML = getElement($xml, $section)
@@ -43,8 +43,8 @@ EndFunc
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: getXMLfilesFromSection
 ; Description ...: Create an array containing each file + info from the XML section
-; Syntax ........: getXMLfilesFromSection($modID, $dataFolder, $section)
-; Parameters ....: $modID               - The modID
+; Syntax ........: getXMLfilesFromSection($PackID, $dataFolder, $section)
+; Parameters ....: $PackID               - The PackID
 ;                  $dataFolder          - Application data folder
 ;                  $section             - The section to return ("Removed" / "Files")
 ; Return values .: 2d Array with a zero based index containing each file info from <modID>.xml
@@ -55,12 +55,12 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func getXMLfilesFromSection($modID, $dataFolder, $section)
+Func getXMLfilesFromSection($PackID, $dataFolder, $section)
 	Local $filesSectionXML
 	Local $fileXML
 
 	; Load <modID>.xml
-	$filesSectionXML = loadXMLfileSection($modID, $dataFolder, $section)
+	$filesSectionXML = loadXMLfileSection($PackID, $dataFolder, $section)
 
 	; Get the extended info of each file
 	$fileXML = getElements($filesSectionXML, "File")
@@ -86,8 +86,8 @@ EndFunc
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: getTotalDiskspaceRequirementFromModpackXML
 ; Description ...: Calculates the total filesize in bytes of the Files section of <modID>.xml
-; Syntax ........: getTotalDiskspaceRequirementFromModpackXML($modID, $dataFolder)
-; Parameters ....: $modID               - The modID
+; Syntax ........: getTotalDiskspaceRequirementFromModpackXML($PackID, $dataFolder)
+; Parameters ....: $PackID               - The PackID
 ;                  $dataFolder          - Application data folder
 ; Return values .: total filesize of modpack in bytes
 ; Author ........: Error_998
@@ -97,12 +97,12 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func getTotalDiskspaceRequirementFromModpackXML($modID, $dataFolder)
+Func getTotalDiskspaceRequirementFromModpackXML($PackID, $dataFolder)
 	Local $currentXMLFiles
 	Local $totalSize = 0
 
 	; Get all the file info of the current files
-	$currentXMLFiles = getXMLfilesFromSection($modID, $dataFolder, "Files")
+	$currentXMLFiles = getXMLfilesFromSection($PackID, $dataFolder, "Files")
 
 	; Calculate total file size
 	For $i =  0 to UBound($currentXMLFiles) - 1
