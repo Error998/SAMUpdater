@@ -273,7 +273,7 @@ EndFunc
 ; ===============================================================================================================================
 Func btnDownload()
 
-	$downloadPacknum = findModpackNumFromCtrlID(@GUI_CtrlId, 1, $ctrlIDs)
+	$downloadPacknum = findPackNumFromCtrlID(@GUI_CtrlId, 1, $ctrlIDs)
 
 	writeLogEchoToConsole("[Info]: Pack #: " & $downloadPacknum & " selected for download" & @CRLF)
 

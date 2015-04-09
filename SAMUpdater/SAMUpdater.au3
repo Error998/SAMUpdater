@@ -5,8 +5,8 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_ProductVersion=0.4.0.5
-#AutoIt3Wrapper_Res_Fileversion=0.4.0.5
+#AutoIt3Wrapper_Res_ProductVersion=0.4.0.7
+#AutoIt3Wrapper_Res_Fileversion=0.4.0.7
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -30,7 +30,7 @@ Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.4.0.5"
+Const $version = "0.4.0.7"
 Const $baseURL = "http://localhost/samupdater"
 ;Const $baseURL = "http://local.saminecraft.co.za/sam/samupdater"
 Const $updateURL = $baseURL & "/version.ini"
@@ -141,14 +141,16 @@ writeLog("[Info]: Pack Version          - " & $packs[$packNum][2] & @CRLF)
 writeLog("[Info]: Content Version       - " & $packs[$packNum][3] & @CRLF)
 writeLog("[Info]: Pack Repository       - " & $packs[$packNum][9] & @CRLF)
 
-Exit
+
+
 ; Cache pack
-cacheModpack($packs[$packNum][9], $packs[$packNum][0], $dataFolder)
+cachePack($packs[$packNum][9], $packs[$packNum][0], $dataFolder)
 
-
+Exit
 
 
 ; Custom Pre-install stuff
+
 
 
 

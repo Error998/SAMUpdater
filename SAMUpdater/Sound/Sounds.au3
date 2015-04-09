@@ -2,6 +2,7 @@
 #include <Timers.au3>
 #include "..\DataIO\Download.au3"
 #include "..\DataIO\Assets.au3"
+#include "..\DataIO\UserSettings.au3"
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: playBackgroundMusic
@@ -82,7 +83,7 @@ Func playBackgroundMusic($dataFolder)
 
 
 	; Check user settings if sound should be enabled
-	If IniRead($dataFolder & "\Settings\settings.ini", "Sound","BackgroundMusicOn", "True") <> "True" Then Return
+	If getUserSettingBackgroundMusicOn($dataFolder) <> "True" Then Return
 
 
 	; Get background play lenght
@@ -133,7 +134,7 @@ Func stopBackgroundMusic()
 
 
 		; Update user settings
-		IniWrite($dataFolder & "\Settings\settings.ini", "Sound", "BackgroundMusicOn", "False")
+		setUserSettingBackgroundMusicOn("False", $dataFolder)
 
 		writeLog("[Info]: Background music disabled" & @CRLF)
 EndFunc
@@ -184,7 +185,7 @@ Func enableBackgroundMusic()
 
 
 	; Update user settings
-	IniWrite($dataFolder & "\Settings\settings.ini", "Sound", "BackgroundMusicOn", "True")
+	setUserSettingBackgroundMusicOn("True", $dataFolder)
 
 	writeLog("[Info]: Background music enabled" & @CRLF)
 EndFunc
@@ -236,7 +237,7 @@ EndFunc
 ; ===============================================================================================================================
 Func toggleBackgroundMusic()
 
-	If IniRead($dataFolder & "\Settings\settings.ini", "Sound", "BackgroundMusicOn", "True") = "True" Then
+	If getUserSettingBackgroundMusicOn($dataFolder) = "True" Then
 
 		stopBackgroundMusic()
 

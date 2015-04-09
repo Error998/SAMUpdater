@@ -1,8 +1,12 @@
-SAMUpdater v0.4.0.5 alpha
+SAMUpdater v0.4.0.7 alpha
 =========================
 
-A Minecraft Auto Updater that will update mods and config files.
+Started out as a Minecraft Auto Updater that will update mods and config files
+but now supports creating any pack that can be remotely downloaded and kept up
+to date using SAMUpdater.
 
+Supports Offline mode for installing cached packs to a pc without an internet
+connection.
 
 Lisence
 -------

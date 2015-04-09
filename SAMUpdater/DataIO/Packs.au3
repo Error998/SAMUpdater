@@ -134,7 +134,7 @@ Func initPackFolders($packs, $dataFolder)
 
 	; Create all pack folders
 	For $i = 0 To (UBound($packs) - 1)
-		$packs[$i][0] = $PackID
+		$PackID = $packs[$i][0]
 		createFolder($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data")
 		createFolder($dataFolder & "\PackData\ModPacks\" & $PackID & "\Cache")
 	Next

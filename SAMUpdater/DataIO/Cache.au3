@@ -7,31 +7,32 @@
 #include "..\DataIO\Download.au3"
 #include "..\DataIO\ModPack.au3"
 #include "..\DataIO\Folders.au3"
+#include "..\DataIO\UserSettings.au3"
 
 Opt('MustDeclareVars', 1)
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: cacheModpack
-; Description ...: Download all modpack files into cache folder
-; Syntax ........: cacheModpack($baseModURL, $modID, $dataFolder)
-; Parameters ....: $baseModURL          - Base URL location containing the modpack files.
-;                  $modID               - The modID.
-;                  $dataFolder          - Application data folder.
+; Name ..........: cachePack
+; Description ...: Download all pack files into cache folder
+; Syntax ........: cachePack($PackRepository, $PackID, $dataFolder)
+; Parameters ....: $PackRepository          - Location of the pack repository.
+;                  $PackID        	        - The PackID.
+;                  $dataFolder      	    - Application data folder.
 ; Return values .: None
 ; Author ........: Error_998
 ; Modified ......:
-; Remarks .......: <$basemodURL>/packdata/modpacks...
+; Remarks .......: <$PackRepository>/packdata/modpacks...
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func cacheModpack($baseModURL, $modID, $dataFolder)
+Func cachePack($PackRepository, $PackID, $dataFolder)
 	Local $uncachedFiles
 	Local $reply
 
 	; Get a list of files that are not yet cached
-	$uncachedFiles = getUncachedFileList($modID, $dataFolder)
+	$uncachedFiles = getUncachedFileList($PackID, $dataFolder)
 
 	; Cache is up to date, return
 	If $uncachedFiles[0] = 0 Then Return
@@ -62,13 +63,13 @@ Func cacheModpack($baseModURL, $modID, $dataFolder)
 		$isOnline = True
 
 		; Save new user setting
-		IniWrite($dataFolder & "\Settings\settings.ini", "Network", "Mode", "Online")
+		setUserSettingNetworkMode("Online", $dataFolder)
 
 	EndIf
 
 
 
-	cacheFiles($baseModURL, $uncachedFiles, $modID, $dataFolder)
+	cacheFiles($PackRepository, $uncachedFiles, $PackID, $dataFolder)
 
 
 EndFunc
@@ -79,8 +80,8 @@ EndFunc
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: getUncachedFileList
 ; Description ...: Return a 1d array containing a list of uncached filenames
-; Syntax ........: getUncachedFileList($modID, $dataFolder)
-; Parameters ....: $modID               - The modID.
+; Syntax ........: getUncachedFileList($PackID, $dataFolder)
+; Parameters ....: $PackID               - The PackID.
 ;                  $dataFolder          - Application data folder.
 ; Return values .: Array of uncached filenames
 ; Author ........: Error_998
@@ -90,8 +91,8 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func getUncachedFileList($modID, $dataFolder)
-	Dim $currentXMLfiles  ; All files that exist in the current modpack
+Func getUncachedFileList($PackID, $dataFolder)
+	Dim $currentXMLfiles  ; All files that exist in the current pack
 	Dim $uncachedFiles[1]
 	Local $filesize = 0
 	Local $hFile
@@ -99,9 +100,9 @@ Func getUncachedFileList($modID, $dataFolder)
 	Local $totalFiles
 	Local $percentage
 
-	; Load <modID>.xml
-	writeLogEchoToConsole("[Info]: Parsing modpack file list from " & $modID & ".xml" & @CRLF & @CRLF)
-	$currentXMLfiles = getXMLfilesFromSection($modID, $dataFolder, "Files")
+	; Load <PackID>.xml
+	writeLogEchoToConsole("[Info]: Parsing pack file list from " & $PackID & ".xml" & @CRLF & @CRLF)
+	$currentXMLfiles = getXMLfilesFromSection($PackID, $dataFolder, "Files")
 
 	; Total files in Files section
 	$totalFiles = UBound($currentXMLfiles) - 1
@@ -125,7 +126,7 @@ Func getUncachedFileList($modID, $dataFolder)
 		If $currentXMLfiles[$i][4] = 0 Then
 
 			; Create a empty cache file
-			$hFile = FileOpen($dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $currentXMLfiles[$i][3], 2)
+			$hFile = FileOpen($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $currentXMLfiles[$i][3], 2)
 			FileClose($hFile)
 
 			ContinueLoop
@@ -134,9 +135,9 @@ Func getUncachedFileList($modID, $dataFolder)
 
 
 		; Verify file if it already exists
-		If FileExists($dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $currentXMLfiles[$i][3]) Then
+		If FileExists($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $currentXMLfiles[$i][3]) Then
 
-			$hash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $currentXMLfiles[$i][3], $CALG_SHA1)
+			$hash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $currentXMLfiles[$i][3], $CALG_SHA1)
 
 			; File verified, skipping file
 			If $hash = $currentXMLfiles[$i][3] then	ContinueLoop
@@ -177,10 +178,10 @@ EndFunc
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: cacheFiles
 ; Description ...: Download remote cache files
-; Syntax ........: cacheFiles($baseModURL, $uncachedFiles, $modID, $dataFolder)
-; Parameters ....: $baseModURL          - Base URL location containing the modpack files.
+; Syntax ........: cacheFiles($PackRepository, $uncachedFiles, $PackID, $dataFolder)
+; Parameters ....: $PackRepository      - Location of the pack repository.
 ;                  $uncachedFiles       - 1D array with all the uncached filenames.
-;                  $modID               - The modID.
+;                  $PackID               - The PackID.
 ;                  $dataFolder          - Application data folder.
 ; Return values .: None
 ; Author ........: Error_998
@@ -190,7 +191,7 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func cacheFiles($baseModURL, $uncachedFiles, $modID, $dataFolder)
+Func cacheFiles($PackRepository, $uncachedFiles, $PackID, $dataFolder)
 	Local $fileURL
 
 	writeLogEchoToConsole("[Info]: Downloading cache..." & @CRLF)
@@ -198,20 +199,20 @@ Func cacheFiles($baseModURL, $uncachedFiles, $modID, $dataFolder)
 	; Download all uncached files
 	For $i = 1 to $uncachedFiles[0]
 
-		$fileURL = $baseModURL & "/packdata/modpacks/" & $modID & "/cache/" & $uncachedFiles[$i] & ".dat"
+		$fileURL = $PackRepository & "/packdata/modpacks/" & $PackID & "/cache/" & $uncachedFiles[$i] & ".dat"
 
 		; Shortend console entry
 		ConsoleWrite(@CR & "[Info]: (" & $i & "/" & $uncachedFiles[0] & ") Downloading - " & $uncachedFiles[$i])
 		; Detailed log entry
-		writeLog("[Info]: (" & $i & "/" & $uncachedFiles[0] & ") Downloading - " & $dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $uncachedFiles[$i] & ".dat")
+		writeLog("[Info]: (" & $i & "/" & $uncachedFiles[0] & ") Downloading - " & $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $uncachedFiles[$i] & ".dat")
 
 		; Download file then verify if it matches remote hash entry
-		downloadAndVerify($fileURL, $uncachedFiles[$i], $dataFolder & "\PackData\Modpacks\" & $modID & "\cache", $uncachedFiles[$i], 5, True)
+		downloadAndVerify($fileURL, $uncachedFiles[$i], $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache", $uncachedFiles[$i], 5, True)
 
 
 	Next
 
-	writeLogEchoToConsole("[Info]: Modpack cache download complete" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Pack cache download complete" & @CRLF & @CRLF)
 
 EndFunc
 
@@ -224,8 +225,8 @@ EndFunc
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: getStatusInfoOfUncachedFiles
 ; Description ...: Return a 1d array containing a list of uncached filenames
-; Syntax ........: getStatusInfoOfUncachedFiles($modID, $dataFolder, byRef $totalFileSize)
-; Parameters ....: $modID               - The modID.
+; Syntax ........: getStatusInfoOfUncachedFiles($PackID, $dataFolder, byRef $totalFileSize)
+; Parameters ....: $PackID               - The PackID.
 ;                  $dataFolder          - Application data folder.
 ;				   $totalFileSize		- (In/Out) Total filesize of uncached files
 ; Return values .: Array of uncached filenames
@@ -236,7 +237,7 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func getStatusInfoOfUncachedFiles($modID, $dataFolder, ByRef $totalFileSize)
+Func getStatusInfoOfUncachedFiles($PackID, $dataFolder, ByRef $totalFileSize)
 	Dim $uncachedFiles[1]
 	Dim $currentXMLfiles ; All files that exist in the current modpack
 	Local $filesize = 0
@@ -245,8 +246,8 @@ Func getStatusInfoOfUncachedFiles($modID, $dataFolder, ByRef $totalFileSize)
 	Local $percentage
 
 
-	; Load <modID>.xml
-	$currentXMLfiles = getXMLfilesFromSection($modID, $dataFolder, "Files")
+	; Load <PackID>.xml
+	$currentXMLfiles = getXMLfilesFromSection($PackID, $dataFolder, "Files")
 
 
 	; Total files in Files section
@@ -272,9 +273,9 @@ Func getStatusInfoOfUncachedFiles($modID, $dataFolder, ByRef $totalFileSize)
 
 
 		; Verify file if it already exists
-		If FileExists($dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $currentXMLfiles[$i][3]) Then
+		If FileExists($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $currentXMLfiles[$i][3]) Then
 
-			$hash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $modID & "\cache\" & $currentXMLfiles[$i][3], $CALG_SHA1)
+			$hash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $currentXMLfiles[$i][3], $CALG_SHA1)
 
 			; File verified, skipping file
 			If $hash = $currentXMLfiles[$i][3] then	ContinueLoop

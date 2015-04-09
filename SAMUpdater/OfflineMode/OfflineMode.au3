@@ -1,11 +1,12 @@
 #include <MsgBoxConstants.au3>
+#include "..\DataIO\UserSettings.au3"
 
 Opt('MustDeclareVars', 1)
 
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: getSettingIsOnline
-; Description ...: Determine if the Updater should be in online or offline mode
+; Description ...: Determine if the Updater should be in Online or Offline mode
 ; Syntax ........: getSettingIsOnline($dataFolder)
 ; Parameters ....: $dataFolder          - Application data folder
 ; Return values .: True					- Online mode (requires an internet connection)
@@ -18,7 +19,7 @@ Opt('MustDeclareVars', 1)
 ; Example .......: No
 ; ===============================================================================================================================
 Func getSettingIsOnline($dataFolder)
-		If IniRead($dataFolder &  "\Settings\settings.ini", "Network", "Mode", "Online") = "Online" Then
+		If getUserSettingNetworkMode($dataFolder) = "Online" Then
 			Return True
 		Else
 			Return False
@@ -28,6 +29,20 @@ EndFunc
 
 
 
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: toggleNetworkMode
+; Description ...: Toggle between Online and Offline mode
+; Syntax ........: toggleNetworkMode()
+; Parameters ....:
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
 Func toggleNetworkMode()
 	Local $reply
 
@@ -41,7 +56,7 @@ Func toggleNetworkMode()
 			$isOnline = False
 
 			; Update user settings
-			IniWrite($dataFolder & "\Settings\settings.ini", "Network", "Mode", "Offline")
+			setUserSettingNetworkMode("Offline", $dataFolder)
 
 			writeLogEchoToConsole("[Info]: Switched to Offline mode" & @CRLF & @CRLF)
 		EndIf
@@ -57,7 +72,7 @@ Func toggleNetworkMode()
 			$isOnline = True
 
 			; Update user settings
-			IniWrite($dataFolder & "\Settings\settings.ini", "Network", "Mode", "Online")
+			setUserSettingNetworkMode("Online", $dataFolder)
 
 			writeLogEchoToConsole("[Info]: Switched to Online mode" & @CRLF & @CRLF)
 		EndIf
