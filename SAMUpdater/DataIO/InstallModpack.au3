@@ -7,6 +7,8 @@
 #include "..\DataIO\XML.au3"
 #include "..\DataIO\Folders.au3"
 #include "..\DataIO\Download.au3"
+#include "..\DataIO\UserSettings.au3"
+
 
 Opt('MustDeclareVars', 1)
 
@@ -14,11 +16,10 @@ Opt('MustDeclareVars', 1)
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: installModPack
+; Name ..........: installPack
 ; Description ...: Installs files from cache to install folder and removes old files
-; Syntax ........: installModPack($defaultInstallFolder, $modID, $dataFolder)
-; Parameters ....: $defaultInstallFolder- Installation folder.
-;                  $modID               - The modID.
+; Syntax ........: installPack($PackID, $dataFolder)
+; Parameters ....: $PackID              - The PackID.
 ;                  $dataFolder          - Application data folder.
 ; Return values .: None
 ; Author ........: Error_998
@@ -28,20 +29,23 @@ Opt('MustDeclareVars', 1)
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func installModPack($defaultInstallFolder, $modID, $dataFolder)
+Func installPack($PackID, $dataFolder)
 	Local $recycle
+	Local $installationFolder
 
+
+	; Get the Pack installation folder
+	$installationFolder = getInstallFolder($PackID, $dataFolder)
 
 	; Install
-	installFromCache($defaultInstallFolder, $modID, $dataFolder)
+	installFromCache($installationFolder, $PackID, $dataFolder)
 
 
 	; Should files be permanently deleted or sent to recycle bin
-	$recycle = IniRead($dataFolder & "\Settings\settings.ini", "Files", "DeleteToRecycleBin", "False")
-
+	$recycle = getUserSettingDeleteToRecycleBin($dataFolder)
 
 	; Remove
-	removeOldFiles($defaultInstallFolder, $modID, $dataFolder, $recycle)
+	removeOldFiles($installationFolder, $PackID, $dataFolder, $recycle)
 
 EndFunc
 
@@ -52,9 +56,9 @@ EndFunc
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: installFromCache
 ; Description ...: Installs files from cache to install folder
-; Syntax ........: installModPack($defaultInstallFolder, $modID, $dataFolder)
-; Parameters ....: $defaultInstallFolder- Installation folder.
-;                  $modID               - The modID.
+; Syntax ........: installFromCache($installationFolder, $PackID, $dataFolder)
+; Parameters ....: $installationFolder	- Pack installation folder.
+;                  $PackID              - The PackID.
 ;                  $dataFolder          - Application data folder.
 ; Return values .: None
 ; Author ........: Error_998
@@ -64,16 +68,16 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func installFromCache($defaultInstallFolder, $modID, $dataFolder)
-	Dim $currentXMLfiles  ; All files that exist in the current modpack
+Func installFromCache($installationFolder, $PackID, $dataFolder)
+	Dim $currentXMLfiles  ; All files that exist in the current pack
 	Local $destinationFile
 	Local $sourceFile
 	Local $hash
 	Local $totalFiles
 	Local $fileCopyStatus
 
-	writeLogEchoToConsole("[Info]: Reading files from " & $modID & ".xml" & @CRLF)
-	$currentXMLfiles = getXMLfilesFromSection($modID, $dataFolder, "Files")
+	writeLogEchoToConsole("[Info]: Reading files from " & $PackID & ".xml" & @CRLF)
+	$currentXMLfiles = getXMLfilesFromSection($PackID, $dataFolder, "Files")
 
 
 	; Startup crypt libary to speedup hash generation
@@ -85,9 +89,9 @@ Func installFromCache($defaultInstallFolder, $modID, $dataFolder)
 
 		; Full filename and path to install location
 		If $currentXMLfiles[$i][2] = "" Then
-			$destinationFile = $defaultInstallFolder & "\" & $currentXMLfiles[$i][0]
+			$destinationFile = $installationFolder & "\" & $currentXMLfiles[$i][0]
 		Else
-			$destinationFile = $defaultInstallFolder & "\" & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0]
+			$destinationFile = $installationFolder & "\" & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0]
 		EndIf
 
 		; Check if file already exists and if its changed
@@ -106,7 +110,7 @@ Func installFromCache($defaultInstallFolder, $modID, $dataFolder)
 		EndIf
 
 
-		$sourceFile = $dataFolder & "\PackData\Modpacks\" & $modID & "\Cache\" & $currentXMLfiles[$i][3]
+		$sourceFile = $dataFolder & "\PackData\Modpacks\" & $PackID & "\Cache\" & $currentXMLfiles[$i][3]
 
 		; Create path and copy to installation folder
 		$fileCopyStatus = FileCopy($sourceFile, $destinationFile, BitOR($FC_OVERWRITE , $FC_CREATEPATH) )
@@ -131,12 +135,13 @@ EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: removeOldFiles
-; Description ...: Delete all files marked for removal to recycle bin
-; Syntax ........: removeOldFiles($defaultInstallFolder, $modID, $dataFolder, $recycle)
-; Parameters ....: $defaultInstallFolder- Installation folder.
-;                  $modID               - The modID.
+; Description ...: Delete all files marked for removal
+; Syntax ........: removeOldFiles($installationFolder, $PackID, $dataFolder, $recycle)
+; Parameters ....: $installationFolder	- Pack installation folder.
+;                  $PackID              - The PackID.
 ;                  $dataFolder          - Application data folder.
-;				   $recycle				- true send to recycle bin, false permanently delete file
+;				   $recycle				- True : send to recycle bin
+;										- False : permanently delete files
 ; Return values .: None
 ; Author ........: Error_998
 ; Modified ......:
@@ -145,15 +150,15 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func removeOldFiles($defaultInstallFolder, $modID, $dataFolder, $recycle)
+Func removeOldFiles($installationFolder, $PackID, $dataFolder, $recycle)
 	Dim $currentXMLfiles  ; All files that exist in the current modpack
 	Local $destinationFile
 	Local $sourceFile
 	Local $totalFiles
 
 
-	writeLogEchoToConsole("[Info]: Reading removed files from " & $modID & ".xml" & @CRLF)
-	$currentXMLfiles = getXMLfilesFromSection($modID, $dataFolder, "Removed")
+	writeLogEchoToConsole("[Info]: Reading removed files from " & $PackID & ".xml" & @CRLF)
+	$currentXMLfiles = getXMLfilesFromSection($PackID, $dataFolder, "Removed")
 
 
 	$totalFiles = UBound($currentXMLfiles) - 1
@@ -163,9 +168,9 @@ Func removeOldFiles($defaultInstallFolder, $modID, $dataFolder, $recycle)
 
 		; Full path and filename of file to remove
 		If $currentXMLfiles[$i][2] = "" Then
-			$destinationFile = $defaultInstallFolder & "\" & $currentXMLfiles[$i][0]
+			$destinationFile = $installationFolder & "\" & $currentXMLfiles[$i][0]
 		Else
-			$destinationFile = $defaultInstallFolder & "\" & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0]
+			$destinationFile = $installationFolder & "\" & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0]
 		EndIf
 
 
@@ -189,7 +194,7 @@ Func removeOldFiles($defaultInstallFolder, $modID, $dataFolder, $recycle)
 
 	Next
 
-	writeLogEchoToConsole("[Info]: Modpack file update complete" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: File update complete" & @CRLF & @CRLF)
 EndFunc
 
 
@@ -201,9 +206,9 @@ EndFunc
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: getStatusInfoOfFilesToRemove
 ; Description ...: Creates an array of all files that has to be removed and is currently present in installation
-; Syntax ........: getStatusInfoOfFilesToRemove($defaultInstallFolder, $modID, $dataFolder)
-; Parameters ....: $defaultInstallFolder- Installation folder.
-;                  $modID               - The modID.
+; Syntax ........: getStatusInfoOfFilesToRemove($installationFolder, $PackID, $dataFolder)
+; Parameters ....: $installationFolder	- Pack installation folder.
+;                  $PackID              - The PackID.
 ;                  $dataFolder          - Application data folder.
 ; Return values .: Array of files that need to be removed
 ; Author ........: Error_998
@@ -213,8 +218,8 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func getStatusInfoOfFilesToRemove($defaultInstallFolder, $modID, $dataFolder)
-	Dim $currentXMLfiles  ; All files that exist in the current modpack
+Func getStatusInfoOfFilesToRemove($installationFolder, $PackID, $dataFolder)
+	Dim $currentXMLfiles  ; All files that exist in the current pack
 	Dim $removeFiles[1]   ; All files that has to be removed and is currently present in installation
 	Local $destinationFile
 	Local $sourceFile
@@ -222,7 +227,7 @@ Func getStatusInfoOfFilesToRemove($defaultInstallFolder, $modID, $dataFolder)
 	Local $percentage
 
 	writeLog("[Info]: Calculating files that needs removing..." & @CRLF)
-	$currentXMLfiles = getXMLfilesFromSection($modID, $dataFolder, "Removed")
+	$currentXMLfiles = getXMLfilesFromSection($PackID, $dataFolder, "Removed")
 
 
 	$totalFiles = UBound($currentXMLfiles) - 1
@@ -246,7 +251,7 @@ Func getStatusInfoOfFilesToRemove($defaultInstallFolder, $modID, $dataFolder)
 
 
 		; Skip if file was already removed
-		If Not FileExists($defaultInstallFolder & "\" & $destinationFile) Then ContinueLoop
+		If Not FileExists($installationFolder & "\" & $destinationFile) Then ContinueLoop
 
 
 		; Add file marked for removal that is present in current installation

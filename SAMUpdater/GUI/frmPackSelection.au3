@@ -164,32 +164,20 @@ Func showSplashAndDescription($packNum)
 	Local $descriptionPath
 	Local $splashPath
 
-	Local $PackID
-	Local $PackName
-	Local $PackVersion
-	Local $ContentVersion
-	Local $PackDescriptionSHA1
-	Local $PackIconSHA1
-	Local $PackSplashSHA1
-	Local $PackDatabaseSHA1
-	Local $PackConfigSHA1
-	Local $PackRepository
-	Local $PackDownloadable
-	Local $PackVisible
-
 	; Assign all Pack elemets
-	$PackID = $packs[$packNum][0]
-	$PackName = $packs[$packNum][1]
-	$PackVersion = $packs[$packNum][2]
-	$ContentVersion = $packs[$packNum][3]
-	$PackDescriptionSHA1 = $packs[$packNum][4]
-	$PackIconSHA1 = $packs[$packNum][5]
-	$PackSplashSHA1 = $packs[$packNum][6]
-	$PackDatabaseSHA1 = $packs[$packNum][7]
-	$PackConfigSHA1 = $packs[$packNum][8]
-	$PackRepository = $packs[$packNum][9]
-	$PackDownloadable = $packs[$packNum][10]
-	$PackVisible = $packs[$packNum][11]
+	Local $PackID = $packs[$packNum][0]
+	Local $PackName = $packs[$packNum][1]
+	Local $PackVersion = $packs[$packNum][2]
+	Local $ContentVersion = $packs[$packNum][3]
+	Local $PackDescriptionSHA1 = $packs[$packNum][4]
+	Local $PackIconSHA1 = $packs[$packNum][5]
+	Local $PackSplashSHA1 = $packs[$packNum][6]
+	Local $PackDatabaseSHA1 = $packs[$packNum][7]
+	Local $PackConfigSHA1 = $packs[$packNum][8]
+	Local $PackRepository = $packs[$packNum][9]
+	Local $PackDownloadable = $packs[$packNum][10]
+	Local $PackVisible = $packs[$packNum][11]
+
 
 
 	; Check if we actaully need to update anything
@@ -480,6 +468,8 @@ Func createScrollableView()
 
 	GUISetOnEvent($GUI_EVENT_CLOSE, "CLOSEButton")
 EndFunc
+
+
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: DisplayPackSelection

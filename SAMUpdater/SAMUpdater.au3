@@ -5,8 +5,8 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_ProductVersion=0.4.0.7
-#AutoIt3Wrapper_Res_Fileversion=0.4.0.7
+#AutoIt3Wrapper_Res_ProductVersion=0.4.0.8
+#AutoIt3Wrapper_Res_Fileversion=0.4.0.8
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -30,7 +30,7 @@ Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.4.0.7"
+Const $version = "0.4.0.8"
 Const $baseURL = "http://localhost/samupdater"
 ;Const $baseURL = "http://local.saminecraft.co.za/sam/samupdater"
 Const $updateURL = $baseURL & "/version.ini"
@@ -114,6 +114,21 @@ initGUIAssets($baseURL, $dataFolder)
 $packs = parsePacks($packsURL, $dataFolder)
 
 
+; Assign all Pack elemets
+Local $PackID = $packs[$packNum][0]
+Local $PackName = $packs[$packNum][1]
+Local $PackVersion = $packs[$packNum][2]
+Local $ContentVersion = $packs[$packNum][3]
+Local $PackDescriptionSHA1 = $packs[$packNum][4]
+Local $PackIconSHA1 = $packs[$packNum][5]
+Local $PackSplashSHA1 = $packs[$packNum][6]
+Local $PackDatabaseSHA1 = $packs[$packNum][7]
+Local $PackConfigSHA1 = $packs[$packNum][8]
+Local $PackRepository = $packs[$packNum][9]
+Local $PackDownloadable = $packs[$packNum][10]
+Local $PackVisible = $packs[$packNum][11]
+
+
 
 ;Initialize all Packs, create needed folders, download pack descriptions, splash and icons
 initPacks($packs, $dataFolder)
@@ -135,18 +150,18 @@ EndIf
 
 ; Log entries
 writeLog("[Info]: Selected Pack Information" & @CRLF)
-writeLog("[Info]: Pack ID               - " & $packs[$packNum][0] & @CRLF)
-writeLog("[Info]: Pack Name             - " & $packs[$packNum][1] & @CRLF)
-writeLog("[Info]: Pack Version          - " & $packs[$packNum][2] & @CRLF)
-writeLog("[Info]: Content Version       - " & $packs[$packNum][3] & @CRLF)
-writeLog("[Info]: Pack Repository       - " & $packs[$packNum][9] & @CRLF)
+writeLog("[Info]: Pack ID               - " & $PackID & @CRLF)
+writeLog("[Info]: Pack Name             - " & $PackName & @CRLF)
+writeLog("[Info]: Pack Version          - " & $PackVersion & @CRLF)
+writeLog("[Info]: Content Version       - " & $ContentVersion & @CRLF)
+writeLog("[Info]: Pack Repository       - " & $PackRepository & @CRLF)
 
 
 
 ; Cache pack
-cachePack($packs[$packNum][9], $packs[$packNum][0], $dataFolder)
+cachePack($PackRepository, $PackID, $dataFolder)
 
-Exit
+
 
 
 ; Custom Pre-install stuff
@@ -154,13 +169,13 @@ Exit
 
 
 
-;Install Modpack
-installModPack($packs[$packNum][13], $packs[$packNum][0], $dataFolder)
-
+;Install Pack
+installPack($PackID, $dataFolder)
+Exit
 
 
 ; Custom Post install stuff
-configureMagicLauncher($packs[$packNum][0], $packs[$packNum][10], 1536)
+configureMagicLauncher($PackID, $ForgeVersion, 1536)
 
 
 
