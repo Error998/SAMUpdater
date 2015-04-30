@@ -2,6 +2,7 @@
 #include <Crypt.au3>
 #include <StringConstants.au3>
 #include <MsgBoxConstants.au3>
+#include <FileConstants.au3>
 #include "RecFileListToArray.au3"
 #include "Logs.au3"
 
@@ -24,6 +25,45 @@ Func doesFolderExist($sPath)
 	Else
 		Return True
 	EndIf
+EndFunc
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: isPathValid
+; Description ...: Check if a path is valid and writable
+; Syntax ........: isPathValid($path)
+; Parameters ....: $path                - Path to be tested
+; Return values .: True					- Path is writable
+;				   False				- Path is invalid or not writable
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......: Special paths like C:\, C:\Windows, C:\Pogram Files, etc. require admin privileges to be writable
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func isPathValid($path)
+	Local $file
+
+	; Is folder writable?
+	writeLog("[Info]: Checking is path is writable - " & $path & @CRLF)
+
+	$file = FileOpen($path & "\writable.tmp", $FO_CREATEPATH + $FO_OVERWRITE)
+	If $file = -1 Then
+		trimPathToFitConsole("[WARNING]: Path not writable: ", $path)
+		MsgBox($MB_ICONWARNING, "Invalid folder", "The specified path is not writable" & @CRLF & "Please select a new folder")
+
+		Return False
+	EndIf
+	FileClose($file)
+
+    ; Remove the test file
+	removeFile($path & "\writable.tmp")
+
+	; Path is valid
+	Return True
+
 EndFunc
 
 

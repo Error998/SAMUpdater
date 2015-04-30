@@ -39,12 +39,6 @@ Func displayAdvInfo($packNum)
 	Local $numberOfUncachedFiles
 
 
-	; Skip if the AdvInfo window is already open
-	WinGetHandle("Modpack Advanced Information")
-	If @error = 0 Then Return
-
-
-
 	; Display Please Wait splash screen
 	SplashImageOn("Please wait...", $dataFolder & "\PackData\Assets\GUI\AdvInfo\plswaitbackground.jpg", 380, 285)
 
@@ -68,6 +62,12 @@ Func displayAdvInfo($packNum)
 		SplashOff()
 
 		MsgBox($MB_ICONINFORMATION, "Local cache is up to date", "Pack is already cached locally, nothing new to download or remove." & @CRLF & @CRLF & "   Click Download if you wish to reinstall the pack." & @CRLF & @CRLF & @CRLF & "   Installed modpack will use: " & $hddSpaceRequirement & " harddrive space.")
+
+
+		; Re-enable forms
+		GUISetState(@SW_ENABLE, $frmPackSelection)
+		GUISetState(@SW_ENABLE, $hAperture)
+		WinActivate("SAMUpdater v" & $version)
 
 		Return
 	EndIf
@@ -300,5 +300,10 @@ Func AdvInfoCLOSEButton()
 	GUIDelete()
 
 	writeLogEchoToConsole("[Info]: Closing AdvInfo GUI" & @CRLF & @CRLF)
+
+	; Re-enable forms
+	GUISetState(@SW_ENABLE, $frmPackSelection)
+	GUISetState(@SW_ENABLE, $hAperture)
+	WinActivate("SAMUpdater v" & $version)
 EndFunc
 

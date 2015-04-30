@@ -8,6 +8,7 @@
 #include "..\DataIO\InstallModpack.au3"
 #include "..\DataIO\Cache.au3"
 #include "frmAdvInfo.au3"
+#include "frmSelectFolder.au3"
 #include "GUIScrollbars_Ex.au3"
 
 Opt("GUIOnEventMode", 1)
@@ -265,8 +266,15 @@ Func btnDownload()
 
 	writeLogEchoToConsole("[Info]: Pack #: " & $downloadPacknum & " selected for download" & @CRLF)
 
-	; Close GUI and free resources
-	CLOSEButton()
+	; Disable GUI
+	GUISetState(@SW_DISABLE, $frmPackSelection)
+	GUISetState(@SW_DISABLE, $hAperture)
+
+
+	; Display Select Folder GUI
+	displaySelectFolderGUI($downloadPacknum)
+
+
 EndFunc
 
 
@@ -297,6 +305,10 @@ Func btnInfo()
 	; Display Splash and description
 	showSplashAndDescription($packNum)
 
+
+	; Disable GUI
+	GUISetState(@SW_DISABLE, $frmPackSelection)
+	GUISetState(@SW_DISABLE, $hAperture)
 
 
 	; Display AdvInfo GUI
@@ -336,8 +348,6 @@ EndFunc
 
 
 
-
-
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: findPackNumFromCtrlID
 ; Description ...: Determine the zero index based pack number of the control that was clicked
@@ -361,8 +371,6 @@ Func findPackNumFromCtrlID($clickedCTRLid, $controlIndex, $ctrlIDs)
 
 	Return $i
 EndFunc
-
-
 
 
 
@@ -433,7 +441,7 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func createScrollableView()
-	Local $hAperture
+	Global $hAperture
 	Local $iAperture_Width = 433
 	Local $iAperture_Ht = 458
 	Local $iLeft = 5

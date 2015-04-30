@@ -50,8 +50,6 @@ EndFunc
 
 
 
-
-
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: checkUserSetting
 ; Description ...: Checks user setting file and creates the section and keys that are missing
@@ -138,7 +136,6 @@ EndFunc
 
 
 
-
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: setUserSettingBackgroundMusicOn
 ; Description ...: Save the background music user setting
@@ -204,7 +201,6 @@ Func setUserSettingDeleteToRecycleBin($boolean,$dataFolder)
 	IniWrite($dataFolder &  "\Settings\settings.ini", "Files", "DeleteToRecycleBin", $boolean)
 
 EndFunc
-
 
 
 

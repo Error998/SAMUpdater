@@ -1,4 +1,4 @@
-SAMUpdater v0.4.0.8 alpha
+SAMUpdater v0.4.1.0 alpha
 =========================
 
 Started out as a Minecraft Auto Updater that will update mods and config files
@@ -21,8 +21,6 @@ Todo sanity check :)
 ---------------------
 Custom pre-install instructions per modpack - Backups
 
-Custom install settings
-											
 Custom post install instructions
 
 Make Pack Creator more user friendly

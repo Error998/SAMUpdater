@@ -5,9 +5,9 @@ Opt('MustDeclareVars', 1)
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: getDefaultInstallFolder
+; Name ..........: getPackConfigSettingDefaultInstallFolder
 ; Description ...: Get the default installation path for the pack
-; Syntax ........: getDefaultInstallFolder($PackID, $dataFolder)
+; Syntax ........: getPackConfigSettingDefaultInstallFolder($PackID, $dataFolder)
 ; Parameters ....: $PackID              - The PackID.
 ;                  $dataFolder          - Application data folder.
 ; Return values .: default installation path
@@ -18,7 +18,7 @@ Opt('MustDeclareVars', 1)
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func getDefaultInstallFolder($PackID, $dataFolder)
+Func getPackConfigSettingDefaultInstallFolder($PackID, $dataFolder)
 	Local $defaultInstallPath
 
 	; Read the default intallation path
@@ -42,12 +42,35 @@ EndFunc
 
 
 
+; #FUNCTION# ====================================================================================================================
+; Name ..........: getPackConfigSettingChangeInstallationFolderAllowed
+; Description ...: User is able to set a custom path for the installation or not
+; Syntax ........: getPackConfigSettingChangeInstallationFolderAllowed($PackID, $dataFolder)
+; Parameters ....: $PackID              - The PackID.
+;                  $dataFolder          - Application data folder.
+; Return values .: True					- User is allowed to set a custom installation path
+;				 : False				- Installation folder is locked and cant be changed
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func getPackConfigSettingChangeInstallationFolderAllowed($PackID, $dataFolder)
+
+	; Get the custom installation path if any, else return the defualt path
+	Return IniRead($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\" & $PackID & ".ini", "Install", "ChangeInstallationFolderAllowed", "True")
+
+
+EndFunc
+
 
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: getInstallFolder
 ; Description ...: Get the installation path for the pack
-; Syntax ........: getInstallFolder($PackID, $dataFolder, $defaultInstallPath)
+; Syntax ........: getInstallFolder($PackID, $dataFolder)
 ; Parameters ....: $PackID              - The PackID.
 ;                  $dataFolder          - Application data folder.
 ; Return values .: Path to where pack is installed
@@ -63,12 +86,43 @@ Func getInstallFolder($PackID, $dataFolder)
 	Local $defaultInstallPath
 
 	; Get the default installation path
-	$defaultInstallPath = getDefaultInstallFolder($PackID, $dataFolder)
+	$defaultInstallPath = getPackConfigSettingDefaultInstallFolder($PackID, $dataFolder)
 
 
-	; Get the custom installation path if any, else return the defualt path
+	; Get the custom installation path if any, else return the default path
 	$path = IniRead($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\custom.ini", "Install", "InstallationPath", $defaultInstallPath)
 
 
 	Return $path
+EndFunc
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: setInstallFolder
+; Description ...: Saves the installation folder if it differs from the current install folder
+; Syntax ........: setInstallFolder($installationPath, $PackID, $dataFolder)
+; Parameters ....: $installationPath    - Path to the new installation folder.
+;                  $PackID              - The Pack ID.
+;                  $dataFolder          - The Application data folder.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func setInstallFolder($installationPath, $PackID, $dataFolder)
+
+	writeLog("[Info]: Using installation folder - " & $installationPath & @CRLF)
+
+	; Skip if install path is already set
+	If getInstallFolder($PackID, $dataFolder) = $installationPath Then Return
+
+
+	; Save custom install folder
+	IniWrite($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\custom.ini", "Install", "InstallationPath", $installationPath)
+	writeLog("[Info]: Saved custom installation path in - " & $dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\custom.ini")
+
 EndFunc

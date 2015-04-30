@@ -1,7 +1,7 @@
 SAMUpdater Folder Structure
 ---------------------------
 
-# SAMUpdater.exe can be run from anywhere with write file permissions
+# SAMUpdater.exe can be run from any location with write file permissions (Required for updating)
 
 Application Data Folder
 -----------------------
@@ -14,12 +14,16 @@ Application Data Folder
 |	|--- Packs.xml
 |	|
 |	|---| Assets
-|	|	|--- assets.xml
+|	|	|--- assets.ini
 |	|	|
 |	|	|---| Sounds
 |	|	|	|--- background.mp3
 |	|	|
 |	|	|---| GUI
+|	|		|---| AdvInfo
+|	|		|	|--- background.jpg
+|	|		|	|--- pleasewaitbackground.jpg
+|	|		|
 |	|		|---| ModpackSelection
 |	|			|--- background.jpg
 |	|			|--- defaultsplash.jpg
@@ -27,14 +31,16 @@ Application Data Folder
 |	|			|--- defaultdescription.rtf
 |	|
 |	|---| Modpacks
-|		|--- <modID>
-|			|--- Cache
-|			|	|---cache files
-|			|	|---cache files
-|			|	|---cache files
+|		|---| <modID>
+|			|---| Cache
+|			|	|--- cache files
+|			|	|--- cache files
+|			|	|--- cache files
 |			|
 |			|---| Data
 |				|--- <modID>.xml
+|				|--- <modID>.ini
+|				|--- custom.ini
 |				|--- description.rtf
 |				|--- icon.jpg
 |				|--- splash.jpg
@@ -42,59 +48,48 @@ Application Data Folder
 |---| Logs
 |	|---<timestamp>.log
 |
-|---| Backup
-	|---| <timestamp>
-		|---| .minecraft
+|---| Settings
+	|--- settings.ini
+
 
 
 Remote Repository File Structure
 --------------------------------
 <Base url>
 |--- samupdater.exe
-|--- version.dat
-|--- update.dat
+|--- version.ini
 |--- update_helper.exe
 |
 |---| PackData
-|	|--- packs.xml
-|	|
-|	|---| Assets
-|	|	|--- assets.xml
-|	|	|
-|	|	|---| Sounds
-|	|	|	|--- background.mp3
-|	|	|
-|	|	|---| GUI
-|	|		|---| ModpackSelection
-|	|			|--- background.jpg
-|	|			|--- defaultsplash.jpg
-|	|			|--- defaulticon.jpg
-|	|			|--- defaultdescription.rtf
-|	|
-|	|---| Modpacks
-|		|--- <modID>
-|			|--- Cache
-|			|	|---cache files
-|			|	|---cache files
-|			|	|---cache files
-|			|
-|			|---| Data
-|				|--- <modID>.xml
-|				|--- description.rtf
-|				|--- icon.jpg
-|				|--- splash.jpg
-|
-|---| Logs
-|	|--- log files
-|	|--- log files
-|	|--- log files
-|
-|---| Settings
-	|--- settings.ini
-
-
-
-
-Saved Files
-------------
-Backup Folder:		<%AppData%>\SAMUpdater\Backup\<Day><Month><Year><Hour><Min><Sec>\.minecraft
+	|--- packs.xml
+	|
+	|---| Assets
+	|	|--- assets.ini
+	|	|
+	|	|---| Sounds
+	|	|	|--- background.mp3
+	|	|
+	|	|---| GUI
+	|		|---| AdvInfo
+	|		|	|--- background.jpg
+	|		|	|--- pleasewaitbackground.jpg
+	|		|	
+	|		|---| ModpackSelection
+	|			|--- background.jpg
+	|			|--- defaultsplash.jpg
+	|			|--- defaulticon.jpg
+	|			|--- defaultdescription.rtf
+	|
+	|---| Modpacks
+		|--- <modID>
+			|--- Cache
+			|	|---cache files
+			|	|---cache files
+			|	|---cache files
+			|
+			|---| Data
+				|--- <modID>.xml
+				|--- <modID>.ini
+				|--- description.rtf
+				|--- icon.jpg
+				|--- splash.jpg

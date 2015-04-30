@@ -5,8 +5,8 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_ProductVersion=0.4.0.8
-#AutoIt3Wrapper_Res_Fileversion=0.4.0.8
+#AutoIt3Wrapper_Res_ProductVersion=0.4.1.0
+#AutoIt3Wrapper_Res_Fileversion=0.4.1.0
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -22,6 +22,7 @@
 #include "Sound\Sounds.au3"
 #include "GUI\Colors.au3"
 #include "GUI\frmPackSelection.au3"
+#include "GUI\frmSelectFolder.au3"
 #include "PostInstall\MagicLauncher.au3"
 #include "PostInstall\Application.au3"
 #include "OfflineMode\OfflineMode.au3"
@@ -30,7 +31,7 @@ Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.4.0.8"
+Const $version = "0.4.1.0"
 Const $baseURL = "http://localhost/samupdater"
 ;Const $baseURL = "http://local.saminecraft.co.za/sam/samupdater"
 Const $updateURL = $baseURL & "/version.ini"
@@ -114,6 +115,25 @@ initGUIAssets($baseURL, $dataFolder)
 $packs = parsePacks($packsURL, $dataFolder)
 
 
+
+;Initialize all Packs, create needed folders, download pack descriptions, splash and icons
+initPacks($packs, $dataFolder)
+
+
+
+; Display Pack Selection GUI
+$packNum = DisplayPackSelection()
+
+
+; Exit application - no modpack was selected to download
+If $packNum = -1 Then
+
+	Exit
+
+EndIf
+
+
+
 ; Assign all Pack elemets
 Local $PackID = $packs[$packNum][0]
 Local $PackName = $packs[$packNum][1]
@@ -129,25 +149,6 @@ Local $PackDownloadable = $packs[$packNum][10]
 Local $PackVisible = $packs[$packNum][11]
 
 
-
-;Initialize all Packs, create needed folders, download pack descriptions, splash and icons
-initPacks($packs, $dataFolder)
-
-
-
-; Display Pack Selection GUI
-$packNum = DisplayPackSelection()
-
-
-
-; Exit application - no modpack was selected to download
-If $packNum = -1 Then
-
-	Exit
-
-EndIf
-
-
 ; Log entries
 writeLog("[Info]: Selected Pack Information" & @CRLF)
 writeLog("[Info]: Pack ID               - " & $PackID & @CRLF)
@@ -156,7 +157,7 @@ writeLog("[Info]: Pack Version          - " & $PackVersion & @CRLF)
 writeLog("[Info]: Content Version       - " & $ContentVersion & @CRLF)
 writeLog("[Info]: Pack Repository       - " & $PackRepository & @CRLF)
 
-
+Exit
 
 ; Cache pack
 cachePack($PackRepository, $PackID, $dataFolder)
