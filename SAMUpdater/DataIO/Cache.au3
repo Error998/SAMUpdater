@@ -263,6 +263,11 @@ Func getStatusInfoOfUncachedFiles($PackID, $dataFolder, ByRef $totalFileSize)
 
 		; Display progress percentage
 		$percentage = Round($i / $totalFiles * 100, 2)
+
+		; Update Progress bar
+		setAdvInfoSplashProgress($percentage)
+
+		; Format percentage
 		$percentage = "(" & StringFormat("%.2f", $percentage)  & "%)"
 
 		ConsoleWrite(@CR & "[Info]: Caculating uncached files " & $percentage)

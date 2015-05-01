@@ -10,6 +10,7 @@
 #include <ColorConstants.au3>
 #include "..\DataIO\Folders.au3"
 #include "..\DataIO\CustomPackSettings.au3"
+#include "frmAdvInfoSplash.au3"
 
 
 Opt("GUIOnEventMode", 1)
@@ -40,7 +41,7 @@ Func displayAdvInfo($packNum)
 
 
 	; Display Please Wait splash screen
-	SplashImageOn("Please wait...", $dataFolder & "\PackData\Assets\GUI\AdvInfo\plswaitbackground.jpg", 380, 285)
+	displayAdvInfoSplash()
 
 
 
@@ -59,7 +60,7 @@ Func displayAdvInfo($packNum)
 	; If the local cache is up to date and no files need to be removed, only display a msgbox with minimal info
 	If $uncachedFiles[0] = 0 And $removeFiles[0] = 0 Then
 		; Turn off the splash
-		SplashOff()
+		closeAdvInfoSplash()
 
 		MsgBox($MB_ICONINFORMATION, "Local cache is up to date", "Pack is already cached locally, nothing new to download or remove." & @CRLF & @CRLF & "   Click Download if you wish to reinstall the pack." & @CRLF & @CRLF & @CRLF & "   Installed modpack will use: " & $hddSpaceRequirement & " harddrive space.")
 
@@ -180,9 +181,10 @@ Func createAdvInfo($PackID, $totalFileSize, $hddSpaceRequirement, $numberOfUncac
 	Local $prevFolder
 	Local $hRoot
 	Local $hImage
+	Local $frmAdvInfo
 
-	; From
-	GUICreate("Pack Advanced Information", 627, 684, -1, -1, -1, -1, $frmPackSelection)
+	; Create Form
+	$frmAdvInfo = GUICreate("Pack Advanced Information", 627, 684, -1, -1, -1, -1, $frmPackSelection)
 	GUISetOnEvent($GUI_EVENT_CLOSE, "AdvInfoCLOSEButton")
 
 	; Background picture
@@ -267,11 +269,12 @@ Func createAdvInfo($PackID, $totalFileSize, $hddSpaceRequirement, $numberOfUncac
 	GUICtrlSetStyle($tree, BitOR($TVS_HASLINES,$TVS_DISABLEDRAGDROP,$TVS_SHOWSELALWAYS,$WS_BORDER))
 
 	; Close the please wait splash
-	SplashOff()
+	closeAdvInfoSplash()
 
 
 	; Display AdvInfo GUI
-	GUISetState(@SW_SHOW)
+	GUISetState(@SW_SHOW, $frmAdvInfo)
+	WinActivate("Pack Advanced Information")
 
 
 
