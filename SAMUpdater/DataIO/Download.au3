@@ -7,6 +7,99 @@
 Opt('MustDeclareVars', 1)
 
 
+
+Func downloadFileV2($URL, $path, $size, $retryCount = 5, $showProgress = False)
+	Local $errorNumber
+	Local $hInetGet
+	Local $spin[4] = ["-", "\", "|", "/"]
+	Local $spinIndex = 0
+	Local $percent
+    Local $bytesDownloaded
+
+
+	For $i = 1 To $retryCount
+
+		; Download file in background
+		$hInetGet = InetGet($URL, $path, BitOR($INET_FORCERELOAD, $INET_BINARYTRANSFER, $INET_FORCEBYPASS), $INET_DOWNLOADBACKGROUND)
+
+
+
+		; Show download progress
+		Do
+			If $showProgress Then
+				ConsoleWrite(@CR & "[Info]" & $spin[$spinIndex])
+
+				$spinIndex += 1
+				If $spinIndex = 4 Then $spinIndex = 0
+			EndIf
+
+
+			; Get bytes downloaded
+			$bytesDownloaded =  InetGetInfo($hInetGet, $INET_DOWNLOADREAD))
+
+			; Calculated percentage of download done
+			$percent = Round($bytesDownloaded / $size, 2)  * 100
+
+
+			; Pause
+			Sleep(150)
+
+		Until InetGetInfo($hInetGet, $INET_DOWNLOADCOMPLETE)
+
+
+		; Get InetGet error info
+		$errorNumber = InetGetInfo($hInetGet, $INET_DOWNLOADERROR)
+
+		; Close InetGet handle
+		InetClose($hInetGet)
+
+
+		if $errorNumber <>  0 Then
+
+			; All retries failed
+			If $i = $retryCount Then
+				If $showProgress Then
+					writeLogEchoToConsole(@CRLF & "[ERROR]: Failed to download file retry " & $retryCount & " of " & $retryCount & @CRLF)
+				Else
+					writeLogEchoToConsole("[ERROR]: Failed to download file retry " & $retryCount & " of " & $retryCount & @CRLF)
+				EndIf
+				writeLog("[ERROR]: Download error code - " & $errorNumber)
+				writeLog("[ERROR]: URL                 - " & $URL)
+				writeLog("[ERROR]: Path                - " & $path &  @CRLF)
+
+				; Download failed
+				Return False
+			Else
+				; Wait 10 seconds then retry
+				If $showProgress = False Then
+					writeLogEchoToConsole(@CRLF & "[WARNING]: Failed to download file retry " & $i & " of " & $retryCount & @CRLF)
+				Else
+					writeLogEchoToConsole("[WARNING]: Failed to download file retry " & $i & " of " & $retryCount & @CRLF)
+				EndIf
+				writeLog("[ERROR]: Download error code - " & $errorNumber)
+				writeLog("[ERROR]: URL                 - " & $URL)
+				writeLog("[ERROR]: Path                - " & $path & @CRLF)
+
+				writeLogEchoToConsole("[Info]: Retrying download in 10 seconds")
+				For $x = 1 To 10
+					Sleep(1000)
+					ConsoleWrite(".")
+				Next
+				writeLogEchoToConsole(@CRLF & @CRLF)
+
+				; Reset progress spin index
+				$spinIndex = 0
+			EndIf
+		Else
+			; Download was successful
+			Return True
+		EndIf
+	Next
+
+EndFunc
+
+
+
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: downloadFile
 ; Description ...: Download remote file and reties if it fails
@@ -38,8 +131,8 @@ Func downloadFile($URL, $path, $retryCount = 5, $showProgress = False)
 		; Show download progress
 		Do
 			If $showProgress Then
-				ConsoleWrite(@CR & "[Info]" & $spin[$spinIndex])
-
+				;ConsoleWrite(@CR & "[Info]" & $spin[$spinIndex])
+				ConsoleWrite(@CR & "[Info]: " & InetGetInfo($hInetGet, $INET_DOWNLOADREAD))
 				$spinIndex += 1
 				If $spinIndex = 4 Then $spinIndex = 0
 			EndIf

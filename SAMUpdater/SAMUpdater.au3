@@ -157,12 +157,12 @@ writeLog("[Info]: Pack Version          - " & $PackVersion & @CRLF)
 writeLog("[Info]: Content Version       - " & $ContentVersion & @CRLF)
 writeLog("[Info]: Pack Repository       - " & $PackRepository & @CRLF)
 
-Exit
+
 
 ; Cache pack
 cachePack($PackRepository, $PackID, $dataFolder)
 
-
+Exit
 
 
 ; Custom Pre-install stuff

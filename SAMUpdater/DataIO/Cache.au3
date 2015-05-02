@@ -8,6 +8,7 @@
 #include "..\DataIO\ModPack.au3"
 #include "..\DataIO\Folders.au3"
 #include "..\DataIO\UserSettings.au3"
+#include "..\GUI\frmDownload.au3"
 
 Opt('MustDeclareVars', 1)
 
@@ -29,10 +30,10 @@ Opt('MustDeclareVars', 1)
 ; ===============================================================================================================================
 Func cachePack($PackRepository, $PackID, $dataFolder)
 	Local $uncachedFiles
-	Local $reply
+	Local $userReply
 
 	; Get a list of files that are not yet cached
-	$uncachedFiles = getUncachedFileList($PackID, $dataFolder)
+	$uncachedFiles = getUncachedDownloadList($PackID, $dataFolder)
 
 	; Cache is up to date, return
 	If $uncachedFiles[0] = 0 Then Return
@@ -46,11 +47,11 @@ Func cachePack($PackRepository, $PackID, $dataFolder)
 		writeLogEchoToConsole("[Warning]: Please switch to online mode to download the uncache files." & @CRLF)
 
 
-		$reply = MsgBox($MB_ICONWARNING + $MB_YESNO, "Missing cache files", "Would you like to switch to online mode and download the missing cache files?" & @CRLF  & @CRLF & " Clicking NO will close the application.")
+		$userReply = MsgBox($MB_ICONWARNING + $MB_YESNO, "Missing cache files", "Would you like to switch to online mode and download the missing cache files?" & @CRLF  & @CRLF & " Clicking NO will close the application.")
 
 
 		; Cache files missing, staying offline, closing app since we cant continue
-		If $reply = $IDNO Then
+		If $userReply = $IDNO Then
 
 			writeLogEchoToConsole("[Info]: User opted not to switch to Online mode." & @CRLF)
 			writeLogEchoToConsole("[Info]: Application will now close" & @CRLF)
@@ -78,7 +79,7 @@ EndFunc
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: getUncachedFileList
+; Name ..........: getUncachedDownloadList
 ; Description ...: Return a 1d array containing a list of uncached filenames
 ; Syntax ........: getUncachedFileList($PackID, $dataFolder)
 ; Parameters ....: $PackID               - The PackID.
@@ -91,18 +92,27 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func getUncachedFileList($PackID, $dataFolder)
+Func getUncachedDownloadList($PackID, $dataFolder)
 	Dim $currentXMLfiles  ; All files that exist in the current pack
-	Dim $uncachedFiles[1]
-	Local $filesize = 0
+	Dim $downloadQueue[1][5]
+	Local $totalFileSize = 0
 	Local $hFile
 	Local $hash
 	Local $totalFiles
 	Local $percentage
+	Local $items
+
+	; Database structure
+	Local $repositoryDestinationFilename
+	Local $repositoryDestinationExtract
+	Local $repositoryDestinationPath
+	Local $repositoryHash
+	Local $repositoryFilesize
 
 	; Load <PackID>.xml
-	writeLogEchoToConsole("[Info]: Parsing pack file list from " & $PackID & ".xml" & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Parsing pack database from " & $PackID & ".xml" & @CRLF & @CRLF)
 	$currentXMLfiles = getXMLfilesFromSection($PackID, $dataFolder, "Files")
+
 
 	; Total files in Files section
 	$totalFiles = UBound($currentXMLfiles) - 1
@@ -115,18 +125,26 @@ Func getUncachedFileList($PackID, $dataFolder)
 
 	For $i = 0 To $totalFiles
 
+		; Populate database structure
+		$repositoryDestinationFilename = $currentXMLfiles[$i][0]
+		$repositoryDestinationExtract = $currentXMLfiles[$i][1]
+		$repositoryDestinationPath = $currentXMLfiles[$i][2]
+		$repositoryHash = $currentXMLfiles[$i][3]
+		$repositoryFilesize = $currentXMLfiles[$i][4]
+
+
 		; Display progress percentage
 		$percentage = Round($i / $totalFiles * 100, 2)
 		$percentage = "(" & StringFormat("%.2f", $percentage)  & "%)"
 
-		ConsoleWrite(@CR & "[Info]: Caculating uncached files " & $percentage)
+		ConsoleWrite(@CR & "[Info]: Caculating download queue " & $percentage)
 
 
 		; If remote file size is 0, create a blank cache file
-		If $currentXMLfiles[$i][4] = 0 Then
+		If $repositoryFilesize = 0 Then
 
 			; Create a empty cache file
-			$hFile = FileOpen($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $currentXMLfiles[$i][3], 2)
+			$hFile = FileOpen($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryHash, 2)
 			FileClose($hFile)
 
 			ContinueLoop
@@ -135,42 +153,55 @@ Func getUncachedFileList($PackID, $dataFolder)
 
 
 		; Verify file if it already exists
-		If FileExists($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $currentXMLfiles[$i][3]) Then
+		If FileExists($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryHash) Then
 
-			$hash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $currentXMLfiles[$i][3], $CALG_SHA1)
+			$hash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryHash, $CALG_SHA1)
 
 			; File verified, skipping file
-			If $hash = $currentXMLfiles[$i][3] then	ContinueLoop
+			If $hash = $repositoryHash then	ContinueLoop
 
 		EndIf
 
 
 		; Only add cache file if it wasnt added already
-		If _ArraySearch($uncachedFiles, $currentXMLfiles[$i][3]) > -1 Then ContinueLoop
+		If _ArraySearch($downloadQueue, $repositoryHash, 0, 0, 0, 0, 0, 1) > -1 Then	ContinueLoop
 
 
-		; Unique cache file found
-		_ArrayAdd($uncachedFiles, $currentXMLfiles[$i][3])
+		; Create delimited item list for to add to download queue
+		$items = $baseURL & "/packdata/modpacks/" & $PackID & "/cache|" & $repositoryHash & "|" & $dataFolder & "\PackData\ModPacks\" & $PackID & "\Cache|" & $repositoryHash & "|" & $repositoryFilesize
+
+		; Unique cache file found, add it to download queue
+		_ArrayAdd($downloadQueue, $items)
+
 
 		; Total download filesize
-		$filesize = $filesize + $currentXMLfiles[$i][4]
+		$totalFileSize = $totalFileSize + $repositoryFilesize
 
 	Next
+
 
 	; Shutdown the crypt library.
 	_Crypt_Shutdown()
 
-	$uncachedFiles[0] = UBound($uncachedFiles) - 1
-
 	ConsoleWrite(@CRLF)
 
-	If $uncachedFiles[0] = 0 Then
-		writeLogEchoToConsole("[Info]: Cache is up to date" & @CRLF & @CRLF)
+
+	; Store queue total filesize in array[0][4]
+	$downloadQueue[0][4] = $totalFileSize
+
+	; Store queue size in array[0][0]
+	$downloadQueue[0][0] = UBound($downloadQueue) - 1
+
+
+	; Check if the download queue is empty
+	If $downloadQueue[0][0] = 0 Then
+		writeLogEchoToConsole("[Info]: Cache is up to date and ready to be installed" & @CRLF & @CRLF)
 	Else
-		writeLogEchoToConsole("[Info]: " & $uncachedFiles[0] & " uncached files (" & getHumanReadableFilesize($filesize) & ") marked for download " & @CRLF & @CRLF)
+		writeLogEchoToConsole("[Info]: " & $downloadQueue[0][0] & " uncached files (" & getHumanReadableFilesize($totalFileSize) & ") marked for download " & @CRLF & @CRLF)
 	EndIf
 
-	Return $uncachedFiles
+	_ArrayDisplay($downloadQueue)
+	Return $downloadQueue
 EndFunc
 
 
