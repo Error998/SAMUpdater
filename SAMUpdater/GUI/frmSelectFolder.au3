@@ -92,10 +92,7 @@ Func btnOKSelectFolderGUI()
 	; Close Select Folder GUI
 	CloseSelectFolderGUI()
 
-
-	; Close Pack Selection GUI and free resources
-	CLOSEButton()
-
+	$closeGUI = True
 EndFunc
 
 

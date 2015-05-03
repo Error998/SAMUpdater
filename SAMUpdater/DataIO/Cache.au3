@@ -29,21 +29,57 @@ Opt('MustDeclareVars', 1)
 ; Example .......: No
 ; ===============================================================================================================================
 Func cachePack($PackRepository, $PackID, $dataFolder)
-	Local $uncachedFiles
+	Local $downloadQueue
 	Local $userReply
 
-	; Get a list of files that are not yet cached
-	$uncachedFiles = getUncachedDownloadList($PackID, $dataFolder)
+	; Download Queue structure
+	Local $downloadQueueSourceLocation
+	Local $downloadQueueSourceFilename
+	Local $downloadQueueDestinationLocation
+	Local $downloadQueueDestinationFilename
+	Local $downloadQueueSourceHash
+	Local $downloadQueueFilesize
+	Local $downloadQueueCount
+	Local $downloadQueueTotalFilesize
 
-	; Cache is up to date, return
-	If $uncachedFiles[0] = 0 Then Return
+	; Disable Parent GUI
+	GUISetState(@SW_DISABLE, $frmPackSelection)
+	GUISetState(@SW_DISABLE, $hAperture)
+
+
+	; Display Please Wait splash screen
+	displayAdvInfoSplash()
+
+
+	; Get a list of files that are not yet cached
+	$downloadQueue = getUncachedDownloadList($PackID, $dataFolder)
+
+
+	; Turn off the splash
+	closeAdvInfoSplash()
+
+	; Re-enable forms
+	GUISetState(@SW_ENABLE, $frmPackSelection)
+	GUISetState(@SW_ENABLE, $hAperture)
+	WinActivate("SAMUpdater v" & $version)
+
+
+	; Assign queue count
+	$downloadQueueCount = $downloadQueue[0][0]
+
+	; Assign total filesize
+	$downloadQueueTotalFilesize = $downloadQueue[0][5]
+
+
+	; If there is nothing to download then return
+	If $downloadQueueCount = 0 Then Return
 
 
 
 
 	; If offline and cache is incomplete let the user know
 	If Not $isOnline Then
-		writeLogEchoToConsole("[Warning]: Offline but found " & $uncachedFiles[0] & " uncached files." & @CRLF)
+		writeLogEchoToConsole("[Warning]: Offline but found " & $downloadQueueCount & " uncached files." & @CRLF)
 		writeLogEchoToConsole("[Warning]: Please switch to online mode to download the uncache files." & @CRLF)
 
 
@@ -70,7 +106,7 @@ Func cachePack($PackRepository, $PackID, $dataFolder)
 
 
 
-	cacheFiles($PackRepository, $uncachedFiles, $PackID, $dataFolder)
+	cacheFiles($PackRepository, $downloadQueue, $PackID, $dataFolder)
 
 
 EndFunc
@@ -94,7 +130,7 @@ EndFunc
 ; ===============================================================================================================================
 Func getUncachedDownloadList($PackID, $dataFolder)
 	Dim $currentXMLfiles  ; All files that exist in the current pack
-	Dim $downloadQueue[1][5]
+	Dim $downloadQueue[1][6]
 	Local $totalFileSize = 0
 	Local $hFile
 	Local $hash
@@ -102,12 +138,21 @@ Func getUncachedDownloadList($PackID, $dataFolder)
 	Local $percentage
 	Local $items
 
-	; Database structure
+	; Pack Database structure
 	Local $repositoryDestinationFilename
 	Local $repositoryDestinationExtract
 	Local $repositoryDestinationPath
 	Local $repositoryHash
 	Local $repositoryFilesize
+
+	; Download Queue structure
+	Local $downloadQueueSourceLocation
+	Local $downloadQueueSourceFilename
+	Local $downloadQueueDestinationLocation
+	Local $downloadQueueDestinationFilename
+	Local $downloadQueueSourceHash
+	Local $downloadQueueFilesize
+
 
 	; Load <PackID>.xml
 	writeLogEchoToConsole("[Info]: Parsing pack database from " & $PackID & ".xml" & @CRLF & @CRLF)
@@ -135,6 +180,10 @@ Func getUncachedDownloadList($PackID, $dataFolder)
 
 		; Display progress percentage
 		$percentage = Round($i / $totalFiles * 100, 2)
+
+		; Update Progress bar
+		setAdvInfoSplashProgress($percentage)
+
 		$percentage = "(" & StringFormat("%.2f", $percentage)  & "%)"
 
 		ConsoleWrite(@CR & "[Info]: Caculating download queue " & $percentage)
@@ -168,7 +217,14 @@ Func getUncachedDownloadList($PackID, $dataFolder)
 
 
 		; Create delimited item list for to add to download queue
-		$items = $baseURL & "/packdata/modpacks/" & $PackID & "/cache|" & $repositoryHash & "|" & $dataFolder & "\PackData\ModPacks\" & $PackID & "\Cache|" & $repositoryHash & "|" & $repositoryFilesize
+		$downloadQueueSourceLocation = $PackRepository & "/packdata/modpacks/" & $PackID & "/cache"
+		$downloadQueueSourceFilename = $repositoryHash & ".dat"
+		$downloadQueueDestinationLocation = $dataFolder & "\PackData\ModPacks\" & $PackID & "\Cache"
+		$downloadQueueDestinationFilename = $repositoryHash
+		$downloadQueueSourceHash = $repositoryHash
+		$downloadQueueFilesize = $repositoryFilesize
+
+		$items = $downloadQueueSourceLocation  & "|" & $downloadQueueSourceFilename & "|" & $downloadQueueDestinationLocation & "|" & $downloadQueueDestinationFilename & "|" & $downloadQueueSourceHash & "|" & $downloadQueueFilesize
 
 		; Unique cache file found, add it to download queue
 		_ArrayAdd($downloadQueue, $items)
@@ -186,8 +242,8 @@ Func getUncachedDownloadList($PackID, $dataFolder)
 	ConsoleWrite(@CRLF)
 
 
-	; Store queue total filesize in array[0][4]
-	$downloadQueue[0][4] = $totalFileSize
+	; Store queue total filesize in array[0][5]
+	$downloadQueue[0][5] = $totalFileSize
 
 	; Store queue size in array[0][0]
 	$downloadQueue[0][0] = UBound($downloadQueue) - 1
@@ -200,8 +256,9 @@ Func getUncachedDownloadList($PackID, $dataFolder)
 		writeLogEchoToConsole("[Info]: " & $downloadQueue[0][0] & " uncached files (" & getHumanReadableFilesize($totalFileSize) & ") marked for download " & @CRLF & @CRLF)
 	EndIf
 
-	_ArrayDisplay($downloadQueue)
+
 	Return $downloadQueue
+
 EndFunc
 
 
@@ -222,29 +279,68 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func cacheFiles($PackRepository, $uncachedFiles, $PackID, $dataFolder)
-	Local $fileURL
+Func cacheFiles($PackRepository, $downloadQueue, $PackID, $dataFolder)
+;~ 	Local $fileURL
 
-	writeLogEchoToConsole("[Info]: Downloading cache..." & @CRLF)
+;~ 	writeLogEchoToConsole("[Info]: Downloading cache..." & @CRLF)
 
-	; Download all uncached files
-	For $i = 1 to $uncachedFiles[0]
+;~ 	; Download all uncached files
+;~ 	For $i = 1 to $uncachedFiles[0]
 
-		$fileURL = $PackRepository & "/packdata/modpacks/" & $PackID & "/cache/" & $uncachedFiles[$i] & ".dat"
+;~ 		$fileURL = $PackRepository & "/packdata/modpacks/" & $PackID & "/cache/" & $uncachedFiles[$i] & ".dat"
 
-		; Shortend console entry
-		ConsoleWrite(@CR & "[Info]: (" & $i & "/" & $uncachedFiles[0] & ") Downloading - " & $uncachedFiles[$i])
-		; Detailed log entry
-		writeLog("[Info]: (" & $i & "/" & $uncachedFiles[0] & ") Downloading - " & $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $uncachedFiles[$i] & ".dat")
+;~ 		; Shortend console entry
+;~ 		ConsoleWrite(@CR & "[Info]: (" & $i & "/" & $uncachedFiles[0] & ") Downloading - " & $uncachedFiles[$i])
+;~ 		; Detailed log entry
+;~ 		writeLog("[Info]: (" & $i & "/" & $uncachedFiles[0] & ") Downloading - " & $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $uncachedFiles[$i] & ".dat")
 
-		; Download file then verify if it matches remote hash entry
-		downloadAndVerify($fileURL, $uncachedFiles[$i], $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache", $uncachedFiles[$i], 5, True)
+;~ 		; Download file then verify if it matches remote hash entry
+;~ 		downloadAndVerify($fileURL, $uncachedFiles[$i], $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache", $uncachedFiles[$i], 5, True)
 
 
+;~ 	Next
+
+;~ 	writeLogEchoToConsole("[Info]: Pack cache download complete" & @CRLF & @CRLF)
+
+	; Download Queue structure
+	Local $downloadQueueSourceLocation
+	Local $downloadQueueSourceFilename
+	Local $downloadQueueDestinationLocation
+	Local $downloadQueueDestinationFilename
+	Local $downloadQueueSourceHash
+	Local $downloadQueueFilesize
+	Local $downloadQueueCount = $downloadQueue[0][0]
+	Local $downloadQueueTotalFilesize = $downloadQueue[0][5]
+
+	Local $totalBytesDownloaded = 0
+
+	; Disable Parent GUI's
+	GUISetState(@SW_DISABLE, $frmPackSelection)
+	GUISetState(@SW_DISABLE, $hAperture)
+
+
+	; Display the Download Progress GUI
+	displayDownloadGUI("Download Pack", "Downloading Pack: " & $PackID)
+
+
+	For $i = 1 To $downloadQueueCount
+
+		; Populate download queue structure
+		$downloadQueueSourceLocation = $downloadQueue[$i][0]
+		$downloadQueueSourceFilename = $downloadQueue[$i][1]
+		$downloadQueueDestinationLocation = $downloadQueue[$i][2]
+		$downloadQueueDestinationFilename = $downloadQueue[$i][3]
+		$downloadQueueSourceHash = $downloadQueue[$i][4]
+		$downloadQueueFilesize = $downloadQueue[$i][5]
+
+		downloadFileV2($downloadQueueSourceLocation & "/" & $downloadQueueSourceFilename, $downloadQueueDestinationLocation & "\" & $downloadQueueDestinationFilename, $downloadQueueFilesize, $downloadQueueTotalFilesize, $totalBytesDownloaded, "Current File Progress (" & $i & " of " & $downloadQueueCount & ")")
+
+		$totalBytesDownloaded = $totalBytesDownloaded + $downloadQueueFilesize
 	Next
 
-	writeLogEchoToConsole("[Info]: Pack cache download complete" & @CRLF & @CRLF)
+	sleep(1000)
 
+	closeDownloadGUI()
 EndFunc
 
 

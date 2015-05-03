@@ -336,7 +336,7 @@ Func getHumanReadableFilesize($byte)
 	; Return KB
 	If $byte < 1048576 Then
 		$byte = Round($byte / 1024, 1)
-		$byte = $byte & "KB"
+		$byte = StringFormat("%.1f", $byte) & "KB"
 		Return $byte
 	EndIf
 
@@ -344,14 +344,14 @@ Func getHumanReadableFilesize($byte)
 	; Return MB
 	if $byte < 1073741824 Then
 		$byte = Round($byte / 1048576,1)
-		$byte = $byte & "MB"
+		$byte = StringFormat("%.1f", $byte) & "MB"
 		Return $byte
 	EndIf
 
 
 	; Return GB 0_0 omg u insane?
 	$byte = Round($byte / 1073741824, 3)
-	$byte = $byte & "GB"
+	$byte = StringFormat("%.3f", $byte) & "GB"
 	Return $byte
 
 

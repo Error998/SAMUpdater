@@ -8,13 +8,15 @@ Opt('MustDeclareVars', 1)
 
 
 
-Func downloadFileV2($URL, $path, $size, $retryCount = 5, $showProgress = False)
+Func downloadFileV2($URL, $path, $currentByteFileSize, $totalByteFilesize, $totalBytesDownloaded, $currentFileOfTotal, $retryCount = 5, $showProgress = False)
 	Local $errorNumber
 	Local $hInetGet
 	Local $spin[4] = ["-", "\", "|", "/"]
 	Local $spinIndex = 0
 	Local $percent
-    Local $bytesDownloaded
+    Local $currentBytesDownloaded
+	Local $totalDownloaded
+	Local $previousBytesDownloaded = 0
 
 
 	For $i = 1 To $retryCount
@@ -35,10 +37,24 @@ Func downloadFileV2($URL, $path, $size, $retryCount = 5, $showProgress = False)
 
 
 			; Get bytes downloaded
-			$bytesDownloaded =  InetGetInfo($hInetGet, $INET_DOWNLOADREAD))
+			$currentBytesDownloaded =  InetGetInfo($hInetGet, $INET_DOWNLOADREAD)
+
+
+			; Calculate total currently downloaded
+			$totalDownloaded = $totalBytesDownloaded + $currentBytesDownloaded
+
 
 			; Calculated percentage of download done
-			$percent = Round($bytesDownloaded / $size, 2)  * 100
+			$percent = Round($currentBytesDownloaded / $currentByteFileSize, 2)  * 100
+
+
+			; Only update GUI if progress changed
+			If $previousBytesDownloaded <>$currentBytesDownloaded Then
+				$previousBytesDownloaded = $currentBytesDownloaded
+
+				; Update GUI
+				updateDownloadGUI($currentBytesDownloaded, $currentByteFileSize, $currentFileOfTotal, $totalDownloaded, $totalByteFilesize)
+			EndIf
 
 
 			; Pause
@@ -91,7 +107,11 @@ Func downloadFileV2($URL, $path, $size, $retryCount = 5, $showProgress = False)
 				$spinIndex = 0
 			EndIf
 		Else
-			; Download was successful
+
+			; Current file download is done, update GUI
+			updateDownloadGUI($currentByteFileSize, $currentByteFileSize, $currentFileOfTotal, $totalDownloaded, $totalByteFilesize)
+
+			Sleep(100)
 			Return True
 		EndIf
 	Next

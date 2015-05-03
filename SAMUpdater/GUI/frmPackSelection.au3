@@ -266,7 +266,7 @@ Func btnDownload()
 
 	writeLogEchoToConsole("[Info]: Pack #: " & $downloadPacknum & " selected for download" & @CRLF)
 
-	; Disable GUI
+	; Disable Parent GUI
 	GUISetState(@SW_DISABLE, $frmPackSelection)
 	GUISetState(@SW_DISABLE, $hAperture)
 
