@@ -5,8 +5,8 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_ProductVersion=0.5.0.2
-#AutoIt3Wrapper_Res_Fileversion=0.5.0.2
+#AutoIt3Wrapper_Res_ProductVersion=0.5.0.3
+#AutoIt3Wrapper_Res_Fileversion=0.5.0.3
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -31,7 +31,7 @@ Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.5.0.2"
+Const $version = "0.5.0.3"
 Const $baseURL = "http://localhost/samupdater"
 ;Const $baseURL = "http://local.saminecraft.co.za/sam/samupdater"
 Const $updateURL = $baseURL & "/version.ini"
@@ -62,8 +62,9 @@ setConsoleColor($FOREGROUND_Light_Green)
 
 ; ### Init Data Folders ###
 writeLogEchoToConsole("[Info]: Initializing folders..." & @CRLF)
-createFolder($dataFolder & "\PackData\Assets\GUI\ModpackSelection")
 createFolder($dataFolder & "\PackData\Assets\GUI\AdvInfo")
+createFolder($dataFolder & "\PackData\Assets\GUI\ModpackSelection")
+createFolder($dataFolder & "\PackData\Assets\GUI\Progress")
 createFolder($dataFolder & "\PackData\Assets\Sounds")
 createFolder($dataFolder & "\Settings")
 writeLogEchoToConsole("[Info]: Folders initialized" & @CRLF & @CRLF)
@@ -162,7 +163,7 @@ writeLog("[Info]: Pack Repository       - " & $PackRepository & @CRLF)
 ; Cache pack
 cachePack($PackRepository, $PackID, $dataFolder)
 
-Exit
+
 
 
 ; Custom Pre-install stuff
@@ -171,7 +172,7 @@ Exit
 
 
 ;Install Pack
-installPack($PackID, $dataFolder)
+;installPack($PackID, $dataFolder)
 Exit
 
 

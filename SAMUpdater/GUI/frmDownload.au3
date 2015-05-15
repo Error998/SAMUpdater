@@ -2,6 +2,7 @@
 #include <GUIConstantsEx.au3>
 #include <WindowsConstants.au3>
 #Include <GuiButton.au3>
+#include <ColorConstants.au3>
 #include "..\DataIO\Folders.au3"
 
 
@@ -30,30 +31,39 @@ Func displayDownloadGUI($title, $header)
 	Global $lblCurrentFile
 
 	; Create GUI
-	$frmDownloadGUI = GUICreate($title, 386, 187, -1, -1, $DS_MODALFRAME, -1)
+	$frmDownloadGUI = GUICreate($title, 386, 187, -1, -1, $DS_MODALFRAME, -1, $frmPackSelection)
+	GUISetBkColor(0x343331, $frmDownloadGUI)
+
+	; Background
+	GUICtrlCreatePic($datafolder & "\PackData\Assets\GUI\Progress\background.jpg", 0, 0, 386, 187)
 
 	; Header
 	GUICtrlCreateLabel($header, 20, 10, 339, 18, -1, -1)
 	GUICtrlSetFont(-1,10,400,0,"Comic Sans MS")
-	GUICtrlSetBkColor(-1,"-2")
+	GUICtrlSetBkColor(-1, $GUI_BKCOLOR_TRANSPARENT)
+	GUICtrlSetColor(-1, $COLOR_WHITE)
 
 	; Progress bars
 	$progressbarCurrent = GUICtrlCreateProgress(10,59,361,20,-1,-1)
 	$progressbarTotal = GUICtrlCreateProgress(10,129,361,20,-1,-1)
 
 	GUICtrlCreateLabel("Total Progress", 20, 109, 85, 15, -1, -1)
-	GUICtrlSetBkColor(-1,"-2")
+	GUICtrlSetBkColor(-1, $GUI_BKCOLOR_TRANSPARENT)
+	GUICtrlSetColor(-1, $COLOR_WHITE)
 
 	$lblCurrentFile = GUICtrlCreateLabel("", 20, 39, 250, 15, -1, -1)
-	GUICtrlSetBkColor(-1,"-2")
+	GUICtrlSetBkColor(-1, $GUI_BKCOLOR_TRANSPARENT)
+	GUICtrlSetColor(-1, $COLOR_WHITE)
 
 	; Current bytes downloaded
 	$lblCurrent = GUICtrlCreateLabel("", 251, 39, 116, 15, 2, -1)
-	GUICtrlSetBkColor(-1,"-2")
+	GUICtrlSetBkColor(-1, $GUI_BKCOLOR_TRANSPARENT)
+	GUICtrlSetColor(-1, $COLOR_WHITE)
 
 	; Total bytes downloaded
 	$lblTotal = GUICtrlCreateLabel("", 237, 110, 130, 15, 2, -1)
-	GUICtrlSetBkColor(-1,"-2")
+	GUICtrlSetBkColor(-1, $GUI_BKCOLOR_TRANSPARENT)
+	GUICtrlSetColor(-1, $COLOR_WHITE)
 
 	; Display GUI
 	GUISetState(@SW_SHOW, $frmDownloadGUI)

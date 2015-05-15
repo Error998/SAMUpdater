@@ -280,27 +280,10 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func cacheFiles($PackRepository, $downloadQueue, $PackID, $dataFolder)
-;~ 	Local $fileURL
+	Local $fileURL
 
-;~ 	writeLogEchoToConsole("[Info]: Downloading cache..." & @CRLF)
+	writeLogEchoToConsole("[Info]: Downloading cache..." & @CRLF)
 
-;~ 	; Download all uncached files
-;~ 	For $i = 1 to $uncachedFiles[0]
-
-;~ 		$fileURL = $PackRepository & "/packdata/modpacks/" & $PackID & "/cache/" & $uncachedFiles[$i] & ".dat"
-
-;~ 		; Shortend console entry
-;~ 		ConsoleWrite(@CR & "[Info]: (" & $i & "/" & $uncachedFiles[0] & ") Downloading - " & $uncachedFiles[$i])
-;~ 		; Detailed log entry
-;~ 		writeLog("[Info]: (" & $i & "/" & $uncachedFiles[0] & ") Downloading - " & $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $uncachedFiles[$i] & ".dat")
-
-;~ 		; Download file then verify if it matches remote hash entry
-;~ 		downloadAndVerify($fileURL, $uncachedFiles[$i], $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache", $uncachedFiles[$i], 5, True)
-
-
-;~ 	Next
-
-;~ 	writeLogEchoToConsole("[Info]: Pack cache download complete" & @CRLF & @CRLF)
 
 	; Download Queue structure
 	Local $downloadQueueSourceLocation
@@ -333,14 +316,27 @@ Func cacheFiles($PackRepository, $downloadQueue, $PackID, $dataFolder)
 		$downloadQueueSourceHash = $downloadQueue[$i][4]
 		$downloadQueueFilesize = $downloadQueue[$i][5]
 
-		downloadFileV2($downloadQueueSourceLocation & "/" & $downloadQueueSourceFilename, $downloadQueueDestinationLocation & "\" & $downloadQueueDestinationFilename, $downloadQueueFilesize, $downloadQueueTotalFilesize, $totalBytesDownloaded, "Current File Progress (" & $i & " of " & $downloadQueueCount & ")")
+
+		;Update Console info
+		ConsoleWrite(@CR & "[Info]: (" & $i & "/" & $downloadQueueCount & ") Downloading - " & $downloadQueueSourceFilename)
+
+
+		; Detailed log entry
+		writeLog("[Info]: (" & $i & "/" & $downloadQueueCount & ") Downloading - " & $downloadQueueDestinationLocation & "\" & $downloadQueueDestinationFilename)
+
+		;GUI Download
+		downloadFileV2($downloadQueueSourceLocation & "/" & $downloadQueueSourceFilename, $downloadQueueDestinationLocation & "\" & $downloadQueueDestinationFilename, $downloadQueueFilesize, $downloadQueueTotalFilesize, $totalBytesDownloaded, "Current File Progress (" & $i & " of " & $downloadQueueCount & ")", 5, True)
+
 
 		$totalBytesDownloaded = $totalBytesDownloaded + $downloadQueueFilesize
+
 	Next
 
 	sleep(1000)
 
 	closeDownloadGUI()
+
+	writeLogEchoToConsole("[Info]: Pack cache download complete" & @CRLF & @CRLF)
 EndFunc
 
 

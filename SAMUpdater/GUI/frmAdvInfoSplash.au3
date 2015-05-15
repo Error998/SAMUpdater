@@ -22,7 +22,7 @@ Func displayAdvInfoSplash()
 	Global $frmAdvInfoSplash
 	Global $progressbar
 
-	$frmAdvInfoSplash = GUICreate("Please Wait...",380,285,-1,-1,$WS_POPUPWINDOW,$WS_EX_CLIENTEDGE)
+	$frmAdvInfoSplash = GUICreate("Please Wait...", 380, 305, -1, -1, $WS_DLGFRAME ,-1, $frmPackSelection)
 	GUICtrlCreatePic($dataFolder & "\PackData\Assets\GUI\AdvInfo\plswaitbackground.jpg", 0, 0, 380, 285, -1, -1)
 	$progressbar = GUICtrlCreateProgress(10,255,360,20,-1,-1)
 

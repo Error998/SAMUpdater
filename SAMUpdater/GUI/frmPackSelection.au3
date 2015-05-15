@@ -392,7 +392,7 @@ Func createPackSelectionGUI()
 	Local $splashPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\defaultsplash.jpg"
 	Local $descriptionPath = $dataFolder & "\PackData\Assets\GUI\ModpackSelection\defaultdescription.rtf"
 
-	Global $frmPackSelection = GUICreate("SAMUpdater v" & $version, 869, 486, 192, 124)
+	Global $frmPackSelection = GUICreate("SAMUpdater v" & $version, 869, 486)
 	GUISetOnEvent($GUI_EVENT_CLOSE, "CLOSEButton")
 
 

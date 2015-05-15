@@ -1,4 +1,4 @@
-SAMUpdater v0.5.0.2 alpha
+SAMUpdater v0.5.0.3 alpha
 =========================
 
 Started out as a Minecraft Auto Updater that will update mods and config files

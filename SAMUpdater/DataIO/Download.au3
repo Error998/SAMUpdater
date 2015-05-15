@@ -57,6 +57,15 @@ Func downloadFileV2($URL, $path, $currentByteFileSize, $totalByteFilesize, $tota
 			EndIf
 
 
+			;Update Console progress
+			If $showProgress Then
+				ConsoleWrite(@CR & "[Info]" & $spin[$spinIndex])
+
+				$spinIndex += 1
+				If $spinIndex = 4 Then $spinIndex = 0
+			EndIf
+
+
 			; Pause
 			Sleep(150)
 
@@ -151,8 +160,8 @@ Func downloadFile($URL, $path, $retryCount = 5, $showProgress = False)
 		; Show download progress
 		Do
 			If $showProgress Then
-				;ConsoleWrite(@CR & "[Info]" & $spin[$spinIndex])
-				ConsoleWrite(@CR & "[Info]: " & InetGetInfo($hInetGet, $INET_DOWNLOADREAD))
+				ConsoleWrite(@CR & "[Info]" & $spin[$spinIndex])
+
 				$spinIndex += 1
 				If $spinIndex = 4 Then $spinIndex = 0
 			EndIf

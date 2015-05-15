@@ -184,6 +184,38 @@ EndFunc
 
 
 
+; #FUNCTION# ====================================================================================================================
+; Name ..........: initGUIProgressAssets
+; Description ...: Check if local GUI Progress assets match remote assets if not download remote assets
+; Syntax ........: initGUIProgressAssets($baseURL, $dataFolder)
+; Parameters ....: $baseURL             - Base URLlocation for the assets.
+;                  $dataFolder          - Application data folder.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func initGUIProgressAssets($baseURL, $dataFolder)
+	local $hashListXML
+	Local $path
+	Local $url
+	Local $hash
+
+
+	; Download Progress GUI background
+	$url = $baseURL & "/packdata/assets/gui/progress/background.jpg"
+	$path = "\PackData\Assets\GUI\Progress\background.jpg"
+	$hash = IniRead($dataFolder &  "\PackData\Assets\assets.ini", "ProgressGUI", "BackgroundSHA1", "")
+
+	verifyAndDownload($url, $path, $dataFolder, $hash)
+
+EndFunc
+
+
+
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: initGUIAssets
@@ -219,6 +251,10 @@ Func initGUIAssets($baseURL, $dataFolder)
 
 	; Initialize Advanced Info GUI assets
 	initGUIadvInfoAssets($baseURL, $dataFolder)
+
+
+	; Inialize Progress GUI assets
+	initGUIProgressAssets($baseURL, $dataFolder)
 
 
 
