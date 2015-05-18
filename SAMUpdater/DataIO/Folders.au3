@@ -411,6 +411,9 @@ Func createDesktopShortcut($targetPath, $linkFilename)
 	; Skip if target or link filename is blank
 	If $targetPath = "" Or $linkFilename = "" Then Return
 
+	; Connvert target path to a real path
+	$targetPath = parsePath($targetPath)
+
 
 	$fullLinkPath = @DesktopDir & "\" & $linkFilename & ".lnk"
 	$workingDir = getPath($targetPath)

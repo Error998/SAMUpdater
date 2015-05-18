@@ -5,8 +5,8 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_ProductVersion=0.5.0.4
-#AutoIt3Wrapper_Res_Fileversion=0.5.0.4
+#AutoIt3Wrapper_Res_ProductVersion=0.5.0.5
+#AutoIt3Wrapper_Res_Fileversion=0.5.0.5
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -23,15 +23,14 @@
 #include "GUI\Colors.au3"
 #include "GUI\frmPackSelection.au3"
 #include "GUI\frmSelectFolder.au3"
-#include "PostInstall\MagicLauncher.au3"
-#include "PostInstall\Application.au3"
 #include "OfflineMode\OfflineMode.au3"
+#include "PostInstall\PostInstallBootstrap.au3"
 
 Opt('MustDeclareVars', 1)
 
 
 ; ### Init Varibles ###
-Const $version = "0.5.0.3"
+Const $version = "0.5.0.5"
 Const $baseURL = "http://localhost/samupdater"
 ;Const $baseURL = "http://local.saminecraft.co.za/sam/samupdater"
 Const $updateURL = $baseURL & "/version.ini"
@@ -176,18 +175,18 @@ cachePack($PackRepository, $PackID, $dataFolder)
 
 ;Install Pack
 installPack($PackID, $dataFolder)
-Exit
-
-
-; Custom Post install stuff
-configureMagicLauncher($PackID, $ForgeVersion, 2048)
 
 
 
 
+PostInstall($PackID, $dataFolder)
 
-; Create desktop shortcut
-createDesktopShortcut($packs[$packNum][14], $packs[$packNum][15])
+
+
+
+
+
+
 
 
 
@@ -196,8 +195,7 @@ MsgBox($MB_ICONINFORMATION, "Update complete", "The update is now complete", 20)
 
 
 
-; Launch installed application
-lauchShortcut($packs[$packNum][16], $packs[$packNum][15])
+
 
 
 

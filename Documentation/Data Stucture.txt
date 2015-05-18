@@ -100,14 +100,15 @@ PackID.ini
 
 [General]
 PackType=MagicLauncher
-[Forge]
+[<PackType>]
 ForgeVersion=1.7.10-Forge10.13.2.1307-1.7.10
+RAM=2048
 [Install]
 DefaultInstallFolder=%appdata%\.minecraft
 [Shortcut]
-DesktopShortcutTarget=%appdata%\.minecraft\MagicLauncher_1.2.6.exe
+ShortcutTarget=%appdata%\.minecraft\MagicLauncher_1.2.6.exe
 ShortcutName=Magic Launcher
-LaunchApplicationAfterUpdate=True
+LaunchShortcutAfterUpdate=True
 
 ------------------------------------------------------
 

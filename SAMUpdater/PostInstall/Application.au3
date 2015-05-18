@@ -23,18 +23,15 @@ Opt('MustDeclareVars', 1)
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func lauchShortcut($bRun, $linkFilename)
+Func lauchShortcut($linkFilename)
 
 	; Check if the shortcut exist
 	If Not FileExists(@DesktopDir & '\' & $linkFilename & '.lnk') Then Return
 
 
 	; Launch application
-	If $bRun = "True" Then
-		writeLogEchoToConsole("[Info]: Launching application - " & $linkFilename & @CRLF & @CRLF)
+	writeLogEchoToConsole("[Info]: Launching application - " & $linkFilename & @CRLF & @CRLF)
 
-		ShellExecute('"' & @DesktopDir & '\' & $linkFilename & '.lnk"', "", "", "open")
-
-	EndIf
+	ShellExecute('"' & @DesktopDir & '\' & $linkFilename & '.lnk"', "", "", "open")
 
 EndFunc
