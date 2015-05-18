@@ -5,8 +5,8 @@
 #AutoIt3Wrapper_UseUpx=n
 #AutoIt3Wrapper_Change2CUI=y
 #AutoIt3Wrapper_Res_Description=SA Minecraft Update Utility
-#AutoIt3Wrapper_Res_ProductVersion=0.5.0.3
-#AutoIt3Wrapper_Res_Fileversion=0.5.0.3
+#AutoIt3Wrapper_Res_ProductVersion=0.5.0.4
+#AutoIt3Wrapper_Res_Fileversion=0.5.0.4
 #AutoIt3Wrapper_Res_LegalCopyright=Do What The Fuck You Want To Public License, Version 2 - www.wtfpl.net
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -46,8 +46,11 @@ Global $hdllKernel32 = initColors()
 Global $hLog = initLogs($dataFolder)
 
 Global $userSettingSoundOn
-Global $packs
 
+Global $PackXMLDatabaseCurrentFiles
+Global $PackXMLDatabaseID
+
+Global $packs
 Local $packNum
 
 
@@ -172,12 +175,12 @@ cachePack($PackRepository, $PackID, $dataFolder)
 
 
 ;Install Pack
-;installPack($PackID, $dataFolder)
+installPack($PackID, $dataFolder)
 Exit
 
 
 ; Custom Post install stuff
-configureMagicLauncher($PackID, $ForgeVersion, 1536)
+configureMagicLauncher($PackID, $ForgeVersion, 2048)
 
 
 

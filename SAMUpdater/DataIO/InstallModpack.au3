@@ -8,6 +8,7 @@
 #include "..\DataIO\Folders.au3"
 #include "..\DataIO\Download.au3"
 #include "..\DataIO\UserSettings.au3"
+#include "..\GUI\frmProgress.au3"
 
 
 Opt('MustDeclareVars', 1)
@@ -32,21 +33,37 @@ Opt('MustDeclareVars', 1)
 Func installPack($PackID, $dataFolder)
 	Local $recycle
 	Local $installationFolder
+	Local $totalFiles
+	Dim $removedXMLfiles
 
 
 	; Get the Pack installation folder
 	$installationFolder = getInstallFolder($PackID, $dataFolder)
 
+	; Get the removed files
+	writeLogEchoToConsole("[Info]: Reading removed files from " & $PackID & ".xml" & @CRLF)
+	$removedXMLfiles = getXMLfilesFromSection($PackID, $dataFolder, "Removed")
+	$totalFiles = UBound($PackXMLDatabaseCurrentFiles) + UBound($removedXMLfiles) - 2
+
+	writeLogEchoToConsole("[Info]: Installing pack..." & @CRLF)
+
+	; Display the Progress GUI
+	displayProgressGUI("Install pack and remove old files", "Installing pack...")
+
+
+
 	; Install
-	installFromCache($installationFolder, $PackID, $dataFolder)
+	installFromCache($installationFolder, $PackID, $dataFolder, $PackXMLDatabaseCurrentFiles, $totalFiles)
 
 
 	; Should files be permanently deleted or sent to recycle bin
 	$recycle = getUserSettingDeleteToRecycleBin($dataFolder)
 
 	; Remove
-	removeOldFiles($installationFolder, $PackID, $dataFolder, $recycle)
+	removeOldFiles($installationFolder, $PackID, $dataFolder, $recycle, $removedXMLfiles, $totalFiles)
 
+
+	closeProgressGUI()
 EndFunc
 
 
@@ -68,7 +85,7 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func installFromCache($installationFolder, $PackID, $dataFolder)
+Func installFromCache($installationFolder, $PackID, $dataFolder, $currentXMLfiles, $total)
 	Dim $currentXMLfiles  ; All files that exist in the current pack
 	Local $destinationFile
 	Local $sourceFile
@@ -76,16 +93,18 @@ Func installFromCache($installationFolder, $PackID, $dataFolder)
 	Local $totalFiles
 	Local $fileCopyStatus
 
-	writeLogEchoToConsole("[Info]: Reading files from " & $PackID & ".xml" & @CRLF)
-	$currentXMLfiles = getXMLfilesFromSection($PackID, $dataFolder, "Files")
-
-
 	; Startup crypt libary to speedup hash generation
 	_Crypt_Startup()
 
 	$totalFiles = UBound($currentXMLfiles) - 1
 
+
 	For $i = 0 to $totalFiles
+
+		;Update Progress GUI
+		updateProgressGUI($i, $totalFiles, $i, $total, $currentXMLfiles[$i][0])
+
+
 
 		; Full filename and path to install location
 		If $currentXMLfiles[$i][2] = "" Then
@@ -129,6 +148,7 @@ Func installFromCache($installationFolder, $PackID, $dataFolder)
 	; Close the crypt libary to free resources
 	_Crypt_Shutdown()
 
+
 EndFunc
 
 
@@ -150,27 +170,26 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func removeOldFiles($installationFolder, $PackID, $dataFolder, $recycle)
-	Dim $currentXMLfiles  ; All files that exist in the current modpack
+Func removeOldFiles($installationFolder, $PackID, $dataFolder, $recycle, ByRef $removedXMLfiles, $total)
 	Local $destinationFile
 	Local $sourceFile
 	Local $totalFiles
 
 
-	writeLogEchoToConsole("[Info]: Reading removed files from " & $PackID & ".xml" & @CRLF)
-	$currentXMLfiles = getXMLfilesFromSection($PackID, $dataFolder, "Removed")
-
-
-	$totalFiles = UBound($currentXMLfiles) - 1
+	$totalFiles = UBound($removedXMLfiles) - 1
 
 
 	For $i = 0 to $totalFiles
 
+		;Update Progress GUI
+		updateProgressGUI($i, $totalFiles, $i + $total - $totalFiles, $total, $removedXMLfiles[$i][0])
+
+
 		; Full path and filename of file to remove
-		If $currentXMLfiles[$i][2] = "" Then
-			$destinationFile = $installationFolder & "\" & $currentXMLfiles[$i][0]
+		If $removedXMLfiles[$i][2] = "" Then
+			$destinationFile = $installationFolder & "\" & $removedXMLfiles[$i][0]
 		Else
-			$destinationFile = $installationFolder & "\" & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0]
+			$destinationFile = $installationFolder & "\" & $removedXMLfiles[$i][2] & "\" & $removedXMLfiles[$i][0]
 		EndIf
 
 

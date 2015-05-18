@@ -129,7 +129,6 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func getUncachedDownloadList($PackID, $dataFolder)
-	Dim $currentXMLfiles  ; All files that exist in the current pack
 	Dim $downloadQueue[1][6]
 	Local $totalFileSize = 0
 	Local $hFile
@@ -154,13 +153,17 @@ Func getUncachedDownloadList($PackID, $dataFolder)
 	Local $downloadQueueFilesize
 
 
-	; Load <PackID>.xml
-	writeLogEchoToConsole("[Info]: Parsing pack database from " & $PackID & ".xml" & @CRLF & @CRLF)
-	$currentXMLfiles = getXMLfilesFromSection($PackID, $dataFolder, "Files")
+	; Load <PackID>.xml if not already loaded
+	If UBound($PackXMLDatabaseCurrentFiles) = 0 or $PackID <> $PackXMLDatabaseID Then
 
+		writeLogEchoToConsole("[Info]: Parsing pack database from " & $PackID & ".xml" & @CRLF & @CRLF)
+
+		$PackXMLDatabaseCurrentFiles = getXMLfilesFromSection($PackID, $dataFolder, "Files")
+
+	EndIf
 
 	; Total files in Files section
-	$totalFiles = UBound($currentXMLfiles) - 1
+	$totalFiles = UBound($PackXMLDatabaseCurrentFiles) - 1
 
 
 	writeLog("[Info]: Caculating uncached files..." & @CRLF)
@@ -171,11 +174,11 @@ Func getUncachedDownloadList($PackID, $dataFolder)
 	For $i = 0 To $totalFiles
 
 		; Populate database structure
-		$repositoryDestinationFilename = $currentXMLfiles[$i][0]
-		$repositoryDestinationExtract = $currentXMLfiles[$i][1]
-		$repositoryDestinationPath = $currentXMLfiles[$i][2]
-		$repositoryHash = $currentXMLfiles[$i][3]
-		$repositoryFilesize = $currentXMLfiles[$i][4]
+		$repositoryDestinationFilename = $PackXMLDatabaseCurrentFiles[$i][0]
+		$repositoryDestinationExtract = $PackXMLDatabaseCurrentFiles[$i][1]
+		$repositoryDestinationPath = $PackXMLDatabaseCurrentFiles[$i][2]
+		$repositoryHash = $PackXMLDatabaseCurrentFiles[$i][3]
+		$repositoryFilesize = $PackXMLDatabaseCurrentFiles[$i][4]
 
 
 		; Display progress percentage
@@ -355,26 +358,28 @@ EndFunc
 ; Return values .: Array of uncached filenames
 ; Author ........: Error_998
 ; Modified ......:
-; Remarks .......:
+; Remarks .......: $PackXMLDatabaseID stores the PackID of the pack's who's Info button was clicked
+;				   Used in the download button to compare if its necessary to re-read the current files for pack
 ; Related .......: Index 0 = file count
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
 Func getStatusInfoOfUncachedFiles($PackID, $dataFolder, ByRef $totalFileSize)
 	Dim $uncachedFiles[1]
-	Dim $currentXMLfiles ; All files that exist in the current modpack
 	Local $filesize = 0
 	Local $hash
 	Local $totalFiles
 	Local $percentage
 
+	; Store packID for currentXMLFiles
+	$PackXMLDatabaseID = $PackID
 
 	; Load <PackID>.xml
-	$currentXMLfiles = getXMLfilesFromSection($PackID, $dataFolder, "Files")
+	$PackXMLDatabaseCurrentFiles = getXMLfilesFromSection($PackID, $dataFolder, "Files")
 
 
 	; Total files in Files section
-	$totalFiles = UBound($currentXMLfiles) - 1
+	$totalFiles = UBound($PackXMLDatabaseCurrentFiles) - 1
 
 
 	writeLog("[Info]: Caculating uncached files..." & @CRLF)
@@ -397,26 +402,26 @@ Func getStatusInfoOfUncachedFiles($PackID, $dataFolder, ByRef $totalFileSize)
 
 
 		; Skip if remote file size is 0
-		If $currentXMLfiles[$i][4] = 0 Then ContinueLoop
+		If $PackXMLDatabaseCurrentFiles[$i][4] = 0 Then ContinueLoop
 
 
 		; Verify file if it already exists
-		If FileExists($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $currentXMLfiles[$i][3]) Then
+		If FileExists($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $PackXMLDatabaseCurrentFiles[$i][3]) Then
 
-			$hash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $currentXMLfiles[$i][3], $CALG_SHA1)
+			$hash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $PackXMLDatabaseCurrentFiles[$i][3], $CALG_SHA1)
 
 			; File verified, skipping file
-			If $hash = $currentXMLfiles[$i][3] then	ContinueLoop
+			If $hash = $PackXMLDatabaseCurrentFiles[$i][3] then	ContinueLoop
 
 		EndIf
 
 
 
 		; Unique cache file found
-		_ArrayAdd($uncachedFiles, $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0] & "#ADD")
+		_ArrayAdd($uncachedFiles, $PackXMLDatabaseCurrentFiles[$i][2] & "\" & $PackXMLDatabaseCurrentFiles[$i][0] & "#ADD")
 
 		; Total download filesize
-		$filesize = $filesize + $currentXMLfiles[$i][4]
+		$filesize = $filesize + $PackXMLDatabaseCurrentFiles[$i][4]
 
 	Next
 
