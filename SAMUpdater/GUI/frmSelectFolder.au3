@@ -55,7 +55,7 @@ EndFunc
 Func btnOKSelectFolderGUI()
 	Local $installationPath
 	Local $defaultInstallationPath
-	Local $PackID = $packs[$downloadPacknum][0]
+	Local $PackID = $packs[$selectedPackNum][0]
 
 	; Disable the parent GUI
 	GUISetState(@SW_DISABLE, $frmSelectFolder)
@@ -93,6 +93,10 @@ Func btnOKSelectFolderGUI()
 	CloseSelectFolderGUI()
 
 	$closeGUI = True
+
+
+	; Set the selected packID as the pack that will be downloaded
+	$downloadPacknum = $selectedPackNum
 EndFunc
 
 
@@ -334,5 +338,6 @@ Func displaySelectFolderGUI($packNum)
 	GUISetState(@SW_SHOW)
 
 	writeLogEchoToConsole("[Info]: Displaying Select Folder GUI" & @CRLF)
+
 
 EndFunc

@@ -261,10 +261,14 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func btnDownload()
+	Local $selectedPackNum
 
-	$downloadPacknum = findPackNumFromCtrlID(@GUI_CtrlId, 1, $ctrlIDs)
+	$selectedPackNum = findPackNumFromCtrlID(@GUI_CtrlId, 1, $ctrlIDs)
 
-	writeLogEchoToConsole("[Info]: Pack #: " & $downloadPacknum & " selected for download" & @CRLF)
+	; Display Splash and description
+	showSplashAndDescription($selectedPackNum)
+
+	writeLogEchoToConsole("[Info]: Pack #: " & $selectedPackNum & " selected for download" & @CRLF)
 
 	; Disable Parent GUI
 	GUISetState(@SW_DISABLE, $frmPackSelection)
@@ -272,7 +276,7 @@ Func btnDownload()
 
 
 	; Display Select Folder GUI
-	displaySelectFolderGUI($downloadPacknum)
+	displaySelectFolderGUI($selectedPackNum)
 
 
 EndFunc
