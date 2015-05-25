@@ -381,6 +381,7 @@ Func parsePath($path)
 	$path = StringReplace($path, "%temp%", @TempDir, 0, $STR_CASESENSE)
 	$path = StringReplace($path, "%programfiles%", @ProgramFilesDir, 0, $STR_CASESENSE)
 	$path = StringReplace($path, "%mydocuments%", @MyDocumentsDir, 0, $STR_CASESENSE)
+	$path = StringReplace($path, "%homedrive%", @HomeDrive, 0, $STR_CASESENSE)
 
 	Return $path
 EndFunc

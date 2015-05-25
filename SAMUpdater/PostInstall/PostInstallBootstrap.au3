@@ -80,7 +80,7 @@ EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: PostInstallGeneric
-; Description ...: Place holder
+; Description ...:
 ; Syntax ........: PostInstallGeneric($PackID, $dataFolder)
 ; Parameters ....: $PackID              - An unknown value.
 ;                  $dataFolder          - An unknown value.
@@ -94,14 +94,54 @@ EndFunc
 ; ===============================================================================================================================
 Func PostInstallGeneric($PackID, $dataFolder)
 	Local $packType
+	Local $runPostInstallApp
 
 	$packType = IniRead($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\"  & $PackID & ".ini", "General", "PackType", "Generic")
 
 	; If not Generic pack type then skip
 	If $packType <> "Generic" Then Return
 
-	; Eeeerhmm, yes we do stuff here...
-	; Code will be added when I figure out what to put here
+
+	runPostInstall($PackID, $dataFolder)
+
+EndFunc
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: runPostInstall
+; Description ...: Run an application after installation marked in <PackID.ini>\Generic\PostInstall
+; Syntax ........: runPostInstall($PackID, $dataFolder)
+; Parameters ....: $PackID              - An unknown value.
+;                  $dataFolder          - An unknown value.
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func runPostInstall($PackID, $dataFolder)
+	Local $runPostInstallApp
+
+
+	$runPostInstallApp = IniRead($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\"  & $PackID & ".ini", "Generic", "PostInstall", "NONE")
+
+	; Skip if no post install app has to be run
+	if $runPostInstallApp = "NONE" Then Return
+
+	; Parse path
+	$runPostInstallApp = parsePath($runPostInstallApp)
+
+
+	; Run post install app
+	writeLogEchoToConsole("[Info]: Launching post install application - " & getFilename($runPostInstallApp) & @CRLF)
+
+	ShellExecuteWait(getFilename($runPostInstallApp), "", getPath($runPostInstallApp), "open")
+
+	writeLogEchoToConsole("[Info]: Post install done." & @CRLF)
+
 
 EndFunc
 
