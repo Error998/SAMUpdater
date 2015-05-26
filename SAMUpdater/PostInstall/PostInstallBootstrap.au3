@@ -131,14 +131,18 @@ Func runPostInstall($PackID, $dataFolder)
 	; Skip if no post install app has to be run
 	if $runPostInstallApp = "NONE" Then Return
 
-	; Parse path
-	$runPostInstallApp = parsePath($runPostInstallApp)
+	; Installation path + app that must be run
+	$runPostInstallApp = getInstallFolder($PackID, $dataFolder) & "\" & $runPostInstallApp
+
+
+	; Change Working Dir to install path
+	FileChangeDir(getPath($runPostInstallApp))
 
 
 	; Run post install app
 	writeLogEchoToConsole("[Info]: Launching post install application - " & getFilename($runPostInstallApp) & @CRLF)
 
-	ShellExecuteWait(getFilename($runPostInstallApp), "", getPath($runPostInstallApp), "open")
+	ShellExecuteWait('"' & $runPostInstallApp & '"', "", "", "open")
 
 	writeLogEchoToConsole("[Info]: Post install done." & @CRLF)
 
@@ -170,6 +174,9 @@ Func PostInstallApplicationShortcut($PackID, $dataFolder)
 
 	; Sanity check, skip is no target present
 	If $shortcutTarget = "" Then Return
+
+	; Full Path to shortcut
+	$shortcutTarget = getInstallFolder($PackID, $dataFolder) & "\" & $shortcutTarget
 
 	; Name
 	$shortcutName = IniRead($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\"  & $PackID & ".ini", "Shortcut", "ShortcutName", "")
@@ -216,6 +223,6 @@ Func PostInstallLaunchApplication($PackID, $dataFolder)
 	If $shortcutLaunch <> "True" Then Return
 
 	; Launch installed application
-	lauchShortcut($shortcutName)
+	launchShortcut($shortcutName)
 
 EndFunc

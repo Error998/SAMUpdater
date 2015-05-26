@@ -10,9 +10,9 @@ Opt('MustDeclareVars', 1)
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: lauchShortcut
+; Name ..........: launchShortcut
 ; Description ...: Launches the application from the created shortcut
-; Syntax ........: lauchShortcut($bRun, $linkFilename)
+; Syntax ........: launchShortcut($bRun, $linkFilename)
 ; Parameters ....: $bRun                - Boolean value, should the application be run or not.
 ;                  $linkFilename        - The filename of the shortcut with out the extention.
 ; Return values .: None
@@ -23,7 +23,7 @@ Opt('MustDeclareVars', 1)
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func lauchShortcut($linkFilename)
+Func launchShortcut($linkFilename)
 
 	; Check if the shortcut exist
 	If Not FileExists(@DesktopDir & '\' & $linkFilename & '.lnk') Then Return

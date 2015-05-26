@@ -43,7 +43,7 @@ Func installPack($PackID, $dataFolder)
 	; Get the removed files
 	writeLogEchoToConsole("[Info]: Reading removed files from " & $PackID & ".xml" & @CRLF)
 	$removedXMLfiles = getXMLfilesFromSection($PackID, $dataFolder, "Removed")
-	$totalFiles = UBound($PackXMLDatabaseCurrentFiles) + UBound($removedXMLfiles) - 2
+	$totalFiles = UBound($PackXMLDatabaseCurrentFiles) + UBound($removedXMLfiles)
 
 	writeLogEchoToConsole("[Info]: Installing pack..." & @CRLF)
 
@@ -96,10 +96,10 @@ Func installFromCache($installationFolder, $PackID, $dataFolder, $currentXMLfile
 	; Startup crypt libary to speedup hash generation
 	_Crypt_Startup()
 
-	$totalFiles = UBound($currentXMLfiles) - 1
+	$totalFiles = UBound($currentXMLfiles)
 
 
-	For $i = 0 to $totalFiles
+	For $i = 0 to $totalFiles - 1
 
 		;Update Progress GUI
 		updateProgressGUI($i, $totalFiles, $i, $total, $currentXMLfiles[$i][0])
