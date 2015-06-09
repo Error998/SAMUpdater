@@ -5,6 +5,7 @@
 #include "..\..\SAMUpdater\DataIO\XML.au3"
 #include "..\..\SAMUpdater\DataIO\Download.au3"
 #include "FileState.au3"
+#include "7Zip.au3"
 
 Opt('MustDeclareVars', 1)
 
@@ -100,6 +101,7 @@ EndFunc
 ; ===============================================================================================================================
 Func WriteSection($hFile, $section, $aSectionFileInfo)
 	; Section header
+	_ArrayDisplay($aSectionFileInfo)
 	FileWriteLine($hFile, @TAB & '<' & $section & '>')
 
 	; Write file info
@@ -206,7 +208,7 @@ Func _GetFileInfos($path, $aFiles)
 		Return $aFileInfo
 	EndIf
 
-
+	Local $maxFileSize = 1024 * 1024 * 10 ; 10MB
 	Dim $aFileInfo[ $aFiles[0] + 1 ][5]
 
 	; Startup crypt libary to speedup hash generation
@@ -215,7 +217,7 @@ Func _GetFileInfos($path, $aFiles)
 	; Calculate info section for each file
 	For $i =  1 To $aFiles[0]
 		$aFileInfo[$i][0] =	getFilename($path & "\" & $aFiles[$i])
-		$aFileInfo[$i][1] = "FALSE"
+
 		$aFileInfo[$i][2] = getPath($aFiles[$i])
 
 		; Only perform file operations if the file exist
@@ -229,6 +231,12 @@ Func _GetFileInfos($path, $aFiles)
 			$aFileInfo[$i][4] = ""
 		EndIf
 
+		; If file bigger than 10MB it will have to be extracted
+		If $aFileInfo[$i][4] > $maxFileSize Then
+			$aFileInfo[$i][1] = "True"
+		Else
+			$aFileInfo[$i][1] = "False"
+		EndIf
 	Next
 
 	; Close the crypt libary to free resources
@@ -419,4 +427,147 @@ Func saveModpack($modID, $dataFolder, $pathToSourceFiles)
 
 	; Write <modID>.xml
 	WriteModpack($modID, $pathToSourceFiles, $aSourceFiles, $aRemovedSourceFiles)
+EndFunc
+
+
+
+Func splitLargeFiles($modID, $dataFolder)
+	Local $currentXMLFiles
+	Local $fullpath
+	Local $cacheFolder = @ScriptDir & "\PackData\modpacks\" & $modID & "\cache"
+	Dim $splitXMLFiles[1][5]
+	Local $zipResult
+
+
+	; Read Pack.xml
+	;Get all the file info of the current files
+	$currentXMLFiles = getXMLfilesFromSection($modID, $dataFolder, "Files")
+
+
+
+	;_ArrayDisplay($currentXMLFiles)
+
+	For $i = 0 to UBound($CurrentXMLFiles) - 1
+		; Get files marked for extraction
+		If $currentXMLFiles[$i][1] = "True" Then
+			; full path + filename
+			If $currentXMLFiles[$i][2] = "" Then
+				$fullpath = $pathToSourceFiles & "\" & $currentXMLFiles[$i][0]
+			Else
+				$fullpath = $pathToSourceFiles & "\" & $currentXMLFiles[$i][2] & "\" & $currentXMLFiles[$i][0]
+			EndIf
+
+
+			ConsoleWrite("[Source]: " & $fullpath & @CRLF)
+			ConsoleWrite("[Destination]: " & $cacheFolder & @CRLF)
+
+			$zipResult = _7ZipAdd(0, $cacheFolder & "\" & $currentXMLFiles[$i][3], $fullpath, 0, 9, 0, 0, 0, 0, 0, "10m")
+			If @error > 0 Then
+				writeLogEchoToConsole("[Error]:  Failed to compress file!" & @CRLF)
+				writeLogEchoToConsole($zipResult & @CRLF)
+			EndIf
+
+		EndIf
+
+	Next
+EndFunc
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: getCompressedFilesInfo
+; Description ...: Get the file info for all the compressed files
+; Syntax ........: getCompressedFilesInfo($modID, $dataFolder)
+; Parameters ....: $modID               - The Pack ID.
+;                  $dataFolder          - Application data folder.
+; Return values .: Array in the format of Pack.xml
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......: Data only, no tags
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func getCompressedFilesInfo($modID, $dataFolder)
+	Local $aCompressedFiles
+	Local $compressedFolder = $dataFolder & "\PackData\modpacks\" & $modID & "\cache"
+	Local $fileInfo
+
+	$aCompressedFiles = recurseFolders($compressedFolder, "*.dat")
+
+	$fileInfo = _GetFileInfos($compressedFolder, $aCompressedFiles)
+
+	;_ArrayDisplay($fileInfo)
+
+	Return $fileInfo
+EndFunc
+
+
+
+Func saveCompressedPack($modID, $dataFolder)
+	Local $aCompressedFiles
+	Local $aFiles
+	Local $aRemovedFiles
+	Local $hFile
+
+	; Current Files
+	writeLogEchoToConsole("[Info]: Reading Files section" & @CRLF)
+	$aFiles = getXMLfilesFromSection($modID, $dataFolder, "Files")
+	; Fix array count
+	_ArrayInsert($aFiles,0, UBound($aFiles))
+
+	; Removed Files
+	writeLogEchoToConsole("[Info]: Reading Removed section" & @CRLF)
+	$aRemovedFiles = getXMLfilesFromSection($modID, $dataFolder, "Removed")
+
+	; Add a row
+	ReDim  $aRemovedFiles[UBound($aRemovedFiles) + 1][5]
+	; Fix array count
+	$aRemovedFiles[0][0] = UBound($aRemovedFiles) - 1
+
+
+
+	; Compressed Files
+	writeLogEchoToConsole("[Info]: Calculating Compressed files section" & @CRLF & @CRLF)
+	$aCompressedFiles = getCompressedFilesInfo($modID, $dataFolder)
+
+
+
+
+	; Open a new xml document for writing
+	$hFile = FileOpen(@ScriptDir & "\PackData\Modpacks\" & $modID & "\Data\" & $modID & ".xml", 10) ; erase + create dir
+		If $hFile = -1 Then
+			writeLogEchoToConsole("[ERROR]: Unable to create - " & @ScriptDir & "\PackData\Modpacks\" & $modID & "\Data\" & $modID & ".xml" & @CRLF)
+			MsgBox(48, "Error creating xml document", "Unable to create xml document:" & @CRLF & @ScriptDir & "\PackData\Modpacks\" & $modID & "\Data\" & $modID & ".xml")
+			Exit
+		EndIf
+
+
+		; XML Header
+		writeLogEchoToConsole("[Info]: Creating final " & $modID & ".xml document" & @CRLF)
+		FileWriteLine($hFile,'<ModPack version="1.0">')
+
+
+		; Write Removed section
+		writeLogEchoToConsole("[Info]: Writing removed section" & @CRLF)
+		WriteSection($hFile, "Removed", $aRemovedFiles)
+
+
+		; Write Files section
+		writeLogEchoToConsole("[Info]: Writing Files section" & @CRLF)
+		WriteSection($hFile, "Files", $aFiles)
+
+
+		; Write Files section
+		writeLogEchoToConsole("[Info]: Writing Compressed section" & @CRLF)
+		WriteSection($hFile, "Compressed", $aCompressedFiles)
+
+		; Close XML Header
+		FileWriteLine($hFile,'</ModPack>')
+
+	; Close xml document
+	FileClose($hFile)
+
+	writeLogEchoToConsole("[Info]: Finnished writing final " & $modID & ".xml" & @CRLF)
+
 EndFunc

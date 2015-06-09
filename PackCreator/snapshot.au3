@@ -28,7 +28,7 @@ func Test()
 	Dim $sPathServer = @AppDataDir & "\.minecraft"
 
 	Dim $aFilesClient
-	Dim $sPathClient = @DesktopDir & "\Current MC\.minecraft"
+	Dim $sPathClient = @DesktopDir & "\current\.minecraft"
 
 	Dim $aAddedFiles
 	Dim $aRemovedFiles
@@ -104,8 +104,17 @@ Func modpackStats()
 
 EndFunc
 
-Local $modID = "Mechanical"
-Dim $pathToSourceFiles = @DesktopDir & "\TestServer\Update 3\.minecraft"
+Local $modID = "KSP"
+Dim $pathToSourceFiles = "C:\Data\Games - ISO\Kerbal Space Program\Kerbal Space Program"
+
+;~ Local $modID = "StarMade"
+;~ Dim $pathToSourceFiles = @DesktopDir & "\TestServer\StarMade"
+
+;~ Local $modID = "Mechanical"
+;~ Dim $pathToSourceFiles = @DesktopDir & "\TestServer\New Age Update 6\.minecraft"
+
+;Local $modID = "Crash_Landing"
+;Dim $pathToSourceFiles = "C:\Users\Jock\Desktop\TestServer\Crash_Landing\Update 1.1.3\.minecraft"
 
 ; InitFolders
 writeLogEchoToConsole("Initialize Folders" & @CRLF)
@@ -114,10 +123,14 @@ createFolder(@ScriptDir & "\PackData\modpacks\" & $modID & "\cache")
 writeLogEchoToConsole("Folders initialized" & @CRLF & @CRLF)
 ; Folders initialized
 
+;~ test()
 
-
-;saveModpack($modID, @ScriptDir, $pathToSourceFiles)
+saveModpack($modID, @ScriptDir, $pathToSourceFiles)
 
 ;modpackStats()
 
-updateCachefromXML($modID, @ScriptDir, $pathToSourceFiles)
+;updateCachefromXML($modID, @ScriptDir, $pathToSourceFiles)
+
+;splitLargeFiles($modID, @ScriptDir)
+
+saveCompressedPack($modID, @ScriptDir)

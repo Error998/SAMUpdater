@@ -33,6 +33,8 @@ Func updateCacheFromXML($modID, $dataFolder, $pathToSourceFiles)
 			Exit
 		EndIf
 
+		; Skip if file is compressed
+		If $currentXMLfiles[$i][1] = "True" Then ContinueLoop
 
 		; Calculate source file hash
 		$hash = _Crypt_HashFile($file, $CALG_SHA1)

@@ -2,21 +2,30 @@
 #include <Crypt.au3>
 #include <File.au3>
 #include "..\SAMUpdater\DataIO\Folders.au3"
+#include "..\SAMUpdater\GUI\Colors.au3"
 #include "DataIO\ModPack.au3"
 
 
 Opt('MustDeclareVars', 1)
+Global $hdllKernel32 = initColors()
+
+Global $dataFolder = @ScriptDir
+Global $hLog = initLogs($dataFolder)
 
 Dim $aFilesServer
-Dim $sPathServer = @DesktopDir & "\TestServer\Update 3\.minecraft"
+Dim $sPathServer = @AppDataDir & "\.minecraft"
 
 Dim $aFilesClient
-Dim $sPathClient = @DesktopDir & "\TestServer\Update 2\.minecraft"
+Dim $sPathClient = @DesktopDir & "\before\.minecraft"
 
 Dim $aAddedFiles
 Dim $aRemovedFiles
 Dim $aUnchangedFiles[1]
 Dim $aChangedFiles[1]
+
+
+; Close the log file on application exit
+OnAutoItExitRegister("closeLog")
 
 
 ; A file can be in 1 of 4 states:
