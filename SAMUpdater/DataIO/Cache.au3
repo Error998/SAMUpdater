@@ -3,6 +3,7 @@
 #include <Crypt.au3>
 #include <File.au3>
 #include <MsgBoxConstants.au3>
+#include "..\DataIO\7Zip.au3"
 #include "..\DataIO\XML.au3"
 #include "..\DataIO\Download.au3"
 #include "..\DataIO\ModPack.au3"
@@ -71,12 +72,6 @@ Func cachePack($PackRepository, $PackID, $dataFolder)
 	$downloadQueueTotalFilesize = $downloadQueue[0][5]
 
 
-	; If there is nothing to download then return
-	If $downloadQueueCount = 0 Then Return
-
-
-
-
 	; If offline and cache is incomplete let the user know
 	If Not $isOnline Then
 		writeLogEchoToConsole("[Warning]: Offline but found " & $downloadQueueCount & " uncached files." & @CRLF)
@@ -105,12 +100,16 @@ Func cachePack($PackRepository, $PackID, $dataFolder)
 	EndIf
 
 
-
+	; Download all uncached files
 	cacheFiles($PackRepository, $downloadQueue, $PackID, $dataFolder)
 
 
-EndFunc
 
+	; Extract compressed files cache files
+	extractCache($PackID)
+
+
+EndFunc
 
 
 
@@ -136,6 +135,7 @@ Func getUncachedDownloadList($PackID, $dataFolder)
 	Local $totalFiles
 	Local $percentage
 	Local $items
+	Local $PackXMLDatabaseCompressed
 
 	; Pack Database structure
 	Local $repositoryDestinationFilename
@@ -161,6 +161,12 @@ Func getUncachedDownloadList($PackID, $dataFolder)
 		$PackXMLDatabaseCurrentFiles = getXMLfilesFromSection($PackID, $dataFolder, "Files")
 
 	EndIf
+
+
+	; Load Compressed section from <PackID>.xml
+	$PackXMLDatabaseCompressed = getXMLfilesFromSection($PackID, $dataFolder, "Compressed")
+
+
 
 	; Total files in Files section
 	$totalFiles = UBound($PackXMLDatabaseCurrentFiles) - 1
@@ -215,7 +221,19 @@ Func getUncachedDownloadList($PackID, $dataFolder)
 		EndIf
 
 
-		; Only add cache file if it wasnt added already
+		; Add compressed volumes to the download queue
+		If $repositoryDestinationExtract = "True" Then
+
+			$repositoryFilesize = addCompressedVolumesToDownloadQueue($repositoryHash, $PackXMLDatabaseCompressed, $downloadQueue)
+
+			; Add the total volume size to the total download size
+			$totalFileSize = $totalFileSize + $repositoryFilesize
+
+			ContinueLoop
+		EndIf
+
+
+		; File is not compressed, add to queue if the file wasnt added already
 		If _ArraySearch($downloadQueue, $repositoryHash, 0, 0, 0, 0, 0, 1) > -1 Then	ContinueLoop
 
 
@@ -235,6 +253,8 @@ Func getUncachedDownloadList($PackID, $dataFolder)
 
 		; Total download filesize
 		$totalFileSize = $totalFileSize + $repositoryFilesize
+
+
 
 	Next
 
@@ -261,6 +281,96 @@ Func getUncachedDownloadList($PackID, $dataFolder)
 
 
 	Return $downloadQueue
+
+EndFunc
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: addCompressedVolumesToDownloadQueue
+; Description ...: Adds the compressed file and all its volume files if split to the download queue
+; Syntax ........: addCompressedVolumesToDownloadQueue($hash, $PackXMLDatabaseCompressed, Byref $downloadQueue)
+; Parameters ....: $hash                		- The hash value of the original compressed file.
+;                  $PackXMLDatabaseCompressed	- The Compressed section in <PackID>.xml
+;                  $downloadQueue       		- [in/out] The download queue.
+; Return values .: Total filesize of the volumes combined.
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func addCompressedVolumesToDownloadQueue($hash, $PackXMLDatabaseCompressed, ByRef $downloadQueue)
+	Local $parentHash
+	Local $items
+	Local $totalFileSize
+
+	; Pack Database structure
+	Local $repositoryCompressedDestinationFilename
+	Local $repositoryCompressedDestinationExtract
+	Local $repositoryCompressedDestinationPath
+	Local $repositoryCompressedHash
+	Local $repositoryCompressedFilesize
+
+	; Download Queue structure
+	Local $downloadQueueSourceLocation
+	Local $downloadQueueSourceFilename
+	Local $downloadQueueDestinationLocation
+	Local $downloadQueueDestinationFilename
+	Local $downloadQueueSourceHash
+	Local $downloadQueueFilesize
+
+
+	; Find all volumes
+	For $i = 0 To UBound($PackXMLDatabaseCompressed) - 1
+
+		$repositoryCompressedDestinationFilename = $PackXMLDatabaseCompressed[$i][0]
+		$repositoryCompressedDestinationExtract =$PackXMLDatabaseCompressed[$i][1]
+		$repositoryCompressedDestinationPath = $PackXMLDatabaseCompressed[$i][2]
+		$repositoryCompressedHash = $PackXMLDatabaseCompressed[$i][3]
+		$repositoryCompressedFilesize = $PackXMLDatabaseCompressed[$i][4]
+
+		; Remove .7z.xxx from the volume filename to get the parent Hash value
+		$parentHash = StringLeft($repositoryCompressedDestinationFilename, StringLen($repositoryCompressedDestinationFilename) - 7)
+
+
+		If $parentHash = $hash Then
+			; Check if file already exist
+			If FileExists($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryCompressedDestinationFilename) And $repositoryCompressedFilesize > 0 Then
+
+				; Check if local file hash matches
+				If $repositoryCompressedHash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryCompressedDestinationFilename, $CALG_SHA1) Then
+
+					; Valid file already exsits, skipping download
+					ContinueLoop
+
+				EndIf
+			EndIf
+
+			; Add to download queue
+			$downloadQueueSourceLocation =  $PackRepository & "/packdata/modpacks/" & $PackID & "/cache"
+			$downloadQueueSourceFilename = $repositoryCompressedDestinationFilename
+			$downloadQueueDestinationLocation = $dataFolder & "\PackData\ModPacks\" & $PackID & "\Cache"
+			$downloadQueueDestinationFilename = $repositoryCompressedDestinationFilename
+			$downloadQueueSourceHash = $repositoryCompressedHash
+			$downloadQueueFilesize = $repositoryCompressedFilesize
+
+			$items = $downloadQueueSourceLocation  & "|" & $downloadQueueSourceFilename & "|" & $downloadQueueDestinationLocation & "|" & $downloadQueueDestinationFilename & "|" & $downloadQueueSourceHash & "|" & $downloadQueueFilesize
+
+			; Add compressed volume file to the download queue
+			_ArrayAdd($downloadQueue, $items)
+
+
+			; Total filesize of volumes
+			$totalFileSize = $totalFileSize + $repositoryCompressedFilesize
+
+		EndIf
+
+	Next
+
+
+	Return $totalFileSize
 
 EndFunc
 
@@ -299,6 +409,10 @@ Func cacheFiles($PackRepository, $downloadQueue, $PackID, $dataFolder)
 	Local $downloadQueueTotalFilesize = $downloadQueue[0][5]
 
 	Local $totalBytesDownloaded = 0
+
+	; Sa ity check - If there is nothing to download then return
+	If $downloadQueueCount = 0 Then Return
+
 
 	; Disable Parent GUI's
 	GUISetState(@SW_DISABLE, $frmPackSelection)
@@ -344,10 +458,6 @@ EndFunc
 
 
 
-
-
-
-
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: getStatusInfoOfUncachedFiles
 ; Description ...: Return a 1d array containing a list of uncached filenames
@@ -370,13 +480,31 @@ Func getStatusInfoOfUncachedFiles($PackID, $dataFolder, ByRef $totalFileSize)
 	Local $hash
 	Local $totalFiles
 	Local $percentage
+	Local $PackXMLDatabaseCompressed
+
+	; Pack Database structure
+	Local $repositoryDestinationFilename
+	Local $repositoryDestinationExtract
+	Local $repositoryDestinationPath
+	Local $repositoryHash
+	Local $repositoryFilesize
+
+
+	; Load <PackID>.xml if not already loaded
+	If UBound($PackXMLDatabaseCurrentFiles) = 0 or $PackID <> $PackXMLDatabaseID Then
+
+		writeLogEchoToConsole("[Info]: Parsing pack database from " & $PackID & ".xml" & @CRLF & @CRLF)
+
+		$PackXMLDatabaseCurrentFiles = getXMLfilesFromSection($PackID, $dataFolder, "Files")
+
+	EndIf
 
 	; Store packID for currentXMLFiles
 	$PackXMLDatabaseID = $PackID
 
-	; Load <PackID>.xml
-	$PackXMLDatabaseCurrentFiles = getXMLfilesFromSection($PackID, $dataFolder, "Files")
 
+	; Load Compressed section from <PackID>.xml
+	$PackXMLDatabaseCompressed = getXMLfilesFromSection($PackID, $dataFolder, "Compressed")
 
 	; Total files in Files section
 	$totalFiles = UBound($PackXMLDatabaseCurrentFiles) - 1
@@ -387,7 +515,16 @@ Func getStatusInfoOfUncachedFiles($PackID, $dataFolder, ByRef $totalFileSize)
 	; Startup crypt libary to speedup hash generation
 	_Crypt_Startup()
 
+
 	For $i = 0 To $totalFiles
+
+		; Populate database structure
+		$repositoryDestinationFilename = $PackXMLDatabaseCurrentFiles[$i][0]
+		$repositoryDestinationExtract = $PackXMLDatabaseCurrentFiles[$i][1]
+		$repositoryDestinationPath = $PackXMLDatabaseCurrentFiles[$i][2]
+		$repositoryHash = $PackXMLDatabaseCurrentFiles[$i][3]
+		$repositoryFilesize = $PackXMLDatabaseCurrentFiles[$i][4]
+
 
 		; Display progress percentage
 		$percentage = Round($i / $totalFiles * 100, 2)
@@ -402,26 +539,29 @@ Func getStatusInfoOfUncachedFiles($PackID, $dataFolder, ByRef $totalFileSize)
 
 
 		; Skip if remote file size is 0
-		If $PackXMLDatabaseCurrentFiles[$i][4] = 0 Then ContinueLoop
+		If $repositoryFilesize = 0 Then ContinueLoop
 
 
 		; Verify file if it already exists
-		If FileExists($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $PackXMLDatabaseCurrentFiles[$i][3]) Then
+		If FileExists($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryHash) Then
 
-			$hash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $PackXMLDatabaseCurrentFiles[$i][3], $CALG_SHA1)
+			$hash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryHash, $CALG_SHA1)
 
 			; File verified, skipping file
-			If $hash = $PackXMLDatabaseCurrentFiles[$i][3] then	ContinueLoop
+			If $hash = $repositoryHash then	ContinueLoop
 
 		EndIf
 
-
+		;Is the file compressed?
+		If $repositoryDestinationExtract = "True" Then
+			$repositoryFilesize = getFilesizeOfUncachedVolume($PackID, $repositoryHash, $PackXMLDatabaseCompressed)
+		EndIf
 
 		; Unique cache file found
-		_ArrayAdd($uncachedFiles, $PackXMLDatabaseCurrentFiles[$i][2] & "\" & $PackXMLDatabaseCurrentFiles[$i][0] & "#ADD")
+		_ArrayAdd($uncachedFiles, $repositoryDestinationPath & "\" & $repositoryDestinationFilename & "#ADD")
 
 		; Total download filesize
-		$filesize = $filesize + $PackXMLDatabaseCurrentFiles[$i][4]
+		$filesize = $filesize + $repositoryFilesize
 
 	Next
 
@@ -440,4 +580,138 @@ Func getStatusInfoOfUncachedFiles($PackID, $dataFolder, ByRef $totalFileSize)
 
 
 	Return $uncachedFiles
+EndFunc
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: getFilesizeOfUncachedVolume
+; Description ...: Gets the total filesize for all the unchaced files in the compressed section
+; Syntax ........: getFilesizeOfUncachedVolume($PackID, $hash, $PackXMLDatabaseCompressed)
+; Parameters ....: $PackID              		- The Pack ID.
+;                  $hash               		 	- Parent hash of compressed file.
+;                  $PackXMLDatabaseCompressed	- The Compressed section in <PackID>.xml
+; Return values .: Total Filesize of compressed file (All volumes)
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func getFilesizeOfUncachedVolume($PackID, $hash, $PackXMLDatabaseCompressed)
+	Local $parentHash
+	Local $totalFileSize
+
+	; Pack Database structure
+	Local $repositoryCompressedDestinationFilename
+	Local $repositoryCompressedDestinationExtract
+	Local $repositoryCompressedDestinationPath
+	Local $repositoryCompressedHash
+	Local $repositoryCompressedFilesize
+
+
+	; Find all volumes
+	For $i = 0 To UBound($PackXMLDatabaseCompressed) - 1
+
+		$repositoryCompressedDestinationFilename = $PackXMLDatabaseCompressed[$i][0]
+		$repositoryCompressedDestinationExtract =$PackXMLDatabaseCompressed[$i][1]
+		$repositoryCompressedDestinationPath = $PackXMLDatabaseCompressed[$i][2]
+		$repositoryCompressedHash = $PackXMLDatabaseCompressed[$i][3]
+		$repositoryCompressedFilesize = $PackXMLDatabaseCompressed[$i][4]
+
+		; Remove .7z.xxx from the volume filename to get the parent Hash value
+		$parentHash = StringLeft($repositoryCompressedDestinationFilename, StringLen($repositoryCompressedDestinationFilename) - 7)
+
+
+		If $parentHash = $hash Then
+			; Check if file already exist
+			If FileExists($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryCompressedDestinationFilename) And $repositoryCompressedFilesize > 0 Then
+
+				; Check if local file hash matches
+				If $repositoryCompressedHash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryCompressedDestinationFilename, $CALG_SHA1) Then
+
+					; Valid file already exsits, skipping download
+					ContinueLoop
+
+				EndIf
+			EndIf
+
+			; Total filesize of volumes
+			$totalFileSize = $totalFileSize + $repositoryCompressedFilesize
+
+		EndIf
+
+	Next
+
+
+	Return $totalFileSize
+
+EndFunc
+
+
+
+Func extractCache($PackID)
+	Local $PackXMLDatabaseCurrentFiles
+	Local $hash
+
+	; Pack Database structure
+	Local $repositoryDestinationFilename
+	Local $repositoryDestinationExtract
+	Local $repositoryDestinationPath
+	Local $repositoryHash
+	Local $repositoryFilesize
+
+
+	; Load <PackID>.xml if not already loaded
+	If UBound($PackXMLDatabaseCurrentFiles) = 0 or $PackID <> $PackXMLDatabaseID Then
+
+		writeLogEchoToConsole("[Info]: Parsing pack database from " & $PackID & ".xml" & @CRLF & @CRLF)
+
+		$PackXMLDatabaseCurrentFiles = getXMLfilesFromSection($PackID, $dataFolder, "Files")
+
+	EndIf
+
+	; Init 7Zip libs
+	_7ZipStartup()
+
+	; Find each compressed file
+	For $i = 0 to UBound($PackXMLDatabaseCurrentFiles) - 1
+
+		; Polulate database structure
+		$repositoryDestinationFilename = $PackXMLDatabaseCurrentFiles[$i][0]
+		$repositoryDestinationExtract = $PackXMLDatabaseCurrentFiles[$i][1]
+		$repositoryDestinationPath = $PackXMLDatabaseCurrentFiles[$i][2]
+		$repositoryHash = $PackXMLDatabaseCurrentFiles[$i][3]
+		$repositoryFilesize = $PackXMLDatabaseCurrentFiles[$i][4]
+
+
+		; File is not compressed skip
+		If $repositoryDestinationExtract <> "True" Then ContinueLoop
+
+
+		; Check if it needs to be extracted
+		If FileExists($dataFolder & "\PackData\ModPacks\" & $PackID & "\cache\" & $repositoryHash) Then
+
+			$hash = _Crypt_HashFile($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryHash, $CALG_SHA1)
+
+			If $hash = $repositoryHash Then
+
+				ContinueLoop
+			EndIf
+		EndIf
+
+
+		writeLogEchoToConsole("[Info]: Extracting - " & $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryHash & ".7z.001" & @CRLF)
+
+		_7ZIPExtract(0, $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryHash & ".7z.001", $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryHash)
+		If @error <> 0 Then
+			writeLogEchoToConsole("[Error]: Extracting file failed - " & $repositoryHash & ".7z.001" & @CRLF)
+		EndIf
+
+	Next
+
+	; Close 7Zip Libs
+	_7ZipShutdown()
+
 EndFunc

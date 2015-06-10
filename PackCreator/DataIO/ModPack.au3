@@ -532,7 +532,7 @@ Func saveCompressedPack($modID, $dataFolder)
 	$aCompressedFiles = getCompressedFilesInfo($modID, $dataFolder)
 
 
-
+;~  Need to refactor this >_<
 
 	; Open a new xml document for writing
 	$hFile = FileOpen(@ScriptDir & "\PackData\Modpacks\" & $modID & "\Data\" & $modID & ".xml", 10) ; erase + create dir
