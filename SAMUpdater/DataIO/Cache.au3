@@ -2,6 +2,7 @@
 #include <Array.au3>
 #include <Crypt.au3>
 #include <File.au3>
+#include <FileConstants.au3>
 #include <MsgBoxConstants.au3>
 #include "..\DataIO\7Zip.au3"
 #include "..\DataIO\XML.au3"
@@ -702,11 +703,19 @@ Func extractCache($PackID)
 		EndIf
 
 
-		writeLogEchoToConsole("[Info]: Extracting - " & $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryHash & ".7z.001" & @CRLF)
+		trimPathToFitConsole("[Info]: Extracting - ", $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryHash & ".7z.001")
+		; Extract compressed cache file
+		_7ZIPExtract(0, $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryHash & ".7z.001", $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache")
 
-		_7ZIPExtract(0, $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryHash & ".7z.001", $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryHash)
 		If @error <> 0 Then
-			writeLogEchoToConsole("[Error]: Extracting file failed - " & $repositoryHash & ".7z.001" & @CRLF)
+			writeLogEchoToConsole("[Error]: Extracting compressed cache file failed - " & $repositoryHash & ".7z.001" & @CRLF)
+			MsgBox(48,"Unable to decompress cahce file!", "Please make sure the file or folder is not currently in use or open." & @CRLF & "Click OK to close SAMUpdater")
+			Exit
+		EndIf
+
+		; Rename extracted file to the Hash value
+		If Not FileMove($dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryDestinationFilename, $dataFolder & "\PackData\Modpacks\" & $PackID & "\cache\" & $repositoryHash,  $FC_OVERWRITE) Then
+			writeLogEchoToConsole("[Error]: Renaming cache file failed - " & $repositoryDestinationFilename & @CRLF)
 		EndIf
 
 	Next
