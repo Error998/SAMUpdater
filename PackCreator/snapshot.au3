@@ -25,10 +25,10 @@ setConsoleColor($FOREGROUND_Light_Green)
 
 func Test()
 	Dim $aFilesServer
-	Dim $sPathServer = @AppDataDir & "\.minecraft"
+	Dim $sPathServer = "C:\Games Installed\Terraria"
 
 	Dim $aFilesClient
-	Dim $sPathClient = @DesktopDir & "\current\.minecraft"
+	Dim $sPathClient = @DesktopDir & "\TestServer\Terraria"
 
 	Dim $aAddedFiles
 	Dim $aRemovedFiles
@@ -104,14 +104,17 @@ Func modpackStats()
 
 EndFunc
 
-Local $modID = "KSP"
-Dim $pathToSourceFiles = "C:\Data\Games - ISO\Kerbal Space Program\Kerbal Space Program"
+Local $modID = "Terraria"
+Dim $pathToSourceFiles = @DesktopDir & "\TestServer\Terraria"
+
+;~ Local $modID = "KSP"
+;~ Dim $pathToSourceFiles = "C:\Data\Games - ISO\Kerbal Space Program\Kerbal Space Program"
 
 ;~ Local $modID = "StarMade"
 ;~ Dim $pathToSourceFiles = @DesktopDir & "\TestServer\StarMade"
 
 ;~ Local $modID = "Mechanical"
-;~ Dim $pathToSourceFiles = @DesktopDir & "\TestServer\New Age Update 6\.minecraft"
+;~ Dim $pathToSourceFiles = @DesktopDir & "\TestServer\New Age Update 7\.minecraft"
 
 ;Local $modID = "Crash_Landing"
 ;Dim $pathToSourceFiles = "C:\Users\Jock\Desktop\TestServer\Crash_Landing\Update 1.1.3\.minecraft"
@@ -127,10 +130,12 @@ writeLogEchoToConsole("Folders initialized" & @CRLF & @CRLF)
 
 saveModpack($modID, @ScriptDir, $pathToSourceFiles)
 
-;modpackStats()
+modpackStats()
 
-;updateCachefromXML($modID, @ScriptDir, $pathToSourceFiles)
+updateCachefromXML($modID, @ScriptDir, $pathToSourceFiles)
 
-;splitLargeFiles($modID, @ScriptDir)
+splitLargeFiles($modID, @ScriptDir)
 
 saveCompressedPack($modID, @ScriptDir)
+
+modpackStats()

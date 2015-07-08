@@ -12,8 +12,6 @@ Func updateCacheFromXML($modID, $dataFolder, $pathToSourceFiles)
 	Dim $currentXMLfiles  ; All files that exist in the current modpack
 	Local $file
 	Local $hash
-	Local $total
-	Local $percentage
 
 	ConsoleWrite("[Info]: Reading files from " & $modID & ".xml" & @CRLF)
 	$currentXMLfiles = getXMLfilesFromSection($modID, @ScriptDir, "Files")
@@ -23,10 +21,7 @@ Func updateCacheFromXML($modID, $dataFolder, $pathToSourceFiles)
 	_Crypt_Startup()
 
 	ConsoleWrite("[Info]: Creating cache..." & @CRLF)
-	$total = UBound($currentXMLfiles) - 1
-	For $i = 0 to $total
-		$percentage = Round($i / $total * 100)
-		ConsoleWrite(@LF & $percentage & "%")
+	For $i = 0 to UBound($currentXMLfiles) - 1
 		; Path + Filename
 		$file = $pathToSourceFiles & "\" & $currentXMLfiles[$i][2] & "\" & $currentXMLfiles[$i][0]
 
@@ -38,8 +33,6 @@ Func updateCacheFromXML($modID, $dataFolder, $pathToSourceFiles)
 			Exit
 		EndIf
 
-		; Skip if file is compressed
-		If $currentXMLfiles[$i][1] = "True" Then ContinueLoop
 
 		; Calculate source file hash
 		$hash = _Crypt_HashFile($file, $CALG_SHA1)
@@ -65,6 +58,6 @@ Func updateCacheFromXML($modID, $dataFolder, $pathToSourceFiles)
 	; Shutdown the crypt library.
 	_Crypt_Shutdown()
 
-	ConsoleWrite(@CRLF & "[Info]: Cache updated successfully" & @CRLF)
+	ConsoleWrite("[Info]: Cache updated successfully" & @CRLF)
 
 EndFunc
