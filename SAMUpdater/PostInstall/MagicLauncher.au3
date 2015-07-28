@@ -99,6 +99,7 @@ EndFunc
 Func createNewMagicLauncherConfig($modID, $forgeVersion, $defaultMaxMem)
 	Local $hFile
 	Local $appfolder
+	Local $minecraftJar
 
 	; Config already exists, exit function
 	If FileExists(@AppDataDir & "\.minecraft\magic\MagicLauncher.cfg") Then Return False
@@ -113,11 +114,13 @@ Func createNewMagicLauncherConfig($modID, $forgeVersion, $defaultMaxMem)
 		EndIf
 
 		$appfolder = convertPath(@AppDataDir)
+		$minecraftJar = getMinecraftJarFromForgeVersion($forgeVersion)
+
 
 		FileWriteLine($hFile, '<Profile')
 		FileWriteLine($hFile, '  <Name="' & $modID & '">')
 		FileWriteLine($hFile, '  <Environment="' & $forgeVersion & '">')
-		FileWriteLine($hFile, '  <MinecraftJar="' & $appfolder & '\\.minecraft\\versions\\' & $forgeVersion & '\\' & $forgeVersion & '.jar">')
+		FileWriteLine($hFile, '  <MinecraftJar="' & $appfolder & '\\.minecraft\\versions\\' & $minecraftJar & '\\' & $minecraftJar & '.jar">')
 		FileWriteLine($hFile, '  <ShowLog="true">')
 		FileWriteLine($hFile, '  <JavaParameters="-XX:MaxPermSize=192m -Dforge.forceNoStencil=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSIncrementalPacing -XX:ParallelGCThreads=2 -XX:+AggressiveOpts">')
 		FileWriteLine($hFile, '  <MaxMemory="' & $defaultMaxMem & '">')
@@ -140,6 +143,38 @@ Func createNewMagicLauncherConfig($modID, $forgeVersion, $defaultMaxMem)
 
 	; New config was created
 	Return True
+EndFunc
+
+
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: getMinecraftJarFromForgeVersion
+; Description ...: Calculate the MinecraftJar entry from the Forge Version required by Magic Launcher 1.3.0+ and Forge 10.13.4.1492+
+; Syntax ........: getMinecraftJarFromForgeVersion($forgeVersion)
+; Parameters ....: $forgeVersion        - The forge version the mod pack is using.
+; Return values .: Returns the MinecraftJar entry required by Magic Launcher
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......: Does not return xxx.jar only xxx
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func getMinecraftJarFromForgeVersion($forgeVersion)
+	Local $minecraftJar
+
+	; Get the left part before the Forge version number, should be what the minecraftJar is called
+	$minecraftJar = StringLeft($forgeVersion, StringInStr($forgeVersion,"-") - 1)
+
+
+	; If the above check failed just return the Forge version as is
+	If $minecraftJar = "" Then Return $forgeVersion
+
+
+	; Return the calculated MinecraftJar
+	Return $minecraftJar
 EndFunc
 
 
@@ -194,15 +229,17 @@ EndFunc
 ; ===============================================================================================================================
 Func insertProfile($modID, $forgeVersion, $aConfig, $defaultMaxMem)
 	Local $path
+	Local $minecraftJar
 
 	writeLogEchoToConsole("[Info]: No existing modpack profile was found - Adding new profile '" & $modID & "'" & @CRLF)
 
 	$path = convertPath(@AppDataDir)
+	$minecraftJar = getMinecraftJarFromForgeVersion($forgeVersion)
 
 	_ArrayInsert($aConfig, 1, '<Profile')
 	_ArrayInsert($aConfig, 2, '  <Name="' & $modID & '">')
 	_ArrayInsert($aConfig, 3, '  <Environment="' & $forgeVersion & '">')
-	_ArrayInsert($aConfig, 4, '  <MinecraftJar="' & $path & '\\.minecraft\\versions\\' & $forgeVersion & '\\' & $forgeVersion & '.jar">')
+	_ArrayInsert($aConfig, 4, '  <MinecraftJar="' & $path & '\\.minecraft\\versions\\' & $minecraftJar & '\\' & $minecraftJar & '.jar">')
 	_ArrayInsert($aConfig, 5, '  <ShowLog="true">')
 	_ArrayInsert($aConfig, 6, '  <JavaParameters="-XX:MaxPermSize=192m -Dforge.forceNoStencil=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSIncrementalPacing -XX:ParallelGCThreads=2 -XX:+AggressiveOpts">')
 	_ArrayInsert($aConfig, 7, '  <MaxMemory="' & $defaultMaxMem & '">')
@@ -332,6 +369,7 @@ Func updateProfile($modID, $forgeVersion, $aConfig, $profileStartIndex, $default
 	Local $profileEndIndex
 	Local $path
 	Local $maxMem
+	Local $minecraftJar
 
 	$profileEndIndex = findProfileEndIndex($profileStartIndex, $aConfig)
 
@@ -344,8 +382,11 @@ Func updateProfile($modID, $forgeVersion, $aConfig, $profileStartIndex, $default
 	; Convert path
 	$path = convertPath(@AppDataDir)
 
+	; Calculate new MinecraftJar needed by Forge 10.13.4.1492-1.7.10+
+	$minecraftJar = getMinecraftJarFromForgeVersion($forgeVersion)
+
 	; Update MinecraftJar
-	updateProfileTag($profileStartIndex, $profileEndIndex, "MinecraftJar", $path & "\\.minecraft\\versions\\" & $forgeVersion & "\\" & $forgeVersion & ".jar", $aConfig)
+	updateProfileTag($profileStartIndex, $profileEndIndex, "MinecraftJar", $path & "\\.minecraft\\versions\\" & $minecraftJar & "\\" & $minecraftJar & ".jar", $aConfig)
 
 
 	; Update ShowLog
