@@ -3,7 +3,7 @@
 #include <MsgBoxConstants.au3>
 #include "..\DataIO\Folders.au3"
 
-Opt('MustDeclareVars', 1)
+;Opt('MustDeclareVars', 1)
 
 
 

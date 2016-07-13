@@ -25,10 +25,10 @@ setConsoleColor($FOREGROUND_Light_Green)
 
 func Test()
 	Dim $aFilesServer
-	Dim $sPathServer = "C:\Games Installed\Terraria"
+	Dim $sPathServer = "C:\Users\Jock\AppData\Roaming\.minecraft"
 
 	Dim $aFilesClient
-	Dim $sPathClient = @DesktopDir & "\TestServer\Terraria"
+	Dim $sPathClient = @DesktopDir & "\.minecraft"
 
 	Dim $aAddedFiles
 	Dim $aRemovedFiles
@@ -104,8 +104,8 @@ Func modpackStats()
 
 EndFunc
 
-Local $modID = "Terraria"
-Dim $pathToSourceFiles = @DesktopDir & "\TestServer\Terraria"
+;~ Local $modID = "Terraria"
+;~ Dim $pathToSourceFiles = @DesktopDir & "\TestServer\Terraria"
 
 ;~ Local $modID = "KSP"
 ;~ Dim $pathToSourceFiles = "C:\Data\Games - ISO\Kerbal Space Program\Kerbal Space Program"
@@ -113,8 +113,8 @@ Dim $pathToSourceFiles = @DesktopDir & "\TestServer\Terraria"
 ;~ Local $modID = "StarMade"
 ;~ Dim $pathToSourceFiles = @DesktopDir & "\TestServer\StarMade"
 
-;~ Local $modID = "Mechanical"
-;~ Dim $pathToSourceFiles = @DesktopDir & "\TestServer\New Age Update 7\.minecraft"
+Local $modID = "189Experimental"
+Dim $pathToSourceFiles = "C:\Data\Build\189Experimental\.minecraft"
 
 ;Local $modID = "Crash_Landing"
 ;Dim $pathToSourceFiles = "C:\Users\Jock\Desktop\TestServer\Crash_Landing\Update 1.1.3\.minecraft"

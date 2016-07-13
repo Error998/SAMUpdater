@@ -1,6 +1,7 @@
 #include-once
 #include "MagicLauncher.au3"
 #include "Application.au3"
+#include "..\DataIO\Folders.au3"
 
 Opt('MustDeclareVars', 1)
 
@@ -52,26 +53,40 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 Func PostInstallMagicLauncher($PackID, $dataFolder)
-	Local $packType
-	Local $ForgeVersion
-	Local $RAM
+   Local $packType
+   Local $profileName, $enviroment, $minecraftJar, $showLog, $javaParameters, $maxMemory
 
 
-	$packType = IniRead($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\"  & $PackID & ".ini", "General", "PackType", "Generic")
+   $packType = IniRead($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\"  & $PackID & ".ini", "General", "PackType", "Generic")
 
-	; If not MagicLaucher pack type then skip
-	If $packType <> "MagicLauncher" Then Return
-
-
-	; Get the Forge version of the pack
-	$ForgeVersion = IniRead($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\"  & $PackID & ".ini", $packType, "ForgeVersion", "")
-
-	; Get the RAM setting for the Magic Launcher Profile
-	$RAM = Int(IniRead($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\"  & $PackID & ".ini", $packType, "RAM", "1536"))
+   ; If not MagicLaucher pack type then skip
+   If $packType <> "MagicLauncher" Then Return
 
 
+   ; Magic Launcher profile name
+   $profileName = IniRead($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\"  & $PackID & ".ini", $packType, "Name", $PackID)
 
-	configureMagicLauncher($PackID, $ForgeVersion, $RAM)
+   ; Magic Launcher Enviroment
+   $enviroment = IniRead($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\"  & $PackID & ".ini", $packType, "Enviroment", "Classic")
+
+   ; Path to the minecraft jar
+   $minecraftJar  = IniRead($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\"  & $PackID & ".ini", $packType, "MinecraftJar", "")
+   $minecraftJar = parsePath($minecraftJar)
+   ; Convert to double \\ format
+   $minecraftJar = convertPath($minecraftJar)
+
+   ; Show Magic Launcher log window
+   $showLog  = IniRead($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\"  & $PackID & ".ini", $packType, "ShowLog", "true")
+
+   ; Java VM Parameters that should be used with this Magic Launcher profile
+   $javaParameters  = IniRead($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\"  & $PackID & ".ini", $packType, "JavaParameters", "-Xmn768m -XX:+DisableExplicitGC -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+UseNUMA -XX:+CMSParallelRemarkEnabled -XX:MaxGCPauseMillis=30 -XX:GCPauseIntervalMillis=150 -XX:+UseAdaptiveGCBoundary -XX:-UseGCOverheadLimit -XX:+UseBiasedLocking -XX:SurvivorRatio=8 -XX:TargetSurvivorRatio=90 -XX:MaxTenuringThreshold=15 -Dfml.ignorePatchDiscrepancies=true -Dfml.ignoreInvalidMinecraftCertificates=true -XX:+UseFastAccessorMethods -XX:+UseCompressedOops -XX:+OptimizeStringConcat -XX:+AggressiveOpts -XX:ReservedCodeCacheSize=2048m -XX:+UseCodeCacheFlushing -XX:SoftRefLRUPolicyMSPerMB=10000 -XX:ParallelGCThreads=10")
+
+   ; Get the RAM setting for the Magic Launcher Profile
+   $maxMemory = Int(IniRead($dataFolder & "\PackData\ModPacks\" & $PackID & "\Data\"  & $PackID & ".ini", $packType, "MaxMemory", "3072"))
+
+
+
+   configureMagicLauncher($PackID, $profileName, $enviroment, $minecraftJar, $showLog, $javaParameters, $maxMemory)
 
 
 EndFunc

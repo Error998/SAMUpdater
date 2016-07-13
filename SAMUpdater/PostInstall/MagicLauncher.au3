@@ -7,9 +7,14 @@ Opt('MustDeclareVars', 1)
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: configureMagicLauncher
 ; Description ...: Auto configures MagicLauncher to add or update a profile with name $modID
-; Syntax ........: configureMagicLauncher($modID, $forgeVersion)
+; Syntax ........: configureMagicLauncher($modID, $profileName, $enviroment, $minecraftJar, $showLog, $javaParameters, $maxMemory)
 ; Parameters ....: $modID               - The modID.
-;                  $forgeVersion        - The version of forge that the modpack uses.
+;				   $profileName			- The Magic Launcher Profile name
+;				   $enviroment			- The Magic Launcher enviroment to use
+;				   $minecraftJar		- The path to the minecraft jar
+;				   $showLog				- Display the Magic Launcher log window
+;				   $javaParameters		- Java VM parameters to use
+;                  $maxMemory	        - Max memory allocation
 ; Return values .: None
 ; Author ........: Error_998
 ; Modified ......:
@@ -18,7 +23,7 @@ Opt('MustDeclareVars', 1)
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func configureMagicLauncher($modID, $forgeVersion, $defaultMaxMem)
+Func configureMagicLauncher($modID, $profileName, $enviroment, $minecraftJar, $showLog, $javaParameters, $maxMemory)
 	Local $aConfig
 	Local $profileStartIndex
 
@@ -26,7 +31,7 @@ Func configureMagicLauncher($modID, $forgeVersion, $defaultMaxMem)
 	writeLogEchoToConsole("[Info]: Auto configuration of MagicLauncher started..." & @CRLF)
 
 	; If a config was made from scratch exit function
-	If createNewMagicLauncherConfig($modID, $forgeVersion, $defaultMaxMem) Then Return
+	If createNewMagicLauncherConfig($modID, $profileName, $enviroment, $minecraftJar, $showLog, $javaParameters, $maxMemory) Then Return
 
 
 	; Read MagicLauncher.cfg
@@ -34,12 +39,12 @@ Func configureMagicLauncher($modID, $forgeVersion, $defaultMaxMem)
 
 
 	; Get the profile start index
-	$profileStartIndex = findProfileStartIndex($modID, $aConfig)
+	$profileStartIndex = findProfileStartIndex($profileName, $aConfig)
 
 
 	; Profile not found, create it
 	If $profileStartIndex = 0 Then
-		insertProfile($modID, $forgeVersion, $aConfig, $defaultMaxMem)
+		insertProfile($modID, $profileName, $enviroment, $minecraftJar, $showLog, $javaParameters, $maxMemory, $aConfig)
 
 		; New configured profile was inserted and saved
 		Return
@@ -47,7 +52,7 @@ Func configureMagicLauncher($modID, $forgeVersion, $defaultMaxMem)
 
 
 	; Profile found - update it
-	updateProfile($modID, $forgeVersion, $aConfig, $profileStartIndex, $defaultMaxMem)
+	updateProfile($modID, $profileName, $enviroment, $minecraftJar, $showLog, $javaParameters, $maxMemory, $aConfig, $profileStartIndex)
 
 
 EndFunc
@@ -85,9 +90,14 @@ EndFunc
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: createMagicLauncherConfig
 ; Description ...: Create a valid MagicLauncher.cfg file from scratch
-; Syntax ........: createMagicLauncherConfig($modID, $forgeVersion)
+; Syntax ........: createMagicLauncherConfig($modID, $profileName, $enviroment, $minecraftJar, $showLog, $javaParameters, $maxMemory)
 ; Parameters ....: $modID               - The modID.
-;                  $forgeVersion        - The forge version the mod pack is using.
+;				   $profileName			- The Magic Launcher Profile name
+;				   $enviroment			- The Magic Launcher enviroment to use
+;				   $minecraftJar		- The path to the minecraft jar
+;				   $showLog				- Display the Magic Launcher log window
+;				   $javaParameters		- Java VM parameters to use
+;                  $maxMemory	        - Max memory allocation
 ; Return values .: None
 ; Author ........: Error_998
 ; Modified ......:
@@ -96,10 +106,9 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func createNewMagicLauncherConfig($modID, $forgeVersion, $defaultMaxMem)
+Func createNewMagicLauncherConfig($modID, $profileName, $enviroment, $minecraftJar, $showLog, $javaParameters, $maxMemory)
 	Local $hFile
-	Local $appfolder
-	Local $minecraftJar
+    Local $appfolder
 
 	; Config already exists, exit function
 	If FileExists(@AppDataDir & "\.minecraft\magic\MagicLauncher.cfg") Then Return False
@@ -112,18 +121,15 @@ Func createNewMagicLauncherConfig($modID, $forgeVersion, $defaultMaxMem)
 			MsgBox(48, "Error creating file", "Unable to create MagicLauncher config file - " & @AppDataDir & "\.minecraft\magic\MagicLauncher.cfg")
 			Exit
 		EndIf
-
 		$appfolder = convertPath(@AppDataDir)
-		$minecraftJar = getMinecraftJarFromForgeVersion($forgeVersion)
-
 
 		FileWriteLine($hFile, '<Profile')
-		FileWriteLine($hFile, '  <Name="' & $modID & '">')
-		FileWriteLine($hFile, '  <Environment="' & $forgeVersion & '">')
-		FileWriteLine($hFile, '  <MinecraftJar="' & $appfolder & '\\.minecraft\\versions\\' & $minecraftJar & '\\' & $minecraftJar & '.jar">')
-		FileWriteLine($hFile, '  <ShowLog="true">')
-		FileWriteLine($hFile, '  <JavaParameters="-XX:MaxPermSize=192m -Dforge.forceNoStencil=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSIncrementalPacing -XX:ParallelGCThreads=2 -XX:+AggressiveOpts">')
-		FileWriteLine($hFile, '  <MaxMemory="' & $defaultMaxMem & '">')
+		FileWriteLine($hFile, '  <Name="' & $profileName & '">')
+		FileWriteLine($hFile, '  <Environment="' & $enviroment & '">')
+		FileWriteLine($hFile, '  <MinecraftJar="' & $minecraftJar & '">')
+		FileWriteLine($hFile, '  <ShowLog="' & $showLog & '">')
+		FileWriteLine($hFile, '  <JavaParameters="' & $javaParameters & '">')
+		FileWriteLine($hFile, '  <MaxMemory="' & $maxMemory & '">')
 		FileWriteLine($hFile, '  <BaseDir="' & $appfolder & '\\.minecraft\\Modpacks\\' & $modID & '\\.minecraft">')
 		FileWriteLine($hFile, '  <InactiveExternalMods=>')
 		FileWriteLine($hFile, '  <InactiveCoreMods=>')
@@ -150,45 +156,13 @@ EndFunc
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name ..........: getMinecraftJarFromForgeVersion
-; Description ...: Calculate the MinecraftJar entry from the Forge Version required by Magic Launcher 1.3.0+ and Forge 10.13.4.1492+
-; Syntax ........: getMinecraftJarFromForgeVersion($forgeVersion)
-; Parameters ....: $forgeVersion        - The forge version the mod pack is using.
-; Return values .: Returns the MinecraftJar entry required by Magic Launcher
-; Author ........: Error_998
-; Modified ......:
-; Remarks .......: Does not return xxx.jar only xxx
-; Related .......:
-; Link ..........:
-; Example .......: No
-; ===============================================================================================================================
-Func getMinecraftJarFromForgeVersion($forgeVersion)
-	Local $minecraftJar
-
-	; Get the left part before the Forge version number, should be what the minecraftJar is called
-	$minecraftJar = StringLeft($forgeVersion, StringInStr($forgeVersion,"-") - 1)
-
-
-	; If the above check failed just return the Forge version as is
-	If $minecraftJar = "" Then Return $forgeVersion
-
-
-	; Return the calculated MinecraftJar
-	Return $minecraftJar
-EndFunc
-
-
-
-
-
-; #FUNCTION# ====================================================================================================================
 ; Name ..........: findProfileIndex
-; Description ...: Find the index of the profile with name $modID
-; Syntax ........: findProfileIndex($modID, $aConfig)
-; Parameters ....: $modID               - The modID.
+; Description ...: Find the index of the profile with name $profileName
+; Syntax ........: findProfileIndex($profileName, $aConfig)
+; Parameters ....: $profileName         - The profile name to find.
 ;                  $aConfig             - An array containing the MagicLauncher config.
 ; Return values .: 0					- Profile index not found
-;				 : > 0					- Index of the <Name="$modID"> entry
+;				 : > 0					- Index of the <Name="$profileName"> entry
 ; Author ........: Error_998
 ; Modified ......:
 ; Remarks .......:
@@ -196,11 +170,11 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func findProfileStartIndex($modID, $aConfig)
+Func findProfileStartIndex($profileName, $aConfig)
 
 	For $i = 1 To $aConfig[0]
 
-		If $aConfig[$i] = '  <Name="' & $modID & '">' Then Return $i
+		If $aConfig[$i] = '  <Name="' & $profileName & '">' Then Return $i
 
 	Next
 
@@ -215,9 +189,14 @@ EndFunc
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: insertProfile
 ; Description ...: Insert a new configured profile into MagicLauncher.cfg and save it.
-; Syntax ........: insertProfile($modID, $forgeVersion, $aConfig)
+; Syntax ........: insertProfile($modID, $profileName, $enviroment, $minecraftJar, $showLog, $javaParameters, $maxMemory, $aConfig)
 ; Parameters ....: $modID               - The modID.
-;                  $forgeVersion        - The forge version for this modpack.
+;				   $profileName			- The Magic Launcher Profile name
+;				   $enviroment			- The Magic Launcher enviroment to use
+;				   $minecraftJar		- The path to the minecraft jar
+;				   $showLog				- Display the Magic Launcher log window
+;				   $javaParameters		- Java VM parameters to use
+;                  $maxMemory	        - Max memory allocation
 ;                  $aConfig             - An array containing the MagicLauncher config.
 ; Return values .: None
 ; Author ........: Error_998
@@ -227,22 +206,20 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func insertProfile($modID, $forgeVersion, $aConfig, $defaultMaxMem)
-	Local $path
-	Local $minecraftJar
+Func insertProfile($modID, $profileName, $enviroment, $minecraftJar, $showLog, $javaParameters, $maxMemory, $aConfig)
+	local $path
 
-	writeLogEchoToConsole("[Info]: No existing modpack profile was found - Adding new profile '" & $modID & "'" & @CRLF)
+	writeLogEchoToConsole("[Info]: No existing modpack profile was found - Adding new profile '" & $profileName & "'" & @CRLF)
 
-	$path = convertPath(@AppDataDir)
-	$minecraftJar = getMinecraftJarFromForgeVersion($forgeVersion)
+    $path = convertPath(@AppDataDir)
 
 	_ArrayInsert($aConfig, 1, '<Profile')
-	_ArrayInsert($aConfig, 2, '  <Name="' & $modID & '">')
-	_ArrayInsert($aConfig, 3, '  <Environment="' & $forgeVersion & '">')
-	_ArrayInsert($aConfig, 4, '  <MinecraftJar="' & $path & '\\.minecraft\\versions\\' & $minecraftJar & '\\' & $minecraftJar & '.jar">')
-	_ArrayInsert($aConfig, 5, '  <ShowLog="true">')
-	_ArrayInsert($aConfig, 6, '  <JavaParameters="-XX:MaxPermSize=192m -Dforge.forceNoStencil=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSIncrementalPacing -XX:ParallelGCThreads=2 -XX:+AggressiveOpts">')
-	_ArrayInsert($aConfig, 7, '  <MaxMemory="' & $defaultMaxMem & '">')
+	_ArrayInsert($aConfig, 2, '  <Name="' & $profileName & '">')
+	_ArrayInsert($aConfig, 3, '  <Environment="' & $enviroment & '">')
+	_ArrayInsert($aConfig, 4, '  <MinecraftJar="' & $minecraftJar & '">')
+	_ArrayInsert($aConfig, 5, '  <ShowLog="' & $showLog & '">')
+	_ArrayInsert($aConfig, 6, '  <JavaParameters="' & $javaParameters & '">')
+	_ArrayInsert($aConfig, 7, '  <MaxMemory="' & $maxMemory & '">')
 	_ArrayInsert($aConfig, 8, '  <BaseDir="' & $path & '\\.minecraft\\Modpacks\\' & $modID & '\\.minecraft">')
 	_ArrayInsert($aConfig, 9, '  <InactiveExternalMods=>')
 	_ArrayInsert($aConfig, 10, '  <InactiveCoreMods=>')
@@ -352,9 +329,14 @@ EndFunc
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: updateProfile
 ; Description ...: Update an existing profile that is named $modID
-; Syntax ........: updateProfile($modID, $forgeVersion, $aConfig, $profileStartIndex)
+; Syntax ........: updateProfile($modID, $profileName, $enviroment, $minecraftJar, $showLog, $javaParameters, $maxMemory, $aConfig, $profileStartIndex)
 ; Parameters ....: $modID               - The modID.
-;                  $forgeVersion        - The version of forge used by the modpack.
+;				   $profileName			- The Magic Launcher Profile name
+;				   $enviroment			- The Magic Launcher enviroment to use
+;				   $minecraftJar		- The path to the minecraft jar
+;				   $showLog				- Display the Magic Launcher log window
+;				   $javaParameters		- Java VM parameters to use
+;                  $maxMemory	        - Max memory allocation
 ;                  $aConfig             - An array containing the MagicLauncher config.
 ;                  $profileStartIndex   - Profile start index.
 ; Return values .: None
@@ -365,40 +347,36 @@ EndFunc
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func updateProfile($modID, $forgeVersion, $aConfig, $profileStartIndex, $defaultMaxMem)
+Func updateProfile($modID, $profileName, $enviroment, $minecraftJar, $showLog, $javaParameters, $maxMemory, $aConfig, $profileStartIndex)
 	Local $profileEndIndex
 	Local $path
-	Local $maxMem
-	Local $minecraftJar
+
 
 	$profileEndIndex = findProfileEndIndex($profileStartIndex, $aConfig)
+    $path = convertPath(@AppDataDir)
 
-	$maxMem = getMaxMem($profileStartIndex, $profileEndIndex, $aConfig, $defaultMaxMem)
+
+	; Keep clients maxMemory setting if it is larger than the default
+	$maxMemory = getMaxMem($profileStartIndex, $profileEndIndex, $aConfig, $maxMemory)
 
 	; Update Environment
-	updateProfileTag($profileStartIndex, $profileEndIndex, "Environment", $forgeVersion, $aConfig)
+	updateProfileTag($profileStartIndex, $profileEndIndex, "Environment", $enviroment, $aConfig)
 
-
-	; Convert path
-	$path = convertPath(@AppDataDir)
-
-	; Calculate new MinecraftJar needed by Forge 10.13.4.1492-1.7.10+
-	$minecraftJar = getMinecraftJarFromForgeVersion($forgeVersion)
 
 	; Update MinecraftJar
-	updateProfileTag($profileStartIndex, $profileEndIndex, "MinecraftJar", $path & "\\.minecraft\\versions\\" & $minecraftJar & "\\" & $minecraftJar & ".jar", $aConfig)
+	updateProfileTag($profileStartIndex, $profileEndIndex, "MinecraftJar", $minecraftJar, $aConfig)
 
 
 	; Update ShowLog
-	updateProfileTag($profileStartIndex, $profileEndIndex, "ShowLog", "true", $aConfig)
+	updateProfileTag($profileStartIndex, $profileEndIndex, "ShowLog", $showLog, $aConfig)
 
 
 	; Update JavaParameters
-	updateProfileTag($profileStartIndex, $profileEndIndex, "JavaParameters", "-XX:MaxPermSize=192m -Dforge.forceNoStencil=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSIncrementalPacing -XX:ParallelGCThreads=2 -XX:+AggressiveOpts", $aConfig)
+	updateProfileTag($profileStartIndex, $profileEndIndex, "JavaParameters", $javaParameters, $aConfig)
 
 
 	; Update MaxMemory
-	updateProfileTag($profileStartIndex, $profileEndIndex, "MaxMemory", $maxMem, $aConfig)
+	updateProfileTag($profileStartIndex, $profileEndIndex, "MaxMemory", $maxMemory, $aConfig)
 
 
 	; Update BaseDir
@@ -522,7 +500,22 @@ EndFunc
 
 
 
-
+; #FUNCTION# ====================================================================================================================
+; Name ..........: getMaxMem
+; Description ...: Check the existing maxMemory used in the profile and return whatever is bigger between current and default mem
+; Syntax ........: getMaxMem($profileStartIndex, $profileEndIndex, $aConfig, $defaultMaxMem)
+; Parameters ....: $profileStartIndex   - The start index of the profile.
+;                  $profileEndIndex     - The end index of the profile.
+;                  $aConfig             - [in/out] An array containing the MagicLauncher config.
+;				   $defaultMaxMem		- Default max memory setting
+; Return values .: None
+; Author ........: Error_998
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
 Func getMaxMem($profileStartIndex, $profileEndIndex, $aConfig, $defaultMaxMem)
 	Local $maxMem
 
