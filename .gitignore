@@ -1,3 +1,4 @@
 PackCreator/PackData/**/*
 PackCreator/Logs/**/*
 *.exe
+Utils/version.ini

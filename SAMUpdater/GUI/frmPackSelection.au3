@@ -14,9 +14,6 @@
 Opt("GUIOnEventMode", 1)
 
 
-; Number of modpack and ctrl id of the 2 buttons and label of the modpack region
-Global $ctrlIDs[5][3]
-
 ; The zero based index of the modpack to download - Used as return value
 Global $downloadPacknum = -1
 
@@ -410,6 +407,8 @@ Func createPackSelectionGUI()
 	; Pack News control
 	Global $hRichEdit = _GUICtrlRichEdit_Create($frmPackSelection, "",456, 216,400, 255, BitOR($ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL, $ES_READONLY ))
 
+	; Number of modpacks and ctrl id of the 2 buttons and label of the modpack region
+	Global $ctrlIDs[ UBound($packs) ][ 3 ]
 
 	; Show main form
 	GUISetState(@SW_SHOW ,$frmPackSelection)
